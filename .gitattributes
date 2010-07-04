@@ -1,0 +1,3 @@
+*.vcxproj eol=CRLF
+*.cpp eol=LF
+*.hpp eol=LF

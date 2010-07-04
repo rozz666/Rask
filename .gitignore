@@ -1,0 +1,3 @@
+vs10/*
+!vs10/*.vcxproj
+!vs10/*.vcxproj.filters
