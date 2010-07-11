@@ -2,7 +2,7 @@
 #define TUT_CONSOLE_REPORTER
 
 #include <tut/tut.hpp>
-#include <sl/test/Console.hpp>
+#include <rask/test/Console.hpp>
 #include <cassert>
 
 namespace {
@@ -12,25 +12,25 @@ std::ostream& operator<<(std::ostream& os, const tut::test_result& tr)
     switch(tr.result)
     {
     case tut::test_result::ok:
-        os << sl::test::green << "." << sl::test::rc;
+        os << rask::test::green << "." << rask::test::rc;
         break;
     case tut::test_result::fail:
-        os << sl::test::red << '[' << tr.test << "=F]" << sl::test::rc;
+        os << rask::test::red << '[' << tr.test << "=F]" << rask::test::rc;
         break;
     case tut::test_result::ex_ctor:
-        os << sl::test::red << '[' << tr.test << "=C]" << sl::test::rc;
+        os << rask::test::red << '[' << tr.test << "=C]" << rask::test::rc;
         break;
     case tut::test_result::ex:
-        os << sl::test::red << '[' << tr.test << "=X]" << sl::test::rc;
+        os << rask::test::red << '[' << tr.test << "=X]" << rask::test::rc;
         break;
     case tut::test_result::warn:
-        os << sl::test::red << '[' << tr.test << "=W]" << sl::test::rc;
+        os << rask::test::red << '[' << tr.test << "=W]" << rask::test::rc;
         break;
     case tut::test_result::term:
-        os << sl::test::red << '[' << tr.test << "=T]" << sl::test::rc;
+        os << rask::test::red << '[' << tr.test << "=T]" << rask::test::rc;
         break;
     case tut::test_result::rethrown:
-        os << sl::test::red << '[' << tr.test << "=P]" << sl::test::rc;
+        os << rask::test::red << '[' << tr.test << "=P]" << rask::test::rc;
         break;
     case tut::test_result::dummy:
         assert(!"Should never be called");
@@ -129,7 +129,7 @@ public:
 
                 os << "   group: " << tr.group
                 << ", test: test<" << tr.test << ">"
-                << (!tr.name.empty() ? (std::string(" : ") + tr.name) : std::string()) << sl::test::rc
+                << (!tr.name.empty() ? (std::string(" : ") + tr.name) : std::string()) << rask::test::rc
                 << std::endl;
 
 #if defined(TUT_USE_POSIX)
@@ -138,7 +138,7 @@ public:
                     os << "   child pid: " << tr.pid << std::endl;
                 }
 #endif
-                os << "   problem: " << sl::test::red;
+                os << "   problem: " << rask::test::red;
                 switch(tr.result)
                 {
                 case test_result::rethrown:
@@ -167,18 +167,18 @@ public:
                     break;
                 }
 
-                os << sl::test::rc;
+                os << rask::test::rc;
 
                 if (!tr.message.empty())
                 {
                     if (tr.result == test_result::fail)
                     {
-                        os << "   failed assertion: " << sl::test::red << tr.message << sl::test::rc
+                        os << "   failed assertion: " << rask::test::red << tr.message << rask::test::rc
                             << std::endl;
                     }
                     else
                     {
-                        os << "   message: " << sl::test::red << tr.message << sl::test::rc
+                        os << "   message: " << rask::test::red << tr.message << rask::test::rc
                             << std::endl;
                     }
                 }

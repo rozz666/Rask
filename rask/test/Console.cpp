@@ -1,7 +1,7 @@
 #include <Windows.h>
-#include <sl/test/Console.hpp>
+#include <rask/test/Console.hpp>
 
-namespace sl
+namespace rask
 {
 
 namespace test

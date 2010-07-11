@@ -1,9 +1,9 @@
-#ifndef SL_TEST_CONSOLE_HPP
-#define SL_TEST_CONSOLE_HPP
+#ifndef RASK_TEST_CONSOLE_HPP
+#define RASK_TEST_CONSOLE_HPP
 
 #include <ostream>
 
-namespace sl
+namespace rask
 {
 namespace test
 {
@@ -15,4 +15,4 @@ std::ostream& red(std::ostream& os);
 }
 }
 
-#endif /* SL_TEST_CONSOLE_HPP */
+#endif /* RASK_TEST_CONSOLE_HPP */

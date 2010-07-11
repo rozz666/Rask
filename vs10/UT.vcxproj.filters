@@ -13,39 +13,90 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\sl">
+    <Filter Include="Source Files\rask">
       <UniqueIdentifier>{480ca435-30cd-4e0d-8c2d-9e2a35638169}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\sl\main">
+    <Filter Include="Source Files\rask\main">
       <UniqueIdentifier>{ce62165b-0a51-4242-9b45-2a022b76fef8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\sl">
+    <Filter Include="Header Files\rask">
       <UniqueIdentifier>{a2e6b802-edb0-4465-b4b2-e359e6859b21}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\sl\ut">
+    <Filter Include="Header Files\rask\ut">
       <UniqueIdentifier>{121bb40c-39fe-40e5-b091-64af51ef55e9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\sl\test">
+    <Filter Include="Header Files\rask\test">
       <UniqueIdentifier>{89744ee4-0b93-4e16-b7a1-4941517751b6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\sl\test">
+    <Filter Include="Source Files\rask\test">
       <UniqueIdentifier>{25f8841c-0d64-4279-a13c-3a4647b6d184}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\rask\ut">
+      <UniqueIdentifier>{c113f60c-7269-4a70-bf3d-64d6a48e3873}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\rask\ut\cst">
+      <UniqueIdentifier>{a960499f-79cb-4e9a-b9f1-85c4d72eae70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\rask\cst">
+      <UniqueIdentifier>{b5db01ed-110a-46c4-8ace-087380feb628}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\rask\error">
+      <UniqueIdentifier>{83c4aaa4-d640-4acb-87a2-a3bbcf159cfd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\rask\cst">
+      <UniqueIdentifier>{672db258-5876-4edc-89b1-5c1857fbc5af}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\sl\main\ut.cpp">
-      <Filter>Source Files\sl\main</Filter>
+    <ClCompile Include="..\rask\main\ut.cpp">
+      <Filter>Source Files\rask\main</Filter>
     </ClCompile>
-    <ClCompile Include="..\sl\test\Console.cpp">
-      <Filter>Source Files\sl\test</Filter>
+    <ClCompile Include="..\rask\test\Console.cpp">
+      <Filter>Source Files\rask\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\rask\cst\parseMain.cpp">
+      <Filter>Source Files\rask\cst</Filter>
+    </ClCompile>
+    <ClCompile Include="..\rask\ut\cst\parseMainUT.cpp">
+      <Filter>Source Files\rask\ut\cst</Filter>
+    </ClCompile>
+    <ClCompile Include="..\rask\ut\PositionUT.cpp">
+      <Filter>Source Files\rask\ut</Filter>
+    </ClCompile>
+    <ClCompile Include="..\rask\Position.cpp">
+      <Filter>Source Files\rask</Filter>
+    </ClCompile>
+    <ClCompile Include="..\rask\ut\InputStreamUT.cpp">
+      <Filter>Source Files\rask\ut</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\sl\ut\tut_color_console_reporter.hpp">
-      <Filter>Header Files\sl\ut</Filter>
+    <ClInclude Include="..\rask\ut\tut_color_console_reporter.hpp">
+      <Filter>Header Files\rask\ut</Filter>
     </ClInclude>
-    <ClInclude Include="..\sl\test\Console.hpp">
-      <Filter>Header Files\sl\test</Filter>
+    <ClInclude Include="..\rask\test\Console.hpp">
+      <Filter>Header Files\rask\test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\rask\cst\parseMain.hpp">
+      <Filter>Header Files\rask\cst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\rask\InputStream.hpp">
+      <Filter>Header Files\rask</Filter>
+    </ClInclude>
+    <ClInclude Include="..\rask\cst\Function.hpp">
+      <Filter>Header Files\rask\cst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\rask\error\Logger.hpp">
+      <Filter>Header Files\rask\error</Filter>
+    </ClInclude>
+    <ClInclude Include="..\rask\Position.hpp">
+      <Filter>Header Files\rask</Filter>
+    </ClInclude>
+    <ClInclude Include="..\rask\cst\Identifier.hpp">
+      <Filter>Header Files\rask\cst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\rask\cst\Grammar.hpp">
+      <Filter>Header Files\rask\cst</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

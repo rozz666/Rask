@@ -78,12 +78,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\sl\main\ut.cpp" />
-    <ClCompile Include="..\sl\test\Console.cpp" />
+    <ClCompile Include="..\rask\cst\parseMain.cpp" />
+    <ClCompile Include="..\rask\main\ut.cpp" />
+    <ClCompile Include="..\rask\Position.cpp" />
+    <ClCompile Include="..\rask\test\Console.cpp" />
+    <ClCompile Include="..\rask\ut\cst\parseMainUT.cpp" />
+    <ClCompile Include="..\rask\ut\InputStreamUT.cpp" />
+    <ClCompile Include="..\rask\ut\PositionUT.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\sl\test\Console.hpp" />
-    <ClInclude Include="..\sl\ut\tut_color_console_reporter.hpp" />
+    <ClInclude Include="..\rask\cst\Function.hpp" />
+    <ClInclude Include="..\rask\cst\Grammar.hpp" />
+    <ClInclude Include="..\rask\cst\Identifier.hpp" />
+    <ClInclude Include="..\rask\cst\parseMain.hpp" />
+    <ClInclude Include="..\rask\error\Logger.hpp" />
+    <ClInclude Include="..\rask\InputStream.hpp" />
+    <ClInclude Include="..\rask\Position.hpp" />
+    <ClInclude Include="..\rask\test\Console.hpp" />
+    <ClInclude Include="..\rask\ut\tut_color_console_reporter.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
