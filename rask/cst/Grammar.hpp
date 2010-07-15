@@ -93,19 +93,7 @@ template <typename Iterator>
 struct Grammar : qi::grammar<Iterator, cst::Function(), ascii::space_type> 
 {
     Grammar() : Grammar::base_type(function, "function")
-    {/*
-        using qi::char_;
-        using qi::lit;
-        using qi::lexeme;
-        using qi::on_error;
-        using qi::fail;
-        using boost::phoenix::construct;
-        using boost::phoenix::val;
-        using boost::phoenix::ref;
-        using boost::phoenix::at_c;
-        using boost::phoenix::push_back;
-        using namespace qi::labels;*/            
-
+    {
         identifier %= inputPos >> qi::lexeme[qi::char_("a-zA-Z_") >> *qi::char_("a-zA-Z0-9_")];
         function %= identifier >> '(' >> ')' >> "->" >> "void" >> '{' >> '}' >> qi::eoi;
 

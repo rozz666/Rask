@@ -15,7 +15,7 @@ struct Position
     unsigned column;
 
     Position() : row(0), column(0) { }
-    Position(const std::string& file, unsigned row, unsigned column) : file(file), row(row), column(column) { }
+    explicit Position(const std::string& file, unsigned row = 0, unsigned column = 0) : file(file), row(row), column(column) { }
 };
 
 inline bool operator==(const Position& left, const Position& right)

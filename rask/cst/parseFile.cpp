@@ -1,12 +1,12 @@
 #include <rask/cst/Grammar.hpp>
-#include <rask/cst/parseMain.hpp>
+#include <rask/cst/parseFile.hpp>
 
 namespace rask
 {
 namespace cst
 {
 
-boost::optional<Function> parseMain(InputStream& is, error::Logger& )
+boost::optional<Function> parseFile(InputStream& is, error::Logger& logger)
 {
     typedef std::vector<char> Source;
     Source source;
@@ -31,6 +31,8 @@ boost::optional<Function> parseMain(InputStream& is, error::Logger& )
     }
     else
     {
+        logger.log(error::Message::missingMainFunction(Position(is.file())));
+
         return boost::none;
     }
 }

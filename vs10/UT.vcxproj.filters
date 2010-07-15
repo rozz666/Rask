@@ -46,6 +46,12 @@
     <Filter Include="Source Files\rask\cst">
       <UniqueIdentifier>{672db258-5876-4edc-89b1-5c1857fbc5af}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\rask\ut\error">
+      <UniqueIdentifier>{6e3fbd09-917a-4d67-b173-c93e50da1429}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\rask\error">
+      <UniqueIdentifier>{fe6e18d2-93a7-4c94-b892-e36716beb8a8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\rask\main\ut.cpp">
@@ -53,12 +59,6 @@
     </ClCompile>
     <ClCompile Include="..\rask\test\Console.cpp">
       <Filter>Source Files\rask\test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\rask\cst\parseMain.cpp">
-      <Filter>Source Files\rask\cst</Filter>
-    </ClCompile>
-    <ClCompile Include="..\rask\ut\cst\parseMainUT.cpp">
-      <Filter>Source Files\rask\ut\cst</Filter>
     </ClCompile>
     <ClCompile Include="..\rask\ut\PositionUT.cpp">
       <Filter>Source Files\rask\ut</Filter>
@@ -69,6 +69,21 @@
     <ClCompile Include="..\rask\ut\InputStreamUT.cpp">
       <Filter>Source Files\rask\ut</Filter>
     </ClCompile>
+    <ClCompile Include="..\rask\ut\error\LoggerUT.cpp">
+      <Filter>Source Files\rask\ut\error</Filter>
+    </ClCompile>
+    <ClCompile Include="..\rask\ut\error\MessageUT.cpp">
+      <Filter>Source Files\rask\ut\error</Filter>
+    </ClCompile>
+    <ClCompile Include="..\rask\error\Message.cpp">
+      <Filter>Source Files\rask\error</Filter>
+    </ClCompile>
+    <ClCompile Include="..\rask\cst\parseFile.cpp">
+      <Filter>Source Files\rask\cst</Filter>
+    </ClCompile>
+    <ClCompile Include="..\rask\ut\cst\parseFileUT.cpp">
+      <Filter>Source Files\rask\ut\cst</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\rask\ut\tut_color_console_reporter.hpp">
@@ -76,9 +91,6 @@
     </ClInclude>
     <ClInclude Include="..\rask\test\Console.hpp">
       <Filter>Header Files\rask\test</Filter>
-    </ClInclude>
-    <ClInclude Include="..\rask\cst\parseMain.hpp">
-      <Filter>Header Files\rask\cst</Filter>
     </ClInclude>
     <ClInclude Include="..\rask\InputStream.hpp">
       <Filter>Header Files\rask</Filter>
@@ -96,6 +108,12 @@
       <Filter>Header Files\rask\cst</Filter>
     </ClInclude>
     <ClInclude Include="..\rask\cst\Grammar.hpp">
+      <Filter>Header Files\rask\cst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\rask\error\Message.hpp">
+      <Filter>Header Files\rask\error</Filter>
+    </ClInclude>
+    <ClInclude Include="..\rask\cst\parseFile.hpp">
       <Filter>Header Files\rask\cst</Filter>
     </ClInclude>
   </ItemGroup>

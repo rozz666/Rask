@@ -11,7 +11,21 @@ std::ostream& operator<<(std::ostream& os, const Position& p)
     {
         auto flags = os.flags();
 
-        os << std::dec << p.file << '(' << p.row << ", " << p.column << ")";
+        os << std::dec << p.file;
+        
+        if (p.row > 0)
+        {
+            os << '(' << p.row;
+            
+            if (p.column > 0)
+            {
+                os << ", " << p.column << ')';
+            }
+            else
+            {
+                os << ')';
+            }
+        }
 
         os.flags(flags);
     }

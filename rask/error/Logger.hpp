@@ -2,6 +2,8 @@
 #define RASK_ERROR_LOGGER_HPP
 
 #include <vector>
+#include <rask/Position.hpp>
+#include <rask/error/Message.hpp>
 
 namespace rask
 {
@@ -12,12 +14,21 @@ class Logger
 {
 public:
 
-    typedef std::vector<int> Errors;
+    typedef std::vector<Message> Errors;
 
     const Errors errors() const
     {
-        return Errors();
+        return errors_;
     }
+
+    void log(const Message& msg)
+    {
+        errors_.push_back(msg);
+    }
+
+private:
+
+    Errors errors_;
 };
 
 }

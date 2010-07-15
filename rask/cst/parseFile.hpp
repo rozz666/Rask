@@ -11,7 +11,7 @@ namespace rask
 namespace cst
 {
 
-boost::optional<Function> parseMain(InputStream& is, error::Logger& logger);
+boost::optional<Function> parseFile(InputStream& is, error::Logger& logger);
 
 }
 

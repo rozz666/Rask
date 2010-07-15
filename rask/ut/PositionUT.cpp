@@ -1,4 +1,5 @@
 #include <sstream>
+#include <boost/lexical_cast.hpp>
 #include <rask/Position.hpp>
 #include <tut/tut.hpp>
 #include <tut/../contrib/tut_macros.h> 
@@ -84,9 +85,34 @@ template <>
 template <>
 void object::test<6>()
 {
-    std::ostringstream os;
-    os << rask::Position("abc", 123, 456);
-    ensure_equals(os.str(), "abc(123, 456)"); 
+    ensure_equals(boost::lexical_cast<std::string>(rask::Position("abc", 123, 456)), "abc(123, 456)"); 
+    ensure_equals(boost::lexical_cast<std::string>(rask::Position()), "");
+    ensure_equals(boost::lexical_cast<std::string>(rask::Position("abc", 100, 0)), "abc(100)"); 
+    ensure_equals(boost::lexical_cast<std::string>(rask::Position("abc", 100)), "abc(100)"); 
+    ensure_equals(boost::lexical_cast<std::string>(rask::Position("abc", 0, 0)), "abc"); 
+    ensure_equals(boost::lexical_cast<std::string>(rask::Position("abc")), "abc"); 
+}
+
+template <>
+template <>
+void object::test<7>()
+{
+    rask::Position p("asia");
+
+    ensure_equals("file", p.file, "asia");
+    ensure_equals("row", p.row, 0u);
+    ensure_equals("column", p.column, 0u);
+}
+
+template <>
+template <>
+void object::test<8>()
+{
+    rask::Position p("asia", 10);
+
+    ensure_equals("file", p.file, "asia");
+    ensure_equals("row", p.row, 10u);
+    ensure_equals("column", p.column, 0u);
 }
 
 }
