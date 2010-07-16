@@ -20,12 +20,12 @@ boost::optional<Function> parseFile(InputStream& is, error::Logger& logger)
     PosIterator end;
 
     typedef rask::cst::Grammar<PosIterator> Grammar;
-    Grammar grammar;
+    Grammar grammar(logger);
     cst::Function function;
 
     bool r = boost::spirit::qi::phrase_parse(iter, end, grammar, space, function);
 
-    if (r && iter == end)
+    if (r && iter == end && logger.errors().empty())
     {
         return function;
     }

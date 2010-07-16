@@ -16,7 +16,7 @@ public:
 
     typedef std::vector<Message> Errors;
 
-    const Errors errors() const
+    const Errors& errors() const
     {
         return errors_;
     }

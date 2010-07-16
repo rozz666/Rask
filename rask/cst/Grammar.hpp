@@ -19,7 +19,10 @@ namespace rask
 {
 namespace cst
 {
-    BOOST_SPIRIT_TERMINAL(inputPos);
+
+BOOST_SPIRIT_TERMINAL(inputPos);
+BOOST_SPIRIT_TERMINAL_EX(error);
+
 }
 }
 
@@ -29,6 +32,12 @@ namespace spirit
 { 
     template <>
     struct use_terminal<qi::domain, rask::cst::tag::inputPos> : mpl::true_  { }; 
+
+    template <typename A0, typename A1>
+    struct use_terminal<qi::domain, terminal_ex<rask::cst::tag::error, fusion::vector2<A0, A1> > > : mpl::true_ { };
+
+    template <>                    
+    struct use_lazy_terminal<qi::domain, rask::cst::tag::error, 2> : mpl::true_ { };
 }
 }
 
@@ -36,6 +45,7 @@ namespace rask
 {
 namespace cst
 {
+
 struct inputPosParser : boost::spirit::qi::primitive_parser<inputPosParser>
 {
     template <typename Context, typename Iterator>
@@ -48,7 +58,7 @@ struct inputPosParser : boost::spirit::qi::primitive_parser<inputPosParser>
     bool parse(Iterator& first, Iterator const& last, Context&, Skipper const& skipper, Attribute& attr) const
     {
         boost::spirit::qi::skip_over(first, last, skipper);
-        boost::spirit::traits::assign_to(rask::Position(first.get_position().file, first.get_position().line, first.get_position().column), attr);
+        boost::spirit::traits::assign_to(Position(first.get_position().file, first.get_position().line, first.get_position().column), attr);
         return true;
     }
 
@@ -58,6 +68,39 @@ struct inputPosParser : boost::spirit::qi::primitive_parser<inputPosParser>
         return boost::spirit::info("inputPos");
     }
 };
+
+struct errorParser : boost::spirit::qi::primitive_parser<errorParser>
+{
+    template <typename Context, typename Iterator>
+    struct attribute
+    {
+        typedef boost::spirit::unused_type type;
+    };
+
+    typedef error::Message ( *Factory)(const Position& );
+    Factory messageFactory;
+    error::Logger *logger;
+
+    errorParser(Factory messageFactory, error::Logger& logger) : messageFactory(messageFactory), logger(&logger) { }
+
+    template <typename Iterator, typename Context
+        , typename Skipper, typename Attribute>
+    bool parse(Iterator& first, Iterator const& last, Context& , Skipper const& skipper, Attribute& ) const
+    {
+        qi::skip_over(first, last, skipper);
+        logger->log(messageFactory(Position(first.get_position().file, first.get_position().line, first.get_position().column)));
+        return true;
+    }
+
+    template <typename Context>
+    boost::spirit::info what(Context& ) const
+    {
+        return boost::spirit::info("errorParser");
+    }
+};
+
+
+
 }
 }
 
@@ -67,6 +110,7 @@ namespace spirit
 {
 namespace qi
 {
+
 template <typename Modifiers>
 struct make_primitive<rask::cst::tag::inputPos, Modifiers>
 {
@@ -77,6 +121,19 @@ struct make_primitive<rask::cst::tag::inputPos, Modifiers>
         return result_type();
     }
 };
+
+template <typename Modifiers, typename A0, typename A1>
+struct make_primitive<terminal_ex<rask::cst::tag::error, fusion::vector2<A0, A1> >, Modifiers>
+{
+    typedef rask::cst::errorParser result_type;
+
+    template <typename Terminal>
+    result_type operator()(Terminal const& term, unused_type) const
+    {
+        return result_type(fusion::at_c<0>(term.args), *fusion::at_c<1>(term.args));
+    }
+};
+
 }
 }
 }
@@ -89,19 +146,44 @@ namespace cst
 namespace qi = ::boost::spirit::qi;
 namespace ascii = ::boost::spirit::ascii;
 
+namespace detail
+{
+
+struct errorMessageImpl
+{
+    template <typename Logger, typename It>
+    struct result { typedef void type; };
+
+    template <typename Logger, typename It>
+    void operator()(Logger *logger, It it) const
+    {
+        logger->log(error::Message::missingMainFunction(Position(it.get_position().file, it.get_position().line, it.get_position().column)));
+    }
+};
+
+boost::phoenix::function<errorMessageImpl> errorMessage; 
+
+}
+
 template <typename Iterator>
 struct Grammar : qi::grammar<Iterator, cst::Function(), ascii::space_type> 
 {
-    Grammar() : Grammar::base_type(function, "function")
+    Grammar(error::Logger& errorLogger)
+        : Grammar::base_type(function, "function")
     {
         identifier %= inputPos >> qi::lexeme[qi::char_("a-zA-Z_") >> *qi::char_("a-zA-Z0-9_")];
-        function %= identifier >> '(' >> ')' >> "->" >> "void" >> '{' >> '}' >> qi::eoi;
+        returnType %= qi::lit("void");
+        function %= identifier >> '(' >> ')' >> "->" >> (returnType | error(&error::Message::missingReturnType, &errorLogger)) >> '{' >> '}' >> qi::eoi;
 
-        identifier.name("identifier");
-        function.name("function definition");
+        qi::on_error<qi::fail>
+        (
+            returnType,
+            detail::errorMessage(&errorLogger, qi::labels::_3)
+        );
     }
 
     qi::rule<Iterator, cst::Identifier(), ascii::space_type> identifier;
+    qi::rule<Iterator, void(), ascii::space_type> returnType;
     qi::rule<Iterator, cst::Function(), ascii::space_type> function;
 };
 
