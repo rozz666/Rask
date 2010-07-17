@@ -39,6 +39,11 @@ public:
 
     RASK_ERROR_MESSAGE_NP(missingMainFunction, "missing main function")
     RASK_ERROR_MESSAGE_NP(missingReturnType, "missing return type")
+    RASK_ERROR_MESSAGE_NP(missingOpeningBrace, "missing opening brace \'{\'")
+    RASK_ERROR_MESSAGE_NP(missingClosingBrace, "missing opening brace \'{\'")
+    RASK_ERROR_MESSAGE_NP(missingOpeningParen, "missing opening parenthesis \'(\'")
+    RASK_ERROR_MESSAGE_NP(missingClosingParen, "missing closing parenthesis \')\'")
+    RASK_ERROR_MESSAGE_NP(missingRightArrow, "missing \'->\'")
 
 private:
 

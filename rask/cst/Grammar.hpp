@@ -151,13 +151,38 @@ namespace detail
 
 struct errorMessageImpl
 {
-    template <typename Logger, typename It>
+    template <typename Logger, typename What, typename It>
     struct result { typedef void type; };
 
-    template <typename Logger, typename It>
-    void operator()(Logger *logger, It it) const
+    template <typename Logger, typename What, typename It>
+    void operator()(Logger *logger, What what, It it) const
     {
-        logger->log(error::Message::missingMainFunction(Position(it.get_position().file, it.get_position().line, it.get_position().column)));
+        if (what.value.type() == typeid(std::string))
+        {
+            std::string val = boost::get<std::string>(what.value);
+            Position pos(it.get_position().file, it.get_position().line, it.get_position().column);
+
+            if (val == "{")
+            {
+                logger->log(error::Message::missingOpeningBrace(pos));
+            }
+            else if (val == "}")
+            {
+                logger->log(error::Message::missingClosingBrace(pos));
+            }
+            else if (val == "(")
+            {
+                logger->log(error::Message::missingOpeningParen(pos));
+            }
+            else if (val == ")")
+            {
+                logger->log(error::Message::missingClosingParen(pos));
+            }
+            else if (val == "->")
+            {
+                logger->log(error::Message::missingRightArrow(pos));
+            }
+        }
     }
 };
 
@@ -173,12 +198,12 @@ struct Grammar : qi::grammar<Iterator, cst::Function(), ascii::space_type>
     {
         identifier %= inputPos >> qi::lexeme[qi::char_("a-zA-Z_") >> *qi::char_("a-zA-Z0-9_")];
         returnType %= qi::lit("void");
-        function %= identifier >> '(' >> ')' >> "->" >> (returnType | error(&error::Message::missingReturnType, &errorLogger)) >> '{' >> '}' >> qi::eoi;
+        function %= identifier > '(' > ')' > "->" > (returnType | error(&error::Message::missingReturnType, &errorLogger)) > '{' > '}' > qi::eoi;
 
         qi::on_error<qi::fail>
         (
-            returnType,
-            detail::errorMessage(&errorLogger, qi::labels::_3)
+            function,
+            detail::errorMessage(&errorLogger, qi::labels::_4, qi::labels::_3)
         );
     }
 

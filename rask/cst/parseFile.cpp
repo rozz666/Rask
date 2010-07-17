@@ -31,7 +31,10 @@ boost::optional<Function> parseFile(InputStream& is, error::Logger& logger)
     }
     else
     {
-        logger.log(error::Message::missingMainFunction(Position(is.file())));
+        if (iter == end && logger.errors().empty())
+        {
+            logger.log(error::Message::missingMainFunction(Position(is.file())));
+        }
 
         return boost::none;
     }

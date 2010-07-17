@@ -19,12 +19,10 @@ std::ostream& operator<<(std::ostream& os, const Position& p)
             
             if (p.column > 0)
             {
-                os << ", " << p.column << ')';
+                os << ", " << p.column;
             }
-            else
-            {
-                os << ')';
-            }
+
+            os << ')';
         }
 
         os.flags(flags);

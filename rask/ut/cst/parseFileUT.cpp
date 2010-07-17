@@ -89,10 +89,110 @@ void object::test<3>()
     boost::optional<cst::Function> f = cst::parseFile(source, errorLogger);
 
     ensure_not("not parsed", f.is_initialized());
-    ensureErrorCountEquals(2);
-    ensureError(error::Message::missingMainFunction(Position(source.file())));
+    ensureErrorCountEquals(1);
     ensureError(error::Message::missingReturnType(Position(source.file(), 2, 1)));
 }
 
+template <>
+template <>
+void object::test<4>()
+{
+    using namespace rask;
+
+    ss << "main() -> void\n}";
+
+    InputStream source("test.rask", ss);
+
+    boost::optional<cst::Function> f = cst::parseFile(source, errorLogger);
+
+    ensure_not("not parsed", f.is_initialized());
+    ensureErrorCountEquals(1);
+    ensureError(error::Message::missingOpeningBrace(Position(source.file(), 2, 1)));
+}
+
+template <>
+template <>
+void object::test<5>()
+{
+    using namespace rask;
+
+    ss << "main() -> void\n{\n";
+
+    InputStream source("test.rask", ss);
+
+    boost::optional<cst::Function> f = cst::parseFile(source, errorLogger);
+
+    ensure_not("not parsed", f.is_initialized());
+    ensureErrorCountEquals(1);
+    ensureError(error::Message::missingClosingBrace(Position(source.file(), 3, 1)));
+}
+
+template <>
+template <>
+void object::test<6>()
+{
+    using namespace rask;
+
+    ss << "main) -> void\n{\n}";
+
+    InputStream source("test.rask", ss);
+
+    boost::optional<cst::Function> f = cst::parseFile(source, errorLogger);
+
+    ensure_not("not parsed", f.is_initialized());
+    ensureErrorCountEquals(1);
+    ensureError(error::Message::missingOpeningParen(Position(source.file(), 1, 5)));
+}
+
+template <>
+template <>
+void object::test<7>()
+{
+    using namespace rask;
+
+    ss << "main( -> void\n{\n}";
+
+    InputStream source("test.rask", ss);
+
+    boost::optional<cst::Function> f = cst::parseFile(source, errorLogger);
+
+    ensure_not("not parsed", f.is_initialized());
+    ensureErrorCountEquals(1);
+    ensureError(error::Message::missingClosingParen(Position(source.file(), 1, 7)));
+}
+
+template <>
+template <>
+void object::test<8>()
+{
+    using namespace rask;
+
+    ss << "main() - void\n{\n}";
+
+    InputStream source("test.rask", ss);
+
+    boost::optional<cst::Function> f = cst::parseFile(source, errorLogger);
+
+    ensure_not("not parsed", f.is_initialized());
+    ensureErrorCountEquals(1);
+    ensureError(error::Message::missingRightArrow(Position(source.file(), 1, 8)));
+}
+
+template <>
+template <>
+void object::test<9>()
+{
+    using namespace rask;
+
+    ss << "main() > void\n{\n}";
+
+    InputStream source("test.rask", ss);
+
+    boost::optional<cst::Function> f = cst::parseFile(source, errorLogger);
+
+    ensure_not("not parsed", f.is_initialized());
+    ensureErrorCountEquals(1);
+    ensureError(error::Message::missingRightArrow(Position(source.file(), 1, 8)));
+}
 
 }
