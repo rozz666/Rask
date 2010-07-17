@@ -54,13 +54,7 @@ template <>
 template <>
 void object::test<4>()
 {
-    rask::error::Message msg1(rask::Position("asia", 1, 2), "xxx");
-
-    std::ostringstream os;
-
-    os << msg1;
-
-    ensure_equals(os.str(), "asia(1, 2): error: xxx");
+    ensure_equals(boost::lexical_cast<std::string>(rask::error::Message(rask::Position("asia", 1, 2), "xxx")), "asia(1, 2): error: xxx");
 }
 
 template <>
@@ -78,5 +72,46 @@ void object::test<6>()
     using namespace rask;
     ensure_equals(error::Message::missingReturnType(Position("sample.rask", 1, 2)), error::Message(Position("sample.rask", 1, 2), "missing return type"));
 }
+
+template <>
+template <>
+void object::test<7>()
+{
+    using namespace rask;
+    ensure_equals(error::Message::missingOpeningBrace(Position("sample.rask", 1, 2)), error::Message(Position("sample.rask", 1, 2), "missing opening brace '{'"));
+}
+
+template <>
+template <>
+void object::test<8>()
+{
+    using namespace rask;
+    ensure_equals(error::Message::missingClosingBrace(Position("sample.rask", 1, 2)), error::Message(Position("sample.rask", 1, 2), "missing closing brace '}'"));
+}
+
+template <>
+template <>
+void object::test<9>()
+{
+    using namespace rask;
+    ensure_equals(error::Message::missingOpeningParen(Position("sample.rask", 1, 2)), error::Message(Position("sample.rask", 1, 2), "missing opening parenthesis '('"));
+}
+
+template <>
+template <>
+void object::test<10>()
+{
+    using namespace rask;
+    ensure_equals(error::Message::missingClosingParen(Position("sample.rask", 1, 2)), error::Message(Position("sample.rask", 1, 2), "missing closing parenthesis ')'"));
+}
+
+template <>
+template <>
+void object::test<11>()
+{
+    using namespace rask;
+    ensure_equals(error::Message::missingRightArrow(Position("sample.rask", 1, 2)), error::Message(Position("sample.rask", 1, 2), "missing '->'"));
+}
+
 
 }
