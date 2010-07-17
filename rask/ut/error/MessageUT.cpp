@@ -8,6 +8,9 @@ namespace tut
 
 struct Message_TestData
 {
+    rask::Position pos;
+    
+    Message_TestData() : pos("sample.rask", 1, 2) { }
 };
 
 typedef test_group<Message_TestData> factory;
@@ -62,7 +65,7 @@ template <>
 void object::test<5>()
 {
     using namespace rask;
-    ensure_equals(error::Message::missingMainFunction(Position("sample.rask")), error::Message(Position("sample.rask"), "missing main function"));
+    ensure_equals(error::Message::missingMainFunction(pos), error::Message(pos, "missing main function"));
 }
 
 template <>
@@ -70,7 +73,7 @@ template <>
 void object::test<6>()
 {
     using namespace rask;
-    ensure_equals(error::Message::missingReturnType(Position("sample.rask", 1, 2)), error::Message(Position("sample.rask", 1, 2), "missing return type"));
+    ensure_equals(error::Message::missingReturnType(pos), error::Message(pos, "missing return type"));
 }
 
 template <>
@@ -78,7 +81,7 @@ template <>
 void object::test<7>()
 {
     using namespace rask;
-    ensure_equals(error::Message::missingOpeningBrace(Position("sample.rask", 1, 2)), error::Message(Position("sample.rask", 1, 2), "missing opening brace '{'"));
+    ensure_equals(error::Message::missingOpeningBrace(pos), error::Message(pos, "missing opening brace '{'"));
 }
 
 template <>
@@ -86,7 +89,7 @@ template <>
 void object::test<8>()
 {
     using namespace rask;
-    ensure_equals(error::Message::missingClosingBrace(Position("sample.rask", 1, 2)), error::Message(Position("sample.rask", 1, 2), "missing closing brace '}'"));
+    ensure_equals(error::Message::missingClosingBrace(pos), error::Message(pos, "missing closing brace '}'"));
 }
 
 template <>
@@ -94,7 +97,7 @@ template <>
 void object::test<9>()
 {
     using namespace rask;
-    ensure_equals(error::Message::missingOpeningParen(Position("sample.rask", 1, 2)), error::Message(Position("sample.rask", 1, 2), "missing opening parenthesis '('"));
+    ensure_equals(error::Message::missingOpeningParen(pos), error::Message(pos, "missing opening parenthesis '('"));
 }
 
 template <>
@@ -102,7 +105,7 @@ template <>
 void object::test<10>()
 {
     using namespace rask;
-    ensure_equals(error::Message::missingClosingParen(Position("sample.rask", 1, 2)), error::Message(Position("sample.rask", 1, 2), "missing closing parenthesis ')'"));
+    ensure_equals(error::Message::missingClosingParen(pos), error::Message(pos, "missing closing parenthesis ')'"));
 }
 
 template <>
@@ -110,7 +113,7 @@ template <>
 void object::test<11>()
 {
     using namespace rask;
-    ensure_equals(error::Message::missingRightArrow(Position("sample.rask", 1, 2)), error::Message(Position("sample.rask", 1, 2), "missing '->'"));
+    ensure_equals(error::Message::missingRightArrow(pos), error::Message(pos, "missing '->'"));
 }
 
 
