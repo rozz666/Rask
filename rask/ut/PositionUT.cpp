@@ -85,10 +85,10 @@ template <>
 template <>
 void object::test<6>()
 {
-    ensure_equals(boost::lexical_cast<std::string>(rask::Position("abc", 123, 456)), "abc(123, 456)"); 
+    ensure_equals(boost::lexical_cast<std::string>(rask::Position("abc", 123, 456)), "abc:123:456"); 
     ensure_equals(boost::lexical_cast<std::string>(rask::Position()), "");
-    ensure_equals(boost::lexical_cast<std::string>(rask::Position("abc", 100, 0)), "abc(100)"); 
-    ensure_equals(boost::lexical_cast<std::string>(rask::Position("abc", 100)), "abc(100)"); 
+    ensure_equals(boost::lexical_cast<std::string>(rask::Position("abc", 100, 0)), "abc:100"); 
+    ensure_equals(boost::lexical_cast<std::string>(rask::Position("abc", 100)), "abc:100"); 
     ensure_equals(boost::lexical_cast<std::string>(rask::Position("abc", 0, 0)), "abc"); 
     ensure_equals(boost::lexical_cast<std::string>(rask::Position("abc")), "abc"); 
 }

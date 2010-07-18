@@ -1,3 +1,4 @@
+bin
 vs10/*
 !vs10/*.sln
 !vs10/*.vcxproj

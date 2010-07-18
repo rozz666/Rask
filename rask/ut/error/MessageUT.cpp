@@ -57,7 +57,7 @@ template <>
 template <>
 void object::test<4>()
 {
-    ensure_equals(boost::lexical_cast<std::string>(rask::error::Message(rask::Position("asia", 1, 2), "xxx")), "asia(1, 2): error: xxx");
+    ensure_equals(boost::lexical_cast<std::string>(rask::error::Message(pos, "xxx")), boost::lexical_cast<std::string>(pos) + ": error: xxx");
 }
 
 template <>

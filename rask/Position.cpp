@@ -15,14 +15,12 @@ std::ostream& operator<<(std::ostream& os, const Position& p)
         
         if (p.row > 0)
         {
-            os << '(' << p.row;
+            os << ':' << p.row;
             
             if (p.column > 0)
             {
-                os << ", " << p.column;
+                os << ':' << p.column;
             }
-
-            os << ')';
         }
 
         os.flags(flags);
