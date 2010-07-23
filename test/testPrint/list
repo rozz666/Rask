@@ -1,0 +1,8 @@
+print1.rask:test:print1.out
+print2.rask:error:print2.out
+print3.rask:error:print3.out
+print4.rask:error:print4.out
+print5.rask:error:print5.out
+print6.rask:error:print6.out
+print7.rask:error:print7.out
+

@@ -1,0 +1,2 @@
+print4.rask:3:4: error: function print(int, int) not found
+
