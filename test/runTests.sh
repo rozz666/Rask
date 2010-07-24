@@ -1,6 +1,7 @@
 #!/bin/bash
 CURRENT_DIR=`pwd`
 RASKC="$CURRENT_DIR/../bin/release/raskc"
+RASK="$CURRENT_DIR/../bin/release/rask"
 SUITE_LIST=`ls -d test*`
 OK_COUNT=0
 FAILED_COUNT=0
@@ -16,7 +17,7 @@ do
     
     if [ ! -e "list" ]
     then
-        echo "Missing $SUITE_DIR/list"
+        echo "Missing $SUITE/list"
         continue;
     fi
 
@@ -28,7 +29,7 @@ do
 
         if [ ! -e "$EXPECTED_OUTPUT_PATH" ]
         then
-            echo "Missing $SUITE_DIR/$EXPECTED_OUTPUT_PATH"
+            echo "Missing $SUITE/$EXPECTED_OUTPUT_PATH"
             ((ERROR_COUNT+=1))
             continue;
         fi
@@ -41,7 +42,7 @@ do
                 OUTPUT=`$RASKC $SOURCE -n 2>&1 1>/dev/null`;;
             "test")
                 $RASKC "$SOURCE" -o prog.out 2>/dev/null 1>/dev/null;
-                OUTPUT=`./prog.out 2>/dev/null`;
+                OUTPUT=`$RASK prog.out 2>/dev/null`;
                 rm -f prog.out;;
             *)
                 ((ERROR_COUNT+=1));
