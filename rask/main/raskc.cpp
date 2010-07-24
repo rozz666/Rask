@@ -9,7 +9,7 @@ int main(int, char **argv)
     rask::InputStream is(argv[1], f);
     rask::error::Logger logger;
 
-    rask::cst::parseFile(is, logger);
+    boost::optional<rask::cst::Function> mainFunc = rask::cst::parseFile(is, logger);
 
     std::copy(logger.errors().begin(), logger.errors().end(), std::ostream_iterator<rask::error::Message>(std::cerr, "\n"));
 }

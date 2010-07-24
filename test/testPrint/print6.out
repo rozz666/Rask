@@ -1,2 +1,2 @@
-print6.rask:3:8: error: missing opening parenthesis '('
+print6.rask:3:10: error: missing opening parenthesis '('
 

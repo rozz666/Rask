@@ -182,6 +182,10 @@ struct errorMessageImpl
             {
                 logger->log(error::Message::missingRightArrow(pos));
             }
+            else if (val == ";")
+            {
+                logger->log(error::Message::missingSemicolon(pos));
+            }
         }
     }
 };
@@ -198,7 +202,10 @@ struct Grammar : qi::grammar<Iterator, cst::Function(), ascii::space_type>
     {
         identifier %= inputPos >> qi::lexeme[qi::char_("a-zA-Z_") >> *qi::char_("a-zA-Z0-9_")];
         returnType %= qi::lit("void");
-        function %= identifier > '(' > ')' > "->" > (returnType | error(&error::Message::missingReturnType, &errorLogger)) > '{' > '}' > qi::eoi;
+        functionCall %= identifier > '(' > -(qi::int_ % ',') > ')' > ';';
+        function %=
+            identifier > '(' > ')' > "->" > (returnType | error(&error::Message::missingReturnType, &errorLogger)) >
+            '{' > *functionCall > '}' > qi::eoi;
 
         qi::on_error<qi::fail>
         (
@@ -210,6 +217,7 @@ struct Grammar : qi::grammar<Iterator, cst::Function(), ascii::space_type>
     qi::rule<Iterator, cst::Identifier(), ascii::space_type> identifier;
     qi::rule<Iterator, void(), ascii::space_type> returnType;
     qi::rule<Iterator, cst::Function(), ascii::space_type> function;
+    qi::rule<Iterator, cst::FunctionCall(), ascii::space_type> functionCall;
 };
 
 }

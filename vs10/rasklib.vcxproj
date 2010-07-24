@@ -11,9 +11,23 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\rask\ast\parseFunction.cpp" />
     <ClCompile Include="..\rask\cst\parseFile.cpp" />
     <ClCompile Include="..\rask\error\Message.cpp" />
     <ClCompile Include="..\rask\Position.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\rask\ast\Function.hpp" />
+    <ClInclude Include="..\rask\ast\parseFunction.hpp" />
+    <ClInclude Include="..\rask\cst\Function.hpp" />
+    <ClInclude Include="..\rask\cst\FunctionCall.hpp" />
+    <ClInclude Include="..\rask\cst\Grammar.hpp" />
+    <ClInclude Include="..\rask\cst\Identifier.hpp" />
+    <ClInclude Include="..\rask\cst\parseFile.hpp" />
+    <ClInclude Include="..\rask\error\Logger.hpp" />
+    <ClInclude Include="..\rask\error\Message.hpp" />
+    <ClInclude Include="..\rask\InputStream.hpp" />
+    <ClInclude Include="..\rask\Position.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D7DE9900-7B4A-432E-A9A2-C3F94FA29B18}</ProjectGuid>

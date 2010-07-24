@@ -22,6 +22,21 @@
     <Filter Include="Source Files\rask\error">
       <UniqueIdentifier>{6669eff3-1ee6-4b36-836b-1ee03d69dcb1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\rask">
+      <UniqueIdentifier>{7f1d7273-94bc-4a1d-a2e5-6270c4ccc007}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\rask\cst">
+      <UniqueIdentifier>{cd8ba3a3-fd61-4b75-b07b-3614f4901e65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\rask\error">
+      <UniqueIdentifier>{fb676284-6469-43fd-a0fe-c75c9127902d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\rask\ast">
+      <UniqueIdentifier>{5ffc9196-4c83-481f-a68f-e083225d07ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\rask\ast">
+      <UniqueIdentifier>{48f48c6e-16be-4029-ac45-1debc9c3f49d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\rask\Position.cpp">
@@ -33,5 +48,43 @@
     <ClCompile Include="..\rask\error\Message.cpp">
       <Filter>Source Files\rask\error</Filter>
     </ClCompile>
+    <ClCompile Include="..\rask\ast\parseFunction.cpp">
+      <Filter>Source Files\rask\ast</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\rask\InputStream.hpp">
+      <Filter>Header Files\rask</Filter>
+    </ClInclude>
+    <ClInclude Include="..\rask\Position.hpp">
+      <Filter>Header Files\rask</Filter>
+    </ClInclude>
+    <ClInclude Include="..\rask\cst\Function.hpp">
+      <Filter>Header Files\rask\cst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\rask\cst\Grammar.hpp">
+      <Filter>Header Files\rask\cst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\rask\cst\Identifier.hpp">
+      <Filter>Header Files\rask\cst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\rask\cst\parseFile.hpp">
+      <Filter>Header Files\rask\cst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\rask\error\Logger.hpp">
+      <Filter>Header Files\rask\error</Filter>
+    </ClInclude>
+    <ClInclude Include="..\rask\error\Message.hpp">
+      <Filter>Header Files\rask\error</Filter>
+    </ClInclude>
+    <ClInclude Include="..\rask\cst\FunctionCall.hpp">
+      <Filter>Header Files\rask\cst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\rask\ast\parseFunction.hpp">
+      <Filter>Header Files\rask\ast</Filter>
+    </ClInclude>
+    <ClInclude Include="..\rask\ast\Function.hpp">
+      <Filter>Header Files\rask\ast</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

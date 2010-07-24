@@ -86,6 +86,8 @@
   <ItemGroup>
     <ClCompile Include="..\rask\main\ut.cpp" />
     <ClCompile Include="..\rask\test\Console.cpp" />
+    <ClCompile Include="..\rask\ut\ast\FunctionUT.cpp" />
+    <ClCompile Include="..\rask\ut\ast\parseFunctionUT.cpp" />
     <ClCompile Include="..\rask\ut\cst\parseFileUT.cpp" />
     <ClCompile Include="..\rask\ut\error\LoggerUT.cpp" />
     <ClCompile Include="..\rask\ut\error\MessageUT.cpp" />
@@ -93,14 +95,6 @@
     <ClCompile Include="..\rask\ut\PositionUT.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\rask\cst\Function.hpp" />
-    <ClInclude Include="..\rask\cst\Grammar.hpp" />
-    <ClInclude Include="..\rask\cst\Identifier.hpp" />
-    <ClInclude Include="..\rask\cst\parseFile.hpp" />
-    <ClInclude Include="..\rask\error\Logger.hpp" />
-    <ClInclude Include="..\rask\error\Message.hpp" />
-    <ClInclude Include="..\rask\InputStream.hpp" />
-    <ClInclude Include="..\rask\Position.hpp" />
     <ClInclude Include="..\rask\test\Console.hpp" />
     <ClInclude Include="..\rask\ut\tut_color_console_reporter.hpp" />
   </ItemGroup>

@@ -1,2 +1,2 @@
-print7.rask:3:11: error: missing closing parenthesis ')'
+print7.rask:3:13: error: missing closing parenthesis ')'
 
