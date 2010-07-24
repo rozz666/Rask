@@ -13,10 +13,16 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\rask">
+      <UniqueIdentifier>{1629960e-1b06-4cae-b71e-d366549f42e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\rask\main">
+      <UniqueIdentifier>{3f94e437-8e7e-4ce6-aa8c-5a741eb95058}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\rask\main\rask.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\rask\main</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

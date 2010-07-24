@@ -44,6 +44,9 @@ public:
     RASK_ERROR_MESSAGE_NP(missingOpeningParen, "missing opening parenthesis \'(\'")
     RASK_ERROR_MESSAGE_NP(missingClosingParen, "missing closing parenthesis \')\'")
     RASK_ERROR_MESSAGE_NP(missingRightArrow, "missing \'->\'")
+    RASK_ERROR_MESSAGE(unknownIdentifier, (const std::string& id), "unknown identifier \'" << id << "\'")
+    RASK_ERROR_MESSAGE(functionNotFound, (const std::string& f), "function " << f << " not found")
+    RASK_ERROR_MESSAGE_NP(missingSemicolon, "missing \';\'")
 
 private:
 
