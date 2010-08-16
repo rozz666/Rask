@@ -43,6 +43,9 @@
     <Filter Include="Source Files\rask\ut\ast">
       <UniqueIdentifier>{159d79be-96d3-4f78-9f80-171b05b3914f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\rask\ut\cg">
+      <UniqueIdentifier>{f6ecdcc7-db7d-40c7-86a9-7826337d0912}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\rask\main\ut.cpp">
@@ -71,6 +74,9 @@
     </ClCompile>
     <ClCompile Include="..\rask\ut\ast\parseFunctionUT.cpp">
       <Filter>Source Files\rask\ut\ast</Filter>
+    </ClCompile>
+    <ClCompile Include="..\rask\ut\cg\genFunctionUT.cpp">
+      <Filter>Source Files\rask\ut\cg</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

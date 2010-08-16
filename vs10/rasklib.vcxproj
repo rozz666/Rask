@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\rask\ast\parseFunction.cpp" />
+    <ClCompile Include="..\rask\cg\genFunction.cpp" />
     <ClCompile Include="..\rask\cst\parseFile.cpp" />
     <ClCompile Include="..\rask\error\Message.cpp" />
     <ClCompile Include="..\rask\Position.cpp" />
@@ -19,6 +20,7 @@
   <ItemGroup>
     <ClInclude Include="..\rask\ast\Function.hpp" />
     <ClInclude Include="..\rask\ast\parseFunction.hpp" />
+    <ClInclude Include="..\rask\cg\genFunction.hpp" />
     <ClInclude Include="..\rask\cst\Function.hpp" />
     <ClInclude Include="..\rask\cst\FunctionCall.hpp" />
     <ClInclude Include="..\rask\cst\Grammar.hpp" />

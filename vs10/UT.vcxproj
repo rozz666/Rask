@@ -88,6 +88,7 @@
     <ClCompile Include="..\rask\test\Console.cpp" />
     <ClCompile Include="..\rask\ut\ast\FunctionUT.cpp" />
     <ClCompile Include="..\rask\ut\ast\parseFunctionUT.cpp" />
+    <ClCompile Include="..\rask\ut\cg\genFunctionUT.cpp" />
     <ClCompile Include="..\rask\ut\cst\parseFileUT.cpp" />
     <ClCompile Include="..\rask\ut\error\LoggerUT.cpp" />
     <ClCompile Include="..\rask\ut\error\MessageUT.cpp" />

@@ -37,6 +37,12 @@
     <Filter Include="Source Files\rask\ast">
       <UniqueIdentifier>{48f48c6e-16be-4029-ac45-1debc9c3f49d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\rask\cg">
+      <UniqueIdentifier>{cd13392f-36d2-436e-badc-83dde8450440}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\rask\cg">
+      <UniqueIdentifier>{d43262f3-7b41-406e-9a51-29df4faa084a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\rask\Position.cpp">
@@ -50,6 +56,9 @@
     </ClCompile>
     <ClCompile Include="..\rask\ast\parseFunction.cpp">
       <Filter>Source Files\rask\ast</Filter>
+    </ClCompile>
+    <ClCompile Include="..\rask\cg\genFunction.cpp">
+      <Filter>Source Files\rask\cg</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -85,6 +94,9 @@
     </ClInclude>
     <ClInclude Include="..\rask\ast\Function.hpp">
       <Filter>Header Files\rask\ast</Filter>
+    </ClInclude>
+    <ClInclude Include="..\rask\cg\genFunction.hpp">
+      <Filter>Header Files\rask\cg</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
