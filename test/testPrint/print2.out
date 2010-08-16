@@ -1,2 +1,2 @@
-print2.rask:3:4: error: unknown identifier 'xx'
+print2.rask:3:5: error: unknown identifier 'xx'
 

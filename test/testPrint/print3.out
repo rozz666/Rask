@@ -1,2 +1,2 @@
-print3.rask:3:4: error: function print() not found
+print3.rask:3:5: error: function print() not found
 
