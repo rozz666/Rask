@@ -87,7 +87,7 @@ struct errorParser : boost::spirit::qi::primitive_parser<errorParser>
         , typename Skipper, typename Attribute>
     bool parse(Iterator& first, Iterator const& last, Context& , Skipper const& skipper, Attribute& ) const
     {
-        qi::skip_over(first, last, skipper);
+        boost::spirit::qi::skip_over(first, last, skipper);
         logger->log(messageFactory(Position(first.get_position().file, first.get_position().line, first.get_position().column)));
         return true;
     }
@@ -224,3 +224,4 @@ struct Grammar : qi::grammar<Iterator, cst::Function(), ascii::space_type>
 }
 
 #endif /* RASK_CST_GRAMMAR_HPP */
+
