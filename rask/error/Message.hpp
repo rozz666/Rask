@@ -1,3 +1,11 @@
+// Rask
+//
+// Copyright (c) 2010 Rafal Przywarski
+//
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
+//
 #ifndef SL_ERR_MESSAGE_HPP
 #define SL_ERR_MESSAGE_HPP
 
