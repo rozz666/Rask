@@ -37,7 +37,7 @@ boost::optional<Function> parseFunction(const cst::Function& cf, error::Logger& 
             {
                 os << "int";
 
-                for (auto n = call.args.size(); n != 1; --n) os << ", int";
+                for (std::size_t n = call.args.size(); n != 1; --n) os << ", int";
             }
 
             os << ")";

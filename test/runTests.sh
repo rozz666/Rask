@@ -1,7 +1,7 @@
 #!/bin/bash
 CURRENT_DIR=`pwd`
-RASKC="$CURRENT_DIR/../bin/release/raskc"
-RASK="$CURRENT_DIR/../bin/release/rask"
+RASKC="$CURRENT_DIR/../bin/Release/raskc"
+RASK="$CURRENT_DIR/../bin/Release/rask"
 SUITE_LIST=`ls -d test*`
 OK_COUNT=0
 FAILED_COUNT=0

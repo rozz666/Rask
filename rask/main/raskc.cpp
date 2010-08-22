@@ -65,7 +65,7 @@ int main(int argc, char **argv)
         return 1;
     } 
 
-    std::ifstream f(params.inputFiles[0]);
+    std::ifstream f(params.inputFiles[0].c_str());
     rask::InputStream is(params.inputFiles[0], f);
     rask::error::Logger logger;
 
@@ -77,7 +77,7 @@ int main(int argc, char **argv)
 
         if (mainFunc2 && !params.noOutput)
         {
-            std::ofstream of(params.outputFile, std::ios::binary);
+            std::ofstream of(params.outputFile.c_str(), std::ios::binary);
 
             cg::BytecodeBuffer bb = cg::genFunction(*mainFunc2);
             
