@@ -11,7 +11,7 @@
 #include <fstream>
 #include <boost/program_options.hpp> 
 #include <rask/cst/parseFile.hpp>
-#include <rask/ast/parseFunction.hpp>
+#include <rask/ast/buildAST.hpp>
 #include <rask/cg/genFunction.hpp>
 
 struct Parameters
@@ -73,13 +73,13 @@ int main(int argc, char **argv)
 
     if (cst)
     {
-        boost::optional<rask::ast::Function> mainFunc2 = rask::ast::parseFunction(cst->main, logger);
+        boost::optional<rask::ast::Tree> ast = rask::ast::buildAST(*cst, logger);
 
-        if (mainFunc2 && !params.noOutput)
+        if (ast && !params.noOutput)
         {
             std::ofstream of(params.outputFile.c_str(), std::ios::binary);
 
-            cg::BytecodeBuffer bb = cg::genFunction(*mainFunc2);
+            cg::BytecodeBuffer bb = cg::genFunction(ast->main);
             
             of.write(reinterpret_cast<const char *>(&bb.front()), sizeof(bb[0]) * bb.size());
         }

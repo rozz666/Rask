@@ -12,9 +12,9 @@ execute_process(COMMAND llvm-config --libs all OUTPUT_VARIABLE LLVM_LIBS OUTPUT_
 set( CMAKE_CXX_FLAGS "${LLVM_CXX_FLAGS}" )
 set( CMAKE_EXE_LINKER_FLAGS "${LLVM_LIB_FLAGS}" )
 
-add_library(raskcore STATIC rask/cg/genFunctionIR.cpp rask/ast/parseFunction.cpp rask/cg/genFunction.cpp rask/cst/parseFile.cpp rask/error/Message.cpp rask/Position.cpp)
+add_library(raskcore STATIC rask/cg/genFunctionIR.cpp rask/ast/parseFunction.cpp rask/cg/genFunction.cpp rask/cst/parseFile.cpp rask/error/Message.cpp rask/Position.cpp rask/ast/buildAST.cpp)
 ADD_EXECUTABLE(rask rask/main/rask.cpp)
-ADD_EXECUTABLE(raskut rask/main/ut.cpp rask/ut/ast/FunctionUT.cpp rask/ut/ast/parseFunctionUT.cpp rask/ut/cg/genFunctionUT.cpp rask/ut/cst/parseFileUT.cpp rask/ut/error/LoggerUT.cpp rask/ut/error/MessageUT.cpp rask/ut/InputStreamUT.cpp rask/ut/PositionUT.cpp rask/ut/cg/genFunctionIRUT.cpp rask/test/Console.cpp)
+ADD_EXECUTABLE(raskut rask/main/ut.cpp rask/ut/ast/FunctionUT.cpp rask/ut/ast/buildASTUT.cpp rask/ut/cg/genFunctionUT.cpp rask/ut/cst/parseFileUT.cpp rask/ut/error/LoggerUT.cpp rask/ut/error/MessageUT.cpp rask/ut/InputStreamUT.cpp rask/ut/PositionUT.cpp rask/ut/cg/genFunctionIRUT.cpp rask/test/Console.cpp)
 ADD_EXECUTABLE(raskc rask/main/raskc.cpp)
 
 target_link_libraries(raskc raskcore boost_program_options pthread ${LLVM_LIBS})
