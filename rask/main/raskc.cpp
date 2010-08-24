@@ -69,11 +69,11 @@ int main(int argc, char **argv)
     rask::InputStream is(params.inputFiles[0], f);
     rask::error::Logger logger;
 
-    boost::optional<rask::cst::Function> mainFunc = rask::cst::parseFile(is, logger);
+    boost::optional<rask::cst::Tree> cst = rask::cst::parseFile(is, logger);
 
-    if (mainFunc)
+    if (cst)
     {
-        boost::optional<rask::ast::Function> mainFunc2 = rask::ast::parseFunction(*mainFunc, logger);
+        boost::optional<rask::ast::Function> mainFunc2 = rask::ast::parseFunction(cst->main, logger);
 
         if (mainFunc2 && !params.noOutput)
         {

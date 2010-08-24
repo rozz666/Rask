@@ -14,7 +14,7 @@ namespace rask
 namespace cst
 {
 
-boost::optional<Function> parseFile(InputStream& is, error::Logger& logger)
+boost::optional<Tree> parseFile(InputStream& is, error::Logger& logger)
 {
     typedef std::vector<char> Source;
     Source source;
@@ -29,13 +29,13 @@ boost::optional<Function> parseFile(InputStream& is, error::Logger& logger)
 
     typedef rask::cst::Grammar<PosIterator> Grammar;
     Grammar grammar(logger);
-    cst::Function function;
+    cst::Tree cst;
 
-    bool r = boost::spirit::qi::phrase_parse(iter, end, grammar, space, function);
+    bool r = boost::spirit::qi::phrase_parse(iter, end, grammar, space, cst.main);
 
     if (r && iter == end && logger.errors().empty())
     {
-        return function;
+        return cst;
     }
     else
     {

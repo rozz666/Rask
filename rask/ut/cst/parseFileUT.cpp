@@ -61,11 +61,11 @@ void object::test<1>()
 
     InputStream source("test.rask", ss);
 
-    boost::optional<cst::Function> f = cst::parseFile(source, errorLogger);
+    boost::optional<cst::Tree> tree = cst::parseFile(source, errorLogger);
 
-    ensure("parsed", f.is_initialized());
-    ensure_equals("name", f->name.value, "main");
-    ensure_equals("name pos", f->name.position, Position(source.file(), 1, 1));
+    ensure("parsed", tree);
+    ensure_equals("name", tree->main.name.value, "main");
+    ensure_equals("name pos", tree->main.name.position, Position(source.file(), 1, 1));
     ensureNoErrors();
 }
 
@@ -77,9 +77,7 @@ void object::test<2>()
 
     InputStream source("test.rask", ss);
 
-    boost::optional<cst::Function> f = cst::parseFile(source, errorLogger);
-
-    ensure_not("not parsed", f.is_initialized());
+    ensure_not("not parsed", cst::parseFile(source, errorLogger));
     ensureErrorCountEquals(1);
     ensureError(error::Message::missingMainFunction(Position(source.file())));
 }
@@ -94,9 +92,7 @@ void object::test<3>()
 
     InputStream source("test.rask", ss);
 
-    boost::optional<cst::Function> f = cst::parseFile(source, errorLogger);
-
-    ensure_not("not parsed", f.is_initialized());
+    ensure_not("not parsed", cst::parseFile(source, errorLogger));
     ensureErrorCountEquals(1);
     ensureError(error::Message::missingReturnType(Position(source.file(), 2, 1)));
 }
@@ -111,9 +107,7 @@ void object::test<4>()
 
     InputStream source("test.rask", ss);
 
-    boost::optional<cst::Function> f = cst::parseFile(source, errorLogger);
-
-    ensure_not("not parsed", f.is_initialized());
+    ensure_not("not parsed", cst::parseFile(source, errorLogger));
     ensureErrorCountEquals(1);
     ensureError(error::Message::missingOpeningBrace(Position(source.file(), 2, 1)));
 }
@@ -128,9 +122,7 @@ void object::test<5>()
 
     InputStream source("test.rask", ss);
 
-    boost::optional<cst::Function> f = cst::parseFile(source, errorLogger);
-
-    ensure_not("not parsed", f.is_initialized());
+    ensure_not("not parsed", cst::parseFile(source, errorLogger));
     ensureErrorCountEquals(1);
     ensureError(error::Message::missingClosingBrace(Position(source.file(), 3, 1)));
 }
@@ -145,9 +137,7 @@ void object::test<6>()
 
     InputStream source("test.rask", ss);
 
-    boost::optional<cst::Function> f = cst::parseFile(source, errorLogger);
-
-    ensure_not("not parsed", f.is_initialized());
+    ensure_not("not parsed", cst::parseFile(source, errorLogger));
     ensureErrorCountEquals(1);
     ensureError(error::Message::missingOpeningParen(Position(source.file(), 1, 5)));
 }
@@ -162,9 +152,7 @@ void object::test<7>()
 
     InputStream source("test.rask", ss);
 
-    boost::optional<cst::Function> f = cst::parseFile(source, errorLogger);
-
-    ensure_not("not parsed", f.is_initialized());
+    ensure_not("not parsed", cst::parseFile(source, errorLogger));
     ensureErrorCountEquals(1);
     ensureError(error::Message::missingClosingParen(Position(source.file(), 1, 7)));
 }
@@ -179,9 +167,7 @@ void object::test<8>()
 
     InputStream source("test.rask", ss);
 
-    boost::optional<cst::Function> f = cst::parseFile(source, errorLogger);
-
-    ensure_not("not parsed", f.is_initialized());
+    ensure_not("not parsed", cst::parseFile(source, errorLogger));
     ensureErrorCountEquals(1);
     ensureError(error::Message::missingRightArrow(Position(source.file(), 1, 8)));
 }
@@ -196,9 +182,7 @@ void object::test<9>()
 
     InputStream source("test.rask", ss);
 
-    boost::optional<cst::Function> f = cst::parseFile(source, errorLogger);
-
-    ensure_not("not parsed", f.is_initialized());
+    ensure_not("not parsed", cst::parseFile(source, errorLogger));
     ensureErrorCountEquals(1);
     ensureError(error::Message::missingRightArrow(Position(source.file(), 1, 8)));
 }
@@ -213,27 +197,27 @@ void object::test<10>()
 
     InputStream source("test.rask", ss);
 
-    boost::optional<cst::Function> f = cst::parseFile(source, errorLogger);
+    boost::optional<cst::Tree> tree = cst::parseFile(source, errorLogger);
 
-    ensure("parsed", f.is_initialized());
-    ensure_equals("name", f->name.value, "main");
-    ensure_equals("name pos", f->name.position, Position(source.file(), 1, 1));
-    ensure_equals("count", f->calls.size(), 3u);
+    ensure("parsed", tree);
+    ensure_equals("name", tree->main.name.value, "main");
+    ensure_equals("name pos", tree->main.name.position, Position(source.file(), 1, 1));
+    ensure_equals("count", tree->main.calls.size(), 3u);
 
-    ensure_equals("function 1", f->calls[0].function.value, "abcd");
-    ensure_equals("function pos 1", f->calls[0].function.position, Position(source.file(), 3, 5));
-    ensure_equals("count 1", f->calls[0].args.size(), 0u);
+    ensure_equals("function 1", tree->main.calls[0].function.value, "abcd");
+    ensure_equals("function pos 1", tree->main.calls[0].function.position, Position(source.file(), 3, 5));
+    ensure_equals("count 1", tree->main.calls[0].args.size(), 0u);
 
-    ensure_equals("function 2", f->calls[1].function.value, "efgh");
-    ensure_equals("function pos 2", f->calls[1].function.position, Position(source.file(), 4, 5));
-    ensure_equals("count 2", f->calls[1].args.size(), 1u);
-    ensure_equals("value 2", f->calls[1].args[0], -2);
+    ensure_equals("function 2", tree->main.calls[1].function.value, "efgh");
+    ensure_equals("function pos 2", tree->main.calls[1].function.position, Position(source.file(), 4, 5));
+    ensure_equals("count 2", tree->main.calls[1].args.size(), 1u);
+    ensure_equals("value 2", tree->main.calls[1].args[0], -2);
 
-    ensure_equals("function 3", f->calls[2].function.value, "ijkl");
-    ensure_equals("function pos 3", f->calls[2].function.position, Position(source.file(), 5, 5));
-    ensure_equals("count 3", f->calls[2].args.size(), 2u);
-    ensure_equals("value 3", f->calls[2].args[0], 2);
-    ensure_equals("value 4", f->calls[2].args[1], 3);
+    ensure_equals("function 3", tree->main.calls[2].function.value, "ijkl");
+    ensure_equals("function pos 3", tree->main.calls[2].function.position, Position(source.file(), 5, 5));
+    ensure_equals("count 3", tree->main.calls[2].args.size(), 2u);
+    ensure_equals("value 3", tree->main.calls[2].args[0], 2);
+    ensure_equals("value 4", tree->main.calls[2].args[1], 3);
     ensureNoErrors();
 }
 
@@ -247,9 +231,7 @@ void object::test<11>()
 
     InputStream source("test.rask", ss);
 
-    boost::optional<cst::Function> f = cst::parseFile(source, errorLogger);
-
-    ensure_not("not parsed", f.is_initialized());
+    ensure_not("not parsed", cst::parseFile(source, errorLogger));
     ensureErrorCountEquals(1);
     ensureError(error::Message::missingSemicolon(Position(source.file(), 4, 1)));
 }
@@ -264,9 +246,7 @@ void object::test<12>()
 
     InputStream source("test.rask", ss);
 
-    boost::optional<cst::Function> f = cst::parseFile(source, errorLogger);
-
-    ensure_not("not parsed", f.is_initialized());
+    ensure_not("not parsed", cst::parseFile(source, errorLogger));
     ensureErrorCountEquals(1);
     ensureError(error::Message::missingOpeningParen(Position(source.file(), 3, 10)));
 }
@@ -281,9 +261,7 @@ void object::test<13>()
 
     InputStream source("test.rask", ss);
 
-    boost::optional<cst::Function> f = cst::parseFile(source, errorLogger);
-
-    ensure_not("not parsed", f.is_initialized());
+    ensure_not("not parsed", cst::parseFile(source, errorLogger));
     ensureErrorCountEquals(1);
     ensureError(error::Message::missingClosingParen(Position(source.file(), 3, 13)));
 }
