@@ -8,14 +8,14 @@
 //
 #include <sstream>
 #include <boost/foreach.hpp>
-#include <rask/ast/parseFunction.hpp>
+#include <rask/ast/buildFunctionAST.hpp>
 
 namespace rask
 {
 namespace ast
 {
 
-boost::optional<Function> parseFunction(const cst::Function& cf, error::Logger& logger)
+boost::optional<Function> buildFunctionAST(const cst::Function& cf, error::Logger& logger)
 {
     Function af;
 

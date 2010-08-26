@@ -19,7 +19,7 @@ namespace rask
 namespace ast
 {
 
-boost::optional<Function> parseFunction(const cst::Function& cf, error::Logger& logger);
+boost::optional<Function> buildFunctionAST(const cst::Function& cf, error::Logger& logger);
 
 }
 }
