@@ -10,6 +10,7 @@
 #include <tut/../contrib/tut_macros.h>
 #include <llvm/LLVMContext.h>
 #include <llvm/DerivedTypes.h>
+#include <rask/test/TUTAssert.hpp>
 #include <rask/cg/CodeGenerator.hpp>
 
 namespace tut
@@ -32,12 +33,26 @@ class CodeGeneratorMock : public rask::cg::CodeGenerator
 public:
 
     rask::ast::Function function;
+    llvm::Function *genFunctionResult;
+    int declBuiltinFunctionsCalled;
+    int genFunctionCalled;
+    int counter;
+
+    CodeGeneratorMock() : genFunctionResult(0), declBuiltinFunctionsCalled(false), genFunctionCalled(0), counter(0) { }
     
     virtual llvm::Function *genFunctionIR(const rask::ast::Function& f, llvm::Module *module)
     {
+        genFunctionCalled = ++counter;
         function = f;
         
-        return llvm::Function::Create(llvm::FunctionType::get(llvm::Type::getVoidTy(module->getContext()), false), llvm::Function::ExternalLinkage, "stub", module);
+        genFunctionResult = llvm::Function::Create(llvm::FunctionType::get(llvm::Type::getVoidTy(module->getContext()), false), llvm::Function::ExternalLinkage, "stub", module);
+
+        return genFunctionResult;
+    }
+
+    virtual void declBuiltinFunctions(llvm::Module *module)
+    {
+        declBuiltinFunctionsCalled = ++counter;
     }
 };
 
@@ -60,8 +75,10 @@ void object::test<1>()
     llvm::Module *module = cg.genModule(ast, context);
 
     ensure_equals("context", &module->getContext(), &context);
-    ensure_equals("main", module->getFunctionList().size(), 1u);
-    ensure_equals("stub", module->getFunctionList().front().getNameStr(), "stub");
+    ensure_equals("builtin", cg.declBuiltinFunctionsCalled, 1);
+    ensure_equals("gen", cg.genFunctionCalled, 2);
+    ensure_size("main", module->getFunctionList(), 1u);
+    ensure_contains("stub", module->getFunctionList(), cg.genFunctionResult);
     ensure("function", cg.function == ast.main);
 }
 

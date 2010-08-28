@@ -19,6 +19,7 @@ llvm::Module *CodeGenerator::genModule(const ast::Tree& ast, llvm::LLVMContext& 
 {
     llvm::Module *module = new llvm::Module("mainModule", context);
 
+    declBuiltinFunctions(module);
     genFunctionIR(ast.main, module);
 
     return module;
