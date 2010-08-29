@@ -6,32 +6,32 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#ifndef RASK_CST_FUNCTION_HPP
-#define RASK_CST_FUNCTION_HPP
+#ifndef RASK_CST_VARDECL_HPP
+#define RASK_CST_VARDECL_HPP
 
-#include <vector>
-#include <boost/fusion/adapted/struct/adapt_struct.hpp> 
+#include <boost/cstdint.hpp>
+#include <boost/optional.hpp>
+#include <boost/fusion/adapted/struct/adapt_struct.hpp>
 #include <rask/cst/Identifier.hpp>
-#include <rask/cst/Statement.hpp>
 
 namespace rask
 {
 namespace cst
 {
 
-struct Function
+struct VarDecl
 {
     Identifier name;
-    std::vector<Statement> stmts;
+    boost::optional<boost::int32_t> value;
 };
 
 }
 }
 
 BOOST_FUSION_ADAPT_STRUCT(
-    rask::cst::Function,
+    rask::cst::VarDecl,
     (rask::cst::Identifier, name)
-    (std::vector<rask::cst::Statement>, stmts)
+    (boost::optional<boost::int32_t>, value)
 )
-
-#endif /* RASK_CST_FUNCTION_HPP */
+                          
+#endif // RASK_CST_VARDECL_HPP

@@ -37,6 +37,16 @@ struct parseMain_TestData
 
         ensure(info.str(), std::find(errorLogger.errors().begin(), errorLogger.errors().end(), msg) != errorLogger.errors().end());
     }
+
+    const rask::cst::FunctionCall& getFCall(const rask::cst::Statement& stmt)
+    {
+        return boost::get<rask::cst::FunctionCall>(stmt);
+    }
+
+    const rask::cst::VarDecl& getVDecl(const rask::cst::Statement& stmt)
+    {
+        return boost::get<rask::cst::VarDecl>(stmt);
+    }
 };
 
 typedef test_group<parseMain_TestData> factory;
@@ -202,22 +212,22 @@ void object::test<10>()
     ensure("parsed", tree);
     ensure_equals("name", tree->main.name.value, "main");
     ensure_equals("name pos", tree->main.name.position, Position(source.file(), 1, 1));
-    ensure_equals("count", tree->main.calls.size(), 3u);
+    ensure_equals("count", tree->main.stmts.size(), 3u);
 
-    ensure_equals("function 1", tree->main.calls[0].function.value, "abcd");
-    ensure_equals("function pos 1", tree->main.calls[0].function.position, Position(source.file(), 3, 5));
-    ensure_equals("count 1", tree->main.calls[0].args.size(), 0u);
+    ensure_equals("function 1", getFCall(tree->main.stmts[0]).function.value, "abcd");
+    ensure_equals("function pos 1", getFCall(tree->main.stmts[0]).function.position, Position(source.file(), 3, 5));
+    ensure_equals("count 1", getFCall(tree->main.stmts[0]).args.size(), 0u);
 
-    ensure_equals("function 2", tree->main.calls[1].function.value, "efgh");
-    ensure_equals("function pos 2", tree->main.calls[1].function.position, Position(source.file(), 4, 5));
-    ensure_equals("count 2", tree->main.calls[1].args.size(), 1u);
-    ensure_equals("value 2", tree->main.calls[1].args[0], -2);
+    ensure_equals("function 2", getFCall(tree->main.stmts[1]).function.value, "efgh");
+    ensure_equals("function pos 2", getFCall(tree->main.stmts[1]).function.position, Position(source.file(), 4, 5));
+    ensure_equals("count 2", getFCall(tree->main.stmts[1]).args.size(), 1u);
+    ensure_equals("value 2", getFCall(tree->main.stmts[1]).args[0], -2);
 
-    ensure_equals("function 3", tree->main.calls[2].function.value, "ijkl");
-    ensure_equals("function pos 3", tree->main.calls[2].function.position, Position(source.file(), 5, 5));
-    ensure_equals("count 3", tree->main.calls[2].args.size(), 2u);
-    ensure_equals("value 3", tree->main.calls[2].args[0], 2);
-    ensure_equals("value 4", tree->main.calls[2].args[1], 3);
+    ensure_equals("function 3", getFCall(tree->main.stmts[2]).function.value, "ijkl");
+    ensure_equals("function pos 3", getFCall(tree->main.stmts[2]).function.position, Position(source.file(), 5, 5));
+    ensure_equals("count 3", getFCall(tree->main.stmts[2]).args.size(), 2u);
+    ensure_equals("value 3", getFCall(tree->main.stmts[2]).args[0], 2);
+    ensure_equals("value 4", getFCall(tree->main.stmts[2]).args[1], 3);
     ensureNoErrors();
 }
 
@@ -264,6 +274,32 @@ void object::test<13>()
     ensure_not("not parsed", cst::parseFile(source, errorLogger));
     ensureErrorCountEquals(1);
     ensureError(error::Message::missingClosingParen(Position(source.file(), 3, 13)));
+}
+
+template <>
+template <>
+void object::test<14>()
+{
+    using namespace rask;
+
+    ss << "main() -> void\n{\n    var x;\n    var y = -2;\n}";
+
+    InputStream source("test.rask", ss);
+
+    boost::optional<cst::Tree> tree = cst::parseFile(source, errorLogger);
+    
+    ensure("parsed", tree);
+    ensureNoErrors();
+
+    ensure_equals("statements", tree->main.stmts.size(), 2u);
+
+    ensure_equals("x position", getVDecl(tree->main.stmts[0]).name.position, Position(source.file(), 3, 9));
+    ensure_equals("x name", getVDecl(tree->main.stmts[0]).name.value, "x");
+    ensure_not("x value", getVDecl(tree->main.stmts[0]).value);
+
+    ensure_equals("y position", getVDecl(tree->main.stmts[1]).name.position, Position(source.file(), 4, 9));
+    ensure_equals("y name", getVDecl(tree->main.stmts[1]).name.value, "y");
+    ensure_equals("y value", getVDecl(tree->main.stmts[1]).value, -2);
 }
 
 }

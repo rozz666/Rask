@@ -49,9 +49,16 @@ do
             "error") 
                 OUTPUT=`$RASKC $SOURCE -n 2>&1 1>/dev/null`;;
             "test")
-                $RASKC "$SOURCE" -o prog.out 2>/dev/null 1>/dev/null;
-                OUTPUT=`$RASK prog.out 2>/dev/null`;
-                rm -f prog.out;;
+                COUTPUT=`$RASKC $SOURCE -o prog.out 2>&1 1>/dev/null`;
+
+                if [ "$COUTPUT" == "" ]
+                then
+                    OUTPUT=`$RASK prog.out 2>/dev/null`;
+                    rm -f prog.out;
+                else
+                    OUTPUT="$COUTPUT";
+                fi;;
+
             *)
                 ((ERROR_COUNT+=1));
                 echo -n "E";

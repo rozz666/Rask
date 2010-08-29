@@ -210,10 +210,12 @@ struct Grammar : qi::grammar<Iterator, cst::Function(), ascii::space_type>
     {
         identifier %= inputPos >> qi::lexeme[qi::char_("a-zA-Z_") >> *qi::char_("a-zA-Z0-9_")];
         returnType %= qi::lit("void");
-        functionCall %= identifier > '(' > -(qi::int_ % ',') > ')' > ';';
+        functionCall %= identifier > '(' > -(qi::int_ % ',') > ')';
+        variableDeclaration %= qi::lit("var") > identifier > -('=' > qi::int_);
+        statement %= (variableDeclaration | functionCall) > ';';
         function %=
             identifier > '(' > ')' > "->" > (returnType | error(&error::Message::missingReturnType, &errorLogger)) >
-            '{' > *functionCall > '}' > qi::eoi;
+            '{' > *statement > '}' > qi::eoi;
 
         qi::on_error<qi::fail>
         (
@@ -226,6 +228,8 @@ struct Grammar : qi::grammar<Iterator, cst::Function(), ascii::space_type>
     qi::rule<Iterator, void(), ascii::space_type> returnType;
     qi::rule<Iterator, cst::Function(), ascii::space_type> function;
     qi::rule<Iterator, cst::FunctionCall(), ascii::space_type> functionCall;
+    qi::rule<Iterator, cst::Statement(), ascii::space_type> statement;
+    qi::rule<Iterator, cst::VarDecl(), ascii::space_type> variableDeclaration;
 };
 
 }

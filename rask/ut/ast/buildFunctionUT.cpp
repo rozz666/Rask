@@ -45,22 +45,25 @@ void object::test<1>()
 {
     using namespace rask;
     
-    cf.calls.resize(2);
-    cf.calls[0].function.value = "print";
-    cf.calls[0].function.position = Position(file, 2, 4);
-    cf.calls[0].args.push_back(1);
+    cf.stmts.resize(2, cst::FunctionCall());
+    cst::FunctionCall& call1 = boost::get<cst::FunctionCall>(cf.stmts[0]);
+    cst::FunctionCall& call2 = boost::get<cst::FunctionCall>(cf.stmts[1]);
+    
+    call1.function.value = "print";
+    call1.function.position = Position(file, 2, 4);
+    call1.args.push_back(1);
 
-    cf.calls[1].function.value = "print";
-    cf.calls[1].function.position = Position(file, 3, 4);
-    cf.calls[1].args.push_back(2);
+    call2.function.value = "print";
+    call2.function.position = Position(file, 3, 4);
+    call2.args.push_back(2);
 
     boost::optional<ast::Function> f = builder.buildFunction(cf, logger);
 
     ensure("built", f);
     ensure_equals("no errors", logger.errors().size(), 0u);
     ensure_equals("value count", f->valueCount(), 2u);
-    ensure_equals("value 1", f->value(0), 1);
-    ensure_equals("value 2", f->value(1), 2);
+    ensure_equals("value 1", f->value(0), call1.args[0]);
+    ensure_equals("value 2", f->value(1), call2.args[0]);
 }
 
 template <>
@@ -69,13 +72,14 @@ void object::test<2>()
 {
     using namespace rask;
     
-    cf.calls.resize(1);
-    cf.calls[0].function.value = "xxx";
-    cf.calls[0].function.position = Position(file, 2, 4);
+    cf.stmts.push_back(cst::FunctionCall());
+    cst::FunctionCall& call1 = boost::get<cst::FunctionCall>(cf.stmts[0]);
+    call1.function.value = "xxx";
+    call1.function.position = Position(file, 2, 4);
 
     ensure_not("not built", builder.buildFunction(cf, logger));
     ensure_equals("errors", logger.errors().size(), 1u);
-    ensure_equals(logger.errors()[0], error::Message::unknownIdentifier(cf.calls[0].function.position, cf.calls[0].function.value));
+    ensure_equals(logger.errors()[0], error::Message::unknownIdentifier(call1.function.position, call1.function.value));
 }
 
 template <>
@@ -84,13 +88,14 @@ void object::test<3>()
 {
     using namespace rask;
    
-    cf.calls.resize(1);
-    cf.calls[0].function.value = "print";
-    cf.calls[0].function.position = Position(file, 2, 4);
+    cf.stmts.push_back(cst::FunctionCall());
+    cst::FunctionCall& call1 = boost::get<cst::FunctionCall>(cf.stmts[0]);
+    call1.function.value = "print";
+    call1.function.position = Position(file, 2, 4);
 
     ensure_not("not built", builder.buildFunction(cf, logger));
     ensure_equals("errors", logger.errors().size(), 1u);
-    ensure_equals(logger.errors()[0], error::Message::functionNotFound(cf.calls[0].function.position, "print()"));
+    ensure_equals(logger.errors()[0], error::Message::functionNotFound(call1.function.position, "print()"));
 }
 
 template <>
@@ -99,15 +104,16 @@ void object::test<4>()
 {
     using namespace rask;
     
-    cf.calls.resize(1);
-    cf.calls[0].function.value = "print";
-    cf.calls[0].function.position = Position(file, 2, 4);
-    cf.calls[0].args.push_back(1);
-    cf.calls[0].args.push_back(2);
+    cf.stmts.push_back(cst::FunctionCall());
+    cst::FunctionCall& call1 = boost::get<cst::FunctionCall>(cf.stmts[0]);
+    call1.function.value = "print";
+    call1.function.position = Position(file, 2, 4);
+    call1.args.push_back(1);
+    call1.args.push_back(2);
 
     ensure_not("not built", builder.buildFunction(cf, logger));
     ensure_equals("errors", logger.errors().size(), 1u);
-    ensure_equals(logger.errors()[0], error::Message::functionNotFound(cf.calls[0].function.position, "print(int, int)"));
+    ensure_equals(logger.errors()[0], error::Message::functionNotFound(call1.function.position, "print(int, int)"));
 }
 
 }

@@ -19,8 +19,10 @@ boost::optional<Function> Builder::buildFunction(const cst::Function& cf, error:
 {
     Function af;
 
-    BOOST_FOREACH(const cst::FunctionCall& call, cf.calls)
+    BOOST_FOREACH(const cst::Statement& stmt, cf.stmts)
     {
+        const cst::FunctionCall& call = boost::get<cst::FunctionCall>(stmt);
+        
         if (call.function.value != "print")
         {
             logger.log(error::Message::unknownIdentifier(call.function.position, call.function.value));
