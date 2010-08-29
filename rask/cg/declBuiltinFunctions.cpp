@@ -17,14 +17,14 @@ namespace rask
 namespace cg
 {
 
-void CodeGenerator::declBuiltinFunctions(llvm::Module *module)
+void CodeGenerator::declBuiltinFunctions(llvm::Module& module)
 {
-    llvm::LLVMContext& context = module->getContext();
+    llvm::LLVMContext& context = module.getContext();
     
     std::vector<const llvm::Type*> printIntArgs;
     printIntArgs.push_back(llvm::IntegerType::get(context, 32));
     llvm::FunctionType *printIntType = llvm::FunctionType::get(llvm::Type::getVoidTy(context), printIntArgs, false);
-    llvm::Function::Create(printIntType, llvm::Function::ExternalLinkage, "_rask_print_int", module);
+    llvm::Function::Create(printIntType, llvm::Function::ExternalLinkage, "_rask_print_int", &module);
 }
     
 }

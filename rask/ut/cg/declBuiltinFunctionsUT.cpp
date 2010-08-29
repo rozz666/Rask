@@ -39,9 +39,9 @@ void object::test<1>()
     using namespace rask;
     
     llvm::LLVMContext context;
-    llvm::Module *module = new llvm::Module("testModule", context);
+    std::auto_ptr<llvm::Module> module(new llvm::Module("testModule", context));
     
-    cg::CodeGenerator().declBuiltinFunctions(module);
+    cg::CodeGenerator().declBuiltinFunctions(*module);
 
     ensure_size("decl", module->getFunctionList(), 1u);
 
@@ -57,7 +57,7 @@ void object::test<1>()
     ensure("no body", printInt.getBasicBlockList().empty());
     ensure("C cc", printInt.getCallingConv() == llvm::CallingConv::C);
     ensure_equals("linkage", printInt.getLinkage(), llvm::Function::ExternalLinkage);
-    ensure_equals("module", printInt.getParent(), module);
+    ensure_equals("module", printInt.getParent(), module.get());
     ensure_equals("context", &printInt.getContext(), &context);
 }
 

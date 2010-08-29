@@ -34,13 +34,13 @@ public:
     int buildFunctionCalled;
     int counter;
     bool buildFunctionSuccessful;
-    rask::ast::Function result;
+    rask::ast::Function buildFunctionResult;
 
     BuilderMock() : function(0), logger(0), counter(0), buildFunctionSuccessful(true)
     {
-        result.addValue(1);
-        result.addValue(2);
-        result.addValue(3);
+        buildFunctionResult.addValue(1);
+        buildFunctionResult.addValue(2);
+        buildFunctionResult.addValue(3);
     }
     
     virtual boost::optional<rask::ast::Function> buildFunction(const rask::cst::Function& f, rask::error::Logger& el)
@@ -51,7 +51,7 @@ public:
 
         if (!buildFunctionSuccessful) return boost::none;
 
-        return result;
+        return buildFunctionResult;
     }
 };
 
@@ -74,7 +74,7 @@ void object::test<1>()
     boost::optional<ast::Tree> ast = builder.buildTree(cst, logger);
 
     ensure("built", ast);
-    ensure("result", ast->main == builder.result);
+    ensure("result", ast->main == builder.buildFunctionResult);
     ensure_equals("called", builder.buildFunctionCalled, 1);
     ensure("main", builder.function == &cst.main);
     ensure("logger", builder.logger == &logger);

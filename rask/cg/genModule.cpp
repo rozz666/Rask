@@ -15,12 +15,12 @@ namespace rask
 namespace cg
 {
 
-llvm::Module *CodeGenerator::genModule(const ast::Tree& ast, llvm::LLVMContext& context)
+std::auto_ptr<llvm::Module> CodeGenerator::genModule(const ast::Tree& ast, llvm::LLVMContext& context)
 {
-    llvm::Module *module = new llvm::Module("mainModule", context);
+    std::auto_ptr<llvm::Module> module(new llvm::Module("mainModule", context));
 
-    declBuiltinFunctions(module);
-    genFunction(ast.main, module);
+    declBuiltinFunctions(*module);
+    genFunction(ast.main, *module);
 
     return module;
 }

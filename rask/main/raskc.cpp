@@ -83,11 +83,11 @@ int main(int argc, char **argv)
             llvm::LLVMContext context;
             cg::CodeGenerator cg;
 
-            llvm::Module *module = cg.genModule(*ast, context);
+            std::auto_ptr<llvm::Module> module = cg.genModule(*ast, context);
 
             std::vector<unsigned char> buf;
             llvm::BitstreamWriter bw(buf);
-            llvm::WriteBitcodeToStream(module, bw);
+            llvm::WriteBitcodeToStream(module.get(), bw);
 
             std::ofstream of(params.outputFile.c_str(), std::ios::binary);
 

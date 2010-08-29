@@ -18,20 +18,20 @@ namespace rask
 namespace cg
 {
  
-llvm::Function *CodeGenerator::genFunction(const ast::Function& f, llvm::Module *module)
+llvm::Function *CodeGenerator::genFunction(const ast::Function& f, llvm::Module& module)
 {
-    llvm::FunctionType *type = llvm::FunctionType::get(llvm::Type::getVoidTy(module->getContext()), false);
-    llvm::Function *func = llvm::Function::Create(type, llvm::Function::ExternalLinkage, "main", module);
+    llvm::FunctionType *type = llvm::FunctionType::get(llvm::Type::getVoidTy(module.getContext()), false);
+    llvm::Function *func = llvm::Function::Create(type, llvm::Function::ExternalLinkage, "main", &module);
 
-    llvm::BasicBlock *entry = llvm::BasicBlock::Create(module->getContext(), "entry", func);
+    llvm::BasicBlock *entry = llvm::BasicBlock::Create(module.getContext(), "entry", func);
 
     for (std::size_t i = 0; i != f.valueCount(); ++i)
     {
-        llvm::ConstantInt *arg = llvm::ConstantInt::get(module->getContext(), llvm::APInt(32, f.value(i), true));
-        llvm::CallInst::Create(module->getFunction("_rask_print_int"), arg, "", entry);
+        llvm::ConstantInt *arg = llvm::ConstantInt::get(module.getContext(), llvm::APInt(32, f.value(i), true));
+        llvm::CallInst::Create(module.getFunction("_rask_print_int"), arg, "", entry);
     }
 
-    llvm::ReturnInst::Create(module->getContext(), entry);
+    llvm::ReturnInst::Create(module.getContext(), entry);
     
     return func;
 }

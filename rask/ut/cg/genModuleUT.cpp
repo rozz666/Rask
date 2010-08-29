@@ -40,17 +40,17 @@ public:
 
     CodeGeneratorMock() : genFunctionResult(0), declBuiltinFunctionsCalled(false), genFunctionCalled(0), counter(0) { }
     
-    virtual llvm::Function *genFunction(const rask::ast::Function& f, llvm::Module *module)
+    virtual llvm::Function *genFunction(const rask::ast::Function& f, llvm::Module& module)
     {
         genFunctionCalled = ++counter;
         function = f;
         
-        genFunctionResult = llvm::Function::Create(llvm::FunctionType::get(llvm::Type::getVoidTy(module->getContext()), false), llvm::Function::ExternalLinkage, "stub", module);
+        genFunctionResult = llvm::Function::Create(llvm::FunctionType::get(llvm::Type::getVoidTy(module.getContext()), false), llvm::Function::ExternalLinkage, "stub", &module);
 
         return genFunctionResult;
     }
 
-    virtual void declBuiltinFunctions(llvm::Module *module)
+    virtual void declBuiltinFunctions(llvm::Module& module)
     {
         declBuiltinFunctionsCalled = ++counter;
     }
@@ -72,7 +72,7 @@ void object::test<1>()
 
     CodeGeneratorMock cg;
     
-    llvm::Module *module = cg.genModule(ast, context);
+    std::auto_ptr<llvm::Module> module = cg.genModule(ast, context);
 
     ensure_equals("context", &module->getContext(), &context);
     ensure_equals("builtin", cg.declBuiltinFunctionsCalled, 1);

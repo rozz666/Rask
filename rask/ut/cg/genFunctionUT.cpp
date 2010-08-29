@@ -22,13 +22,13 @@ struct genFunctionIR_TestData
 {
     rask::ast::Function f;
     llvm::LLVMContext ctx;
-    llvm::Module *module;
+    std::auto_ptr<llvm::Module> module;
     rask::cg::CodeGenerator cg;
     llvm::BasicBlock *entry;
     
     genFunctionIR_TestData() : module(new llvm::Module("testModule", ctx))
     {
-        cg.declBuiltinFunctions(module);
+        cg.declBuiltinFunctions(*module);
     }
 
     void ensureMainDef(llvm::Function *gf)
@@ -37,7 +37,7 @@ struct genFunctionIR_TestData
         ensure_equals("type", gf->getType()->getElementType(), llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), false));
         ensure_equals("linkage", gf->getLinkage(), llvm::Function::ExternalLinkage);
         ensure_equals("name", gf->getNameStr(), "main");
-        ensure_equals("module", gf->getParent(), module);
+        ensure_equals("module", gf->getParent(), module.get());
         ensure_equals("entry", gf->getBasicBlockList().size(), 1u);
         entry = &gf->getBasicBlockList().front();
         ensure_equals("entry name", entry->getNameStr(), "entry");
@@ -73,7 +73,7 @@ void object::test<1>()
 {
     using namespace rask;
 
-    llvm::Function *gf = cg.genFunction(f, module);
+    llvm::Function *gf = cg.genFunction(f, *module);
 
     ensureMainDef(gf);
     ensure_equals("1 instruction", entry->size(), 1u);
@@ -89,7 +89,7 @@ void object::test<2>()
     f.addValue(1);
     f.addValue(2);
 
-    llvm::Function *gf = cg.genFunction(f, module);
+    llvm::Function *gf = cg.genFunction(f, *module);
 
     ensureMainDef(gf);
     ensure_equals("3 instructions", entry->size(), 3u);

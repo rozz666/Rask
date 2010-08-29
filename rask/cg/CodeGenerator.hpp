@@ -9,6 +9,7 @@
 #ifndef RASK_CG_CODEGENERATOR_HPP
 #define RASK_CG_CODEGENERATOR_HPP
 
+#include <memory>
 #include <rask/ast/Function.hpp>
 #include <rask/ast/Tree.hpp>
 #include <llvm/Function.h>
@@ -23,9 +24,9 @@ class CodeGenerator
 {
 public:
         
-    virtual llvm::Function *genFunction(const ast::Function& f, llvm::Module *module);
-    virtual void declBuiltinFunctions(llvm::Module *module);
-    virtual llvm::Module *genModule(const ast::Tree& ast, llvm::LLVMContext& context);
+    virtual llvm::Function *genFunction(const ast::Function& f, llvm::Module& module);
+    virtual void declBuiltinFunctions(llvm::Module& module);
+    virtual std::auto_ptr<llvm::Module> genModule(const ast::Tree& ast, llvm::LLVMContext& context);
 };
     
 }

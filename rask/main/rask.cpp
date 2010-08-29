@@ -41,17 +41,17 @@ int main(int, char **argv)
         return 1;
     }
     
-    llvm::LLVMContext& context = llvm::getGlobalContext();
+    llvm::LLVMContext context;
     
-    llvm::Module *module = llvm::ParseBitcodeFile(buf.release(), context);
+    std::auto_ptr<llvm::Module> module(llvm::ParseBitcodeFile(buf.get(), context));
 
-    if (!module)
+    if (!module.get())
     {
         std::cerr << "ERROR: ParseBitcodeFile failed" << std::endl;
         return 1;
     }
 
-    llvm::ExecutionEngine *engine = llvm::EngineBuilder(module).create();
+    llvm::ExecutionEngine *engine(llvm::EngineBuilder(module.get()).create());
 
     if (!engine)
     {
@@ -61,7 +61,6 @@ int main(int, char **argv)
 
     llvm::Function *print = engine->FindFunctionNamed("_rask_print_int");
     engine->addGlobalMapping(print, (void *)(intptr_t)&builtin::_rask_print_int);
-
    
     llvm::Function *mainf = module->getFunction("main");
 
