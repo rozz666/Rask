@@ -12,7 +12,10 @@
 #include <boost/program_options.hpp> 
 #include <rask/cst/parseFile.hpp>
 #include <rask/ast/buildAST.hpp>
-#include <rask/cg/genFunction.hpp>
+#include <rask/cg/CodeGenerator.hpp>
+#include <llvm/LLVMContext.h>
+#include <llvm/Bitcode/BitstreamWriter.h>
+#include <llvm/Bitcode/ReaderWriter.h>
 
 struct Parameters
 {
@@ -25,28 +28,28 @@ struct Parameters
 
 Parameters parseCommandLine(int argc, char **argv)
 {
-    namespace po = ::boost::program_options;
+    using namespace boost::program_options;
 
     Parameters params;
 
-    po::options_description desc("Options");
+    options_description desc("Options");
     desc.add_options()
-        ("output,o", po::value<std::string>(&params.outputFile), "set output file")
+        ("output,o", value<std::string>(&params.outputFile), "set output file")
         ("no-output,n", "no output file is generated");
 
-    po::options_description hidden("Hidden options");
+    options_description hidden("Hidden options");
     hidden.add_options()
-        ("input-file", po::value<std::vector<std::string> >(&params.inputFiles), "input file");
+        ("input-file", value<std::vector<std::string> >(&params.inputFiles), "input file");
 
-    po::options_description cmdline_options;
+    options_description cmdline_options;
     cmdline_options.add(desc).add(hidden);
 
-    po::positional_options_description p;
+    positional_options_description p;
     p.add("input-file", -1);
 
-    po::variables_map vm;
-    po::store(po::command_line_parser(argc, argv).options(cmdline_options).positional(p).run(), vm);
-    po::notify(vm);
+    variables_map vm;
+    store(command_line_parser(argc, argv).options(cmdline_options).positional(p).run(), vm);
+    notify(vm);
 
     params.noOutput = vm.count("no-output") != 0;
 
@@ -66,8 +69,8 @@ int main(int argc, char **argv)
     } 
 
     std::ifstream f(params.inputFiles[0].c_str());
-    rask::InputStream is(params.inputFiles[0], f);
-    rask::error::Logger logger;
+    InputStream is(params.inputFiles[0], f);
+    error::Logger logger;
 
     boost::optional<rask::cst::Tree> cst = rask::cst::parseFile(is, logger);
 
@@ -77,11 +80,18 @@ int main(int argc, char **argv)
 
         if (ast && !params.noOutput)
         {
+            llvm::LLVMContext context;
+            cg::CodeGenerator cg;
+
+            llvm::Module *module = cg.genModule(*ast, context);
+
+            std::vector<unsigned char> buf;
+            llvm::BitstreamWriter bw(buf);
+            llvm::WriteBitcodeToStream(module, bw);
+
             std::ofstream of(params.outputFile.c_str(), std::ios::binary);
 
-            cg::BytecodeBuffer bb = cg::genFunction(ast->main);
-            
-            of.write(reinterpret_cast<const char *>(&bb.front()), sizeof(bb[0]) * bb.size());
+            of.write(reinterpret_cast<const char *>(&buf.front()), buf.size());
         }
     }
 

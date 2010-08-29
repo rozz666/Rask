@@ -6,25 +6,36 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <rask/cg/genFunction.hpp>
+#include <llvm/LLVMContext.h>
+#include <llvm/Module.h>
+#include <llvm/Function.h>
+#include <llvm/DerivedTypes.h>
+#include <llvm/Instructions.h>
+#include <rask/cg/CodeGenerator.hpp>
 
 namespace rask
 {
 namespace cg
 {
-
-BytecodeBuffer genFunction(const ast::Function& f)
+ 
+llvm::Function *CodeGenerator::genFunction(const ast::Function& f, llvm::Module *module)
 {
-    BytecodeBuffer bb;
-    bb.reserve(f.valueCount());
-    
+    llvm::FunctionType *type = llvm::FunctionType::get(llvm::Type::getVoidTy(module->getContext()), false);
+    llvm::Function *func = llvm::Function::Create(type, llvm::Function::ExternalLinkage, "main", module);
+
+    llvm::BasicBlock *entry = llvm::BasicBlock::Create(module->getContext(), "entry", func);
+
     for (std::size_t i = 0; i != f.valueCount(); ++i)
     {
-        bb.push_back(f.value(i));
+        llvm::ConstantInt *arg = llvm::ConstantInt::get(module->getContext(), llvm::APInt(32, f.value(i), true));
+        llvm::CallInst::Create(module->getFunction("_rask_print_int"), arg, "", entry);
     }
 
-    return bb;
+    llvm::ReturnInst::Create(module->getContext(), entry);
+    
+    return func;
+}
+    
+}
 }
 
-}
-}

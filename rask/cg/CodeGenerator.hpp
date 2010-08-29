@@ -23,7 +23,7 @@ class CodeGenerator
 {
 public:
         
-    virtual llvm::Function *genFunctionIR(const ast::Function& f, llvm::Module *module);
+    virtual llvm::Function *genFunction(const ast::Function& f, llvm::Module *module);
     virtual void declBuiltinFunctions(llvm::Module *module);
     virtual llvm::Module *genModule(const ast::Tree& ast, llvm::LLVMContext& context);
 };

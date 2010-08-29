@@ -40,7 +40,7 @@ public:
 
     CodeGeneratorMock() : genFunctionResult(0), declBuiltinFunctionsCalled(false), genFunctionCalled(0), counter(0) { }
     
-    virtual llvm::Function *genFunctionIR(const rask::ast::Function& f, llvm::Module *module)
+    virtual llvm::Function *genFunction(const rask::ast::Function& f, llvm::Module *module)
     {
         genFunctionCalled = ++counter;
         function = f;

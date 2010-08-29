@@ -8,23 +8,60 @@
 //
 #include <tut/tut.hpp>
 #include <tut/../contrib/tut_macros.h> 
-#include <rask/ast/Function.hpp>
-#include <rask/cg/genFunction.hpp>
+#include <rask/cg/CodeGenerator.hpp>
+#include <llvm/LLVMContext.h>
+#include <llvm/Module.h>
+#include <llvm/Function.h>
+#include <llvm/Instructions.h>
+#include <llvm/DerivedTypes.h>
 
 namespace tut
 {
 
-struct genFunction_TestData
+struct genFunctionIR_TestData
 {
+    rask::ast::Function f;
+    llvm::LLVMContext ctx;
+    llvm::Module *module;
+    rask::cg::CodeGenerator cg;
+    llvm::BasicBlock *entry;
+    
+    genFunctionIR_TestData() : module(new llvm::Module("testModule", ctx))
+    {
+        cg.declBuiltinFunctions(module);
+    }
+
+    void ensureMainDef(llvm::Function *gf)
+    {
+        ensure("pointer type", llvm::isa<llvm::PointerType>(gf->getType()));
+        ensure_equals("type", gf->getType()->getElementType(), llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), false));
+        ensure_equals("linkage", gf->getLinkage(), llvm::Function::ExternalLinkage);
+        ensure_equals("name", gf->getNameStr(), "main");
+        ensure_equals("module", gf->getParent(), module);
+        ensure_equals("entry", gf->getBasicBlockList().size(), 1u);
+        entry = &gf->getBasicBlockList().front();
+        ensure_equals("entry name", entry->getNameStr(), "entry");
+    }
+
+    void ensurePrintCall(const std::string& name, llvm::Instruction *instr, int32_t arg)
+    {
+        ensure(name + ": call", llvm::isa<llvm::CallInst>(instr));
+        llvm::CallInst *call = llvm::cast<llvm::CallInst>(instr);
+        
+        ensure(name + ": called", call->getCalledFunction() == module->getFunction("_rask_print_int"));
+        ensure_equals(name + ": num ops", call->getNumOperands(), 2u);
+        ensure(name + ": value", call->getOperand(1) == llvm::ConstantInt::get(ctx, llvm::APInt(32, arg, true)));
+        ensure(name + ": C cc", call->getCallingConv() == llvm::CallingConv::C);
+    }
 };
 
-typedef test_group<genFunction_TestData> factory;
+typedef test_group<genFunctionIR_TestData> factory;
 typedef factory::object object;
 }
 
 namespace
 {
-tut::factory tf("rask.cg.genFunction");
+tut::factory tf("rask.cg.CodeGenerator.genFunction");
 }
 
 namespace tut
@@ -36,9 +73,11 @@ void object::test<1>()
 {
     using namespace rask;
 
-    ast::Function f;
-    cg::BytecodeBuffer bb = cg::genFunction(f);
-    ensure(bb.empty());
+    llvm::Function *gf = cg.genFunction(f, module);
+
+    ensureMainDef(gf);
+    ensure_equals("1 instruction", entry->size(), 1u);
+    ensure("ret", llvm::isa<llvm::ReturnInst>(entry->front()));
 }
 
 template <>
@@ -46,18 +85,20 @@ template <>
 void object::test<2>()
 {
     using namespace rask;
+    
+    f.addValue(1);
+    f.addValue(2);
 
-    ast::Function f;
-    f.addValue(5);
-    f.addValue(-2);
-    f.addValue(0);
+    llvm::Function *gf = cg.genFunction(f, module);
 
-    cg::BytecodeBuffer bb = cg::genFunction(f);
+    ensureMainDef(gf);
+    ensure_equals("3 instructions", entry->size(), 3u);
 
-    ensure_equals("size", bb.size(), f.valueCount());
-    ensure_equals("elem 1", bb[0], f.value(0));
-    ensure_equals("elem 2", bb[1], f.value(1));
-    ensure_equals("elem 3", bb[2], f.value(2));
+    llvm::BasicBlock::iterator it = entry->begin();
+
+    ensurePrintCall("1", &*it, f.value(0)); ++it;
+    ensurePrintCall("2", &*it, f.value(1)); ++it;
+    ensure("ret", llvm::isa<llvm::ReturnInst>(*it));
 }
 
 }
