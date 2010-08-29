@@ -11,7 +11,7 @@
 #include <fstream>
 #include <boost/program_options.hpp> 
 #include <rask/cst/parseFile.hpp>
-#include <rask/ast/buildAST.hpp>
+#include <rask/ast/Builder.hpp>
 #include <rask/cg/CodeGenerator.hpp>
 #include <llvm/LLVMContext.h>
 #include <llvm/Bitcode/BitstreamWriter.h>
@@ -76,7 +76,7 @@ int main(int argc, char **argv)
 
     if (cst)
     {
-        boost::optional<rask::ast::Tree> ast = rask::ast::buildAST(*cst, logger);
+        boost::optional<rask::ast::Tree> ast = ast::Builder().buildTree(*cst, logger);
 
         if (ast && !params.noOutput)
         {

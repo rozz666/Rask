@@ -6,12 +6,12 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#ifndef RASK_AST_PARSETREE_HPP
-#define RASK_AST_PARSETREE_HPP
+#ifndef RASK_AST_BUILDER_HPP
+#define RASK_AST_BUILDER_HPP
 
 #include <boost/optional.hpp>
-#include <rask/cst/Tree.hpp>
 #include <rask/ast/Tree.hpp>
+#include <rask/cst/Tree.hpp>
 #include <rask/error/Logger.hpp>
 
 namespace rask
@@ -19,9 +19,15 @@ namespace rask
 namespace ast
 {
 
-boost::optional<Tree> buildAST(const cst::Tree& cst, error::Logger& logger);
+class Builder
+{
+public:
+        
+    virtual boost::optional<Function> buildFunction(const cst::Function& f, error::Logger& el);
+    virtual boost::optional<Tree> buildTree(const cst::Tree& cst, error::Logger& el);
+};
 
 }
 }
 
-#endif /* RASK_AST_PARSETREE_HPP */
+#endif // RASK_AST_BUILDER_HPP
