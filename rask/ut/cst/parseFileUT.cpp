@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <tut/tut.hpp>
 #include <tut/../contrib/tut_macros.h>
+#include <rask/test/TUTAssert.hpp>
 #include <rask/cst/parseFile.hpp>
 
 namespace tut
@@ -46,6 +47,16 @@ struct parseMain_TestData
     const rask::cst::VarDecl& getVDecl(const rask::cst::Statement& stmt)
     {
         return boost::get<rask::cst::VarDecl>(stmt);
+    }
+
+    const rask::cst::Identifier& getId(const rask::cst::Expression& expr)
+    {
+        return boost::get<rask::cst::Identifier>(expr);
+    }
+
+    const rask::cst::Constant& getConst(const rask::cst::Expression& expr)
+    {
+        return boost::get<rask::cst::Constant>(expr);
     }
 };
 
@@ -221,13 +232,16 @@ void object::test<10>()
     ensure_equals("function 2", getFCall(tree->main.stmts[1]).function.value, "efgh");
     ensure_equals("function pos 2", getFCall(tree->main.stmts[1]).function.position, Position(source.file(), 4, 5));
     ensure_equals("count 2", getFCall(tree->main.stmts[1]).args.size(), 1u);
-    ensure_equals("value 2", getFCall(tree->main.stmts[1]).args[0], -2);
-
+    ensure_equals("value 2", getConst(getFCall(tree->main.stmts[1]).args[0]).value, -2);
+    ensure_equals("value 2 pos", getConst(getFCall(tree->main.stmts[1]).args[0]).position, Position(source.file(), 4, 10));
+    
     ensure_equals("function 3", getFCall(tree->main.stmts[2]).function.value, "ijkl");
     ensure_equals("function pos 3", getFCall(tree->main.stmts[2]).function.position, Position(source.file(), 5, 5));
     ensure_equals("count 3", getFCall(tree->main.stmts[2]).args.size(), 2u);
-    ensure_equals("value 3", getFCall(tree->main.stmts[2]).args[0], 2);
-    ensure_equals("value 4", getFCall(tree->main.stmts[2]).args[1], 3);
+    ensure_equals("value 3", getConst(getFCall(tree->main.stmts[2]).args[0]).value, 2);
+    ensure_equals("value 3 pos", getConst(getFCall(tree->main.stmts[2]).args[0]).position, Position(source.file(), 5, 10));
+    ensure_equals("value 4", getConst(getFCall(tree->main.stmts[2]).args[1]).value, 3);
+    ensure_equals("value 4 pos", getConst(getFCall(tree->main.stmts[2]).args[1]).position, Position(source.file(), 5, 13));
     ensureNoErrors();
 }
 
@@ -295,11 +309,41 @@ void object::test<14>()
 
     ensure_equals("x position", getVDecl(tree->main.stmts[0]).name.position, Position(source.file(), 3, 9));
     ensure_equals("x name", getVDecl(tree->main.stmts[0]).name.value, "x");
-    ensure_not("x value", getVDecl(tree->main.stmts[0]).value);
+    ensure_not("no x value", getVDecl(tree->main.stmts[0]).value);
 
     ensure_equals("y position", getVDecl(tree->main.stmts[1]).name.position, Position(source.file(), 4, 9));
     ensure_equals("y name", getVDecl(tree->main.stmts[1]).name.value, "y");
-    ensure_equals("y value", getVDecl(tree->main.stmts[1]).value, -2);
+    ensure("y has value", getVDecl(tree->main.stmts[1]).value);
+    ensure_equals("y value", getVDecl(tree->main.stmts[1]).value->value, -2);
+    ensure_equals("y value position", getVDecl(tree->main.stmts[1]).value->position, Position(source.file(), 4, 13));
+}
+
+template <>
+template <>
+void object::test<15>()
+{
+    using namespace rask;
+
+    ss << "main() -> void\n{\n    f(x, 1, y);\n}";
+
+    InputStream source("test.rask", ss);
+
+    boost::optional<cst::Tree> tree = cst::parseFile(source, errorLogger);
+
+    ensure("parsed", tree);
+    ensureNoErrors();
+
+    ensure_size("statements", tree->main.stmts, 1u);
+
+    ensure_equals("name", getFCall(tree->main.stmts[0]).function.value, "f");
+    ensure_equals("func pos", getFCall(tree->main.stmts[0]).function.position, Position(source.file(), 3, 5));
+    ensure_size("args", getFCall(tree->main.stmts[0]).args, 3u);
+    ensure_equals(getId(getFCall(tree->main.stmts[0]).args[0]).value, "x");
+    ensure_equals(getId(getFCall(tree->main.stmts[0]).args[0]).position, Position(source.file(), 3, 7));
+    ensure_equals(getConst(getFCall(tree->main.stmts[0]).args[1]).value, 1);
+    ensure_equals(getConst(getFCall(tree->main.stmts[0]).args[1]).position, Position(source.file(), 3, 10));
+    ensure_equals(getId(getFCall(tree->main.stmts[0]).args[2]).value, "y");
+    ensure_equals(getId(getFCall(tree->main.stmts[0]).args[2]).position, Position(source.file(), 3, 13));
 }
 
 }

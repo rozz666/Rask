@@ -48,7 +48,7 @@ boost::optional<Function> Builder::buildFunction(const cst::Function& cf, error:
             return boost::none;
         }
 
-        af.addValue(call.args[0]);
+        af.addValue(boost::get<cst::Constant>(call.args[0]).value);
     }
 
     return af;

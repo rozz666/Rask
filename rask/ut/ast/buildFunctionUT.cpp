@@ -25,6 +25,14 @@ struct buildFunctionAST_TestData
         cf.name.value = "main";
         cf.name.position = rask::Position(file, 1, 2);
     }
+
+    rask::cst::Constant makeConstant(rask::Position pos, boost::int32_t val)
+    {
+        rask::cst::Constant c;
+        c.position = pos;
+        c.value = val;
+        return c;
+    }
 };
 
 typedef test_group<buildFunctionAST_TestData> factory;
@@ -51,19 +59,21 @@ void object::test<1>()
     
     call1.function.value = "print";
     call1.function.position = Position(file, 2, 4);
-    call1.args.push_back(1);
+    cst::Constant arg1 = makeConstant(Position(file, 2, 10), 1);
+    call1.args.push_back(arg1);
 
     call2.function.value = "print";
     call2.function.position = Position(file, 3, 4);
-    call2.args.push_back(2);
+    cst::Constant arg2 = makeConstant(Position(file, 3, 10), 2);
+    call2.args.push_back(arg2);
 
     boost::optional<ast::Function> f = builder.buildFunction(cf, logger);
 
     ensure("built", f);
     ensure_equals("no errors", logger.errors().size(), 0u);
     ensure_equals("value count", f->valueCount(), 2u);
-    ensure_equals("value 1", f->value(0), call1.args[0]);
-    ensure_equals("value 2", f->value(1), call2.args[0]);
+    ensure_equals("value 1", f->value(0), arg1.value);
+    ensure_equals("value 2", f->value(1), arg2.value);
 }
 
 template <>
@@ -108,8 +118,8 @@ void object::test<4>()
     cst::FunctionCall& call1 = boost::get<cst::FunctionCall>(cf.stmts[0]);
     call1.function.value = "print";
     call1.function.position = Position(file, 2, 4);
-    call1.args.push_back(1);
-    call1.args.push_back(2);
+    call1.args.push_back(makeConstant(Position(file, 2, 10), 1));
+    call1.args.push_back(makeConstant(Position(file, 2, 13), 2));
 
     ensure_not("not built", builder.buildFunction(cf, logger));
     ensure_equals("errors", logger.errors().size(), 1u);

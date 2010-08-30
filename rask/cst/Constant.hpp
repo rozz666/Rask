@@ -6,32 +6,31 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#ifndef RASK_CST_VARDECL_HPP
-#define RASK_CST_VARDECL_HPP
+#ifndef RASK_CST_CONSTANT_HPP
+#define RASK_CST_CONSTANT_HPP
 
-#include <boost/optional.hpp>
+#include <boost/cstdint.hpp>
 #include <boost/fusion/adapted/struct/adapt_struct.hpp>
-#include <rask/cst/Identifier.hpp>
-#include <rask/cst/Constant.hpp>
+#include <rask/Position.hpp>
 
 namespace rask
 {
 namespace cst
 {
 
-struct VarDecl
+struct Constant
 {
-    Identifier name;
-    boost::optional<Constant> value;
+    Position position;
+    boost::int32_t value;
 };
 
 }
 }
 
 BOOST_FUSION_ADAPT_STRUCT(
-    rask::cst::VarDecl,
-    (rask::cst::Identifier, name)
-    (boost::optional<rask::cst::Constant>, value)
+    rask::cst::Constant,
+    (rask::Position, position)
+    (boost::int32_t, value)
 )
                           
-#endif // RASK_CST_VARDECL_HPP
+#endif // RASK_CST_CONSTANT_HPP
