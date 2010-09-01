@@ -148,5 +148,13 @@ void object::test<14>()
     ensure_equals(error::Message::missingSemicolon(pos), error::Message(pos, "missing \';\'"));
 }
 
+template <>
+template <>
+void object::test<15>()
+{
+    using namespace rask;
+    ensure_equals(error::Message::uninitializedVariable(pos, "abc"), error::Message(pos, "uninitialized variable 'abc'"));
+}
+    
 
 }

@@ -55,6 +55,7 @@ public:
     RASK_ERROR_MESSAGE(unknownIdentifier, (const std::string& id), "unknown identifier \'" << id << "\'")
     RASK_ERROR_MESSAGE(functionNotFound, (const std::string& f), "function " << f << " not found")
     RASK_ERROR_MESSAGE_NP(missingSemicolon, "missing \';\'")
+    RASK_ERROR_MESSAGE(uninitializedVariable, (const std::string& var), "uninitialized variable \'" << var << "'")
 
 private:
 

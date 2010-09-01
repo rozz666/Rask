@@ -76,7 +76,7 @@ int main(int argc, char **argv)
 
     if (cst)
     {
-        boost::optional<rask::ast::Tree> ast = ast::Builder().buildTree(*cst, logger);
+        boost::optional<rask::ast::Tree> ast = ast::Builder(logger).buildTree(*cst);
 
         if (ast && !params.noOutput)
         {

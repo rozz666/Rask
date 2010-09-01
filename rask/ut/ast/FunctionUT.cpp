@@ -35,7 +35,7 @@ void object::test<1>()
 {
     using namespace rask;
 
-    ensure_equals(ast::Function().valueCount(), 0u);
+    ensure_equals(ast::Function().stmtCount(), 0u);
 }
 
 template <>
@@ -43,18 +43,40 @@ template <>
 void object::test<2>()
 {
     using namespace rask;
-
+    
     ast::Function f;
-    f.addValue(1);
-
-    ensure_equals("count 1", f.valueCount(), 1u);
-    ensure_equals("value 1", f.value(0), 1);
-
-    f.addValue(5);
-
-    ensure_equals("count 2", f.valueCount(), 2u);
-    ensure_equals("value 2", f.value(0), 1);
-    ensure_equals("value 3", f.value(1), 5);
+    ast::FunctionCall fc(5);
+    cst::Identifier name;
+    name.value = "asia";
+    ast::SharedVarDecl vd(new ast::VarDecl(name, 0));
+    f.addStmt(fc);
+    f.addStmt(vd);
+    ensure_equals("count", f.stmtCount(), 2u);
+    ensure_equals("call", boost::get<ast::FunctionCall>(f.stmt(0)), fc);
+    ensure_equals("name", boost::get<ast::SharedVarDecl>(f.stmt(1))->name().value, name.value);
 }
 
+template <>
+template <>
+void object::test<3>()
+{
+    using namespace rask;
+    
+    ast::Function f1;
+    ast::Function f2;
+
+    ensure("eq 1", f1 == f2);
+    ensure_not("neq 1", f1 != f2);
+
+    f1.addStmt(ast::FunctionCall(1));
+
+    ensure_not("eq 2", f1 == f2);
+    ensure("neq 2", f1 != f2);
+
+    f2.addStmt(ast::FunctionCall(1));
+
+    ensure("eq 3", f1 == f2);
+    ensure_not("neq 3", f1 != f2);
+}
+    
 }

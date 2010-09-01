@@ -86,9 +86,9 @@ void object::test<2>()
 {
     using namespace rask;
     
-    f.addValue(1);
-    f.addValue(2);
-
+    f.addStmt(ast::FunctionCall(1));
+    f.addStmt(ast::FunctionCall(2));
+    
     llvm::Function *gf = cg.genFunction(f, *module);
 
     ensureMainDef(gf);
@@ -96,8 +96,8 @@ void object::test<2>()
 
     llvm::BasicBlock::iterator it = entry->begin();
 
-    ensurePrintCall("1", &*it, f.value(0)); ++it;
-    ensurePrintCall("2", &*it, f.value(1)); ++it;
+    ensurePrintCall("1", &*it, boost::get<ast::FunctionCall>(f.stmt(0))); ++it;
+    ensurePrintCall("2", &*it, boost::get<ast::FunctionCall>(f.stmt(1))); ++it;
     ensure("ret", llvm::isa<llvm::ReturnInst>(*it));
 }
 

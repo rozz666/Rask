@@ -25,9 +25,9 @@ llvm::Function *CodeGenerator::genFunction(const ast::Function& f, llvm::Module&
 
     llvm::BasicBlock *entry = llvm::BasicBlock::Create(module.getContext(), "entry", func);
 
-    for (std::size_t i = 0; i != f.valueCount(); ++i)
+    for (std::size_t i = 0; i != f.stmtCount(); ++i)
     {
-        llvm::ConstantInt *arg = llvm::ConstantInt::get(module.getContext(), llvm::APInt(32, f.value(i), true));
+        llvm::ConstantInt *arg = llvm::ConstantInt::get(module.getContext(), llvm::APInt(32, boost::get<ast::FunctionCall>(f.stmt(i)), true));
         llvm::CallInst::Create(module.getFunction("_rask_print_int"), arg, "", entry);
     }
 

@@ -22,9 +22,19 @@ namespace ast
 class Builder
 {
 public:
-        
-    virtual boost::optional<Function> buildFunction(const cst::Function& f, error::Logger& el);
-    virtual boost::optional<Tree> buildTree(const cst::Tree& cst, error::Logger& el);
+
+    Builder(error::Logger& logger) : logger_(logger) { }
+    
+    virtual boost::optional<FunctionCall> buildFunctionCall(const cst::FunctionCall& fc);
+    virtual boost::optional<Function> buildFunction(const cst::Function& f);
+    virtual boost::optional<Tree> buildTree(const cst::Tree& cst);
+    virtual SharedVarDecl buildVarDecl(const cst::VarDecl& vd);
+
+private:
+
+    error::Logger& logger_;
+
+    std::string functionSignature(const std::string& name, const std::vector<cst::Expression>& args);
 };
 
 }

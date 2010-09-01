@@ -11,6 +11,7 @@
 
 #include <cstddef>
 #include <vector>
+#include <rask/ast/Statement.hpp>
 
 namespace rask
 {
@@ -21,13 +22,13 @@ class Function
 {
 public:
 
-    std::size_t valueCount() const { return values.size(); }
-    int value(std::size_t idx) const { return values[idx]; }
-    void addValue(int value) { values.push_back(value); }
+    const Statement& stmt(std::size_t idx) const { return stmts_[idx]; }
+    std::size_t stmtCount() const { return stmts_.size(); }
+    void addStmt(const Statement& stmt) { stmts_.push_back(stmt); }
 
     friend bool operator==(const Function& left, const Function& right)
     {
-        return left.values == right.values;
+        return left.stmts_ == right.stmts_;
     }
 
     friend bool operator!=(const Function& left, const Function& right)
@@ -37,7 +38,7 @@ public:
 
 private:
         
-    std::vector<int> values;
+    std::vector<Statement> stmts_;
 };
 
 }

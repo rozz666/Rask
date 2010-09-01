@@ -13,9 +13,9 @@ namespace rask
 namespace ast
 {
 
-boost::optional<Tree> Builder::buildTree(const cst::Tree& cst, error::Logger& el)
+boost::optional<Tree> Builder::buildTree(const cst::Tree& cst)
 {
-    boost::optional<Function> f = buildFunction(cst.main, el);
+    boost::optional<Function> f = buildFunction(cst.main);
 
     if (!f) return boost::none;
     
