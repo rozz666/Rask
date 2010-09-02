@@ -15,15 +15,15 @@ namespace rask
 namespace ast
 {
 
-SharedVarDecl Builder::buildVarDecl(const cst::VarDecl& vd)
+boost::optional<VarDecl> Builder::buildVarDecl(const cst::VarDecl& vd)
 {
     if (!vd.value)
     {
         logger_.log(error::Message::uninitializedVariable(vd.name.position, vd.name.value));
-        return SharedVarDecl();
+        return boost::none;
     }
     
-    return SharedVarDecl(new VarDecl(vd.name, vd.value->value));
+    return VarDecl(vd.name, vd.value->value);
 }
    
     

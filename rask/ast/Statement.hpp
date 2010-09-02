@@ -20,7 +20,7 @@ namespace ast
 
 typedef boost::int32_t FunctionCall;
     
-typedef boost::variant<SharedVarDecl, FunctionCall> Statement;
+typedef boost::variant<VarDecl, FunctionCall> Statement;
 
 }
 

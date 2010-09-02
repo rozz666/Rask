@@ -9,9 +9,8 @@
 #ifndef RASK_AST_VARDECL_HPP
 #define RASK_AST_VARDECL_HPP
 
-#include <boost/shared_ptr.hpp>
 #include <boost/cstdint.hpp>
-#include <rask/cst/Identifier.hpp>
+#include <rask/ast/Variable.hpp>
 
 namespace rask
 {
@@ -22,18 +21,26 @@ class VarDecl
 {
 public:
 
-    VarDecl(const cst::Identifier& name, boost::int32_t value) : name_(name), value_(value) { }
+    VarDecl(const cst::Identifier& name, boost::int32_t value) : var_(new Variable(name)), value_(value) { }
     
-    cst::Identifier name() const { return name_; }
+    SharedVariable var() const { return var_; }
     boost::int32_t value() const { return value_; }
 
 private:
 
-    cst::Identifier name_;
+    SharedVariable var_;
     boost::int32_t value_;
 };
 
-typedef boost::shared_ptr<VarDecl> SharedVarDecl;
+inline bool operator==(const VarDecl& left, const VarDecl& right)
+{
+    return left.var() == right.var() && left.value() == right.value();
+}
+
+inline bool operator!=(const VarDecl& left, const VarDecl& right)
+{
+    return !(left == right);
+}
 
 }
 }

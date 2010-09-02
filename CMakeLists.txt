@@ -12,9 +12,9 @@ execute_process(COMMAND llvm-config --libs all OUTPUT_VARIABLE LLVM_LIBS OUTPUT_
 set( CMAKE_CXX_FLAGS "${LLVM_CXX_FLAGS} -Wall" )
 set( CMAKE_EXE_LINKER_FLAGS "${LLVM_LIB_FLAGS}" )
 
-add_library(raskcore STATIC rask/cg/genFunction.cpp rask/ast/buildFunction.cpp rask/cst/parseFile.cpp rask/error/Message.cpp rask/Position.cpp rask/cg/genModule.cpp rask/cg/declBuiltinFunctions.cpp rask/ast/buildTree.cpp rask/ast/buildVarDecl.cpp)
+add_library(raskcore STATIC rask/cg/genFunction.cpp rask/ast/buildFunction.cpp rask/cst/parseFile.cpp rask/error/Message.cpp rask/Position.cpp rask/cg/genModule.cpp rask/cg/declBuiltinFunctions.cpp rask/ast/buildTree.cpp rask/ast/buildVarDecl.cpp rask/cg/genVarDecl.cpp rask/cg/genFunctionCall.cpp)
 ADD_EXECUTABLE(rask rask/main/rask.cpp)
-ADD_EXECUTABLE(raskut rask/main/ut.cpp rask/ut/ast/FunctionUT.cpp rask/ut/ast/buildFunctionUT.cpp rask/ut/cst/parseFileUT.cpp rask/ut/error/LoggerUT.cpp rask/ut/error/MessageUT.cpp rask/ut/InputStreamUT.cpp rask/ut/PositionUT.cpp rask/ut/cg/genFunctionUT.cpp rask/test/Console.cpp rask/ut/cg/genModuleUT.cpp rask/ut/cg/declBuiltinFunctionsUT.cpp rask/ut/ast/buildTreeUT.cpp rask/ut/ast/buildVarDeclUT.cpp)
+ADD_EXECUTABLE(raskut rask/main/ut.cpp rask/ut/ast/FunctionUT.cpp rask/ut/ast/buildFunctionUT.cpp rask/ut/cst/parseFileUT.cpp rask/ut/error/LoggerUT.cpp rask/ut/error/MessageUT.cpp rask/ut/InputStreamUT.cpp rask/ut/PositionUT.cpp rask/ut/cg/genFunctionUT.cpp rask/test/Console.cpp rask/ut/cg/genModuleUT.cpp rask/ut/cg/declBuiltinFunctionsUT.cpp rask/ut/ast/buildTreeUT.cpp rask/ut/ast/buildVarDeclUT.cpp rask/ut/cg/genVarDeclUT.cpp rask/ut/cg/genFunctionCallUT.cpp)
 ADD_EXECUTABLE(raskc rask/main/raskc.cpp)
 
 target_link_libraries(raskc raskcore boost_program_options pthread ${LLVM_LIBS})

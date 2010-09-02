@@ -17,7 +17,26 @@ namespace rask
 {
 namespace cg
 {
- 
+
+struct StatementVisitor : boost::static_visitor<void>
+{
+    CodeGenerator& cg;
+    llvm::Module& module;
+    llvm::BasicBlock& entry;
+    
+    StatementVisitor(CodeGenerator& cg, llvm::Module& module, llvm::BasicBlock& entry) : cg(cg), module(module), entry(entry) { }
+
+    void operator()(const ast::FunctionCall& fc)
+    {
+        cg.genFunctionCall(fc, entry, module);
+    }
+
+    void operator()(const ast::VarDecl& vd)
+    {
+        cg.genVarDecl(vd, entry);
+    }
+};
+        
 llvm::Function *CodeGenerator::genFunction(const ast::Function& f, llvm::Module& module)
 {
     llvm::FunctionType *type = llvm::FunctionType::get(llvm::Type::getVoidTy(module.getContext()), false);
@@ -25,10 +44,11 @@ llvm::Function *CodeGenerator::genFunction(const ast::Function& f, llvm::Module&
 
     llvm::BasicBlock *entry = llvm::BasicBlock::Create(module.getContext(), "entry", func);
 
+    StatementVisitor sv(*this, module, *entry);
+    
     for (std::size_t i = 0; i != f.stmtCount(); ++i)
     {
-        llvm::ConstantInt *arg = llvm::ConstantInt::get(module.getContext(), llvm::APInt(32, boost::get<ast::FunctionCall>(f.stmt(i)), true));
-        llvm::CallInst::Create(module.getFunction("_rask_print_int"), arg, "", entry);
+        f.stmt(i).apply_visitor(sv);
     }
 
     llvm::ReturnInst::Create(module.getContext(), entry);

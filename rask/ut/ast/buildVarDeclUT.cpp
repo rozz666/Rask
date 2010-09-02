@@ -44,12 +44,12 @@ void object::test<1>()
     cvd.value = cst::Constant();
     cvd.value->value = 1;
 
-    ast::SharedVarDecl vd = builder.buildVarDecl(cvd);
+    boost::optional<ast::VarDecl> vd = builder.buildVarDecl(cvd);
 
     ensure("built", vd);
     ensure("no errors", logger.errors().empty());
-    ensure_equals("name pos", vd->name().position, cvd.name.position);
-    ensure_equals("name str", vd->name().value, cvd.name.value);
+    ensure_equals("name pos", vd->var()->name().position, cvd.name.position);
+    ensure_equals("name str", vd->var()->name().value, cvd.name.value);
     ensure_equals("value", vd->value(), cvd.value->value);
 }
 
@@ -63,7 +63,7 @@ void object::test<2>()
     cvd.name.position = Position("xxx", 1, 2);
     cvd.name.value = "x";
     
-    ast::SharedVarDecl vd = builder.buildVarDecl(cvd);
+    boost::optional<ast::VarDecl> vd = builder.buildVarDecl(cvd);
     
     ensure_not("not built", vd);
     ensure_equals("1 error", logger.errors().size(), 1u);

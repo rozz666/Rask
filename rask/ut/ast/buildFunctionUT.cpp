@@ -22,13 +22,13 @@ public:
 
     BuilderMock(rask::error::Logger& logger) : rask::ast::Builder(logger), buildVarDeclSuccessful(true) { }
     
-    virtual rask::ast::SharedVarDecl buildVarDecl(const rask::cst::VarDecl& vd)
+    virtual boost::optional<rask::ast::VarDecl> buildVarDecl(const rask::cst::VarDecl& vd)
     {
         varDecls.push_back(&vd);
 
-        if (!buildVarDeclSuccessful) return rask::ast::SharedVarDecl();
+        if (!buildVarDeclSuccessful) return boost::none;
         
-        return rask::ast::SharedVarDecl(new rask::ast::VarDecl(vd.name, 0));
+        return rask::ast::VarDecl(vd.name, 0);
     }
 };
     
@@ -58,9 +58,9 @@ struct buildFunctionAST_TestData
         return c;
     }
 
-    const rask::ast::SharedVarDecl& getVD(const rask::ast::Statement& stmt)
+    const rask::ast::VarDecl& getVD(const rask::ast::Statement& stmt)
     {
-        return boost::get<rask::ast::SharedVarDecl>(stmt);
+        return boost::get<rask::ast::VarDecl>(stmt);
     }
 
     const rask::ast::FunctionCall& getFCall(const rask::ast::Statement& stmt)
@@ -183,8 +183,8 @@ void object::test<5>()
     ensure("decl 1", builder.varDecls[0] == &boost::get<cst::VarDecl>(cf.stmts[0]));
     ensure("decl 2", builder.varDecls[1] == &boost::get<cst::VarDecl>(cf.stmts[1]));
     ensure_equals("stmt count", f->stmtCount(), 2u);
-    ensure_equals("stmt 1", getVD(f->stmt(0))->name().value, vd1.name.value);
-    ensure_equals("stmt 2", getVD(f->stmt(1))->name().value, vd2.name.value);
+    ensure_equals("stmt 1", getVD(f->stmt(0)).var()->name().value, vd1.name.value);
+    ensure_equals("stmt 2", getVD(f->stmt(1)).var()->name().value, vd2.name.value);
 }
 
 template <>

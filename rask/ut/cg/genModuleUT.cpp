@@ -32,18 +32,19 @@ class CodeGeneratorMock : public rask::cg::CodeGenerator
 {
 public:
 
-    rask::ast::Function function;
+    const rask::ast::Function *function;
     llvm::Function *genFunctionResult;
     int declBuiltinFunctionsCalled;
     int genFunctionCalled;
     int counter;
 
-    CodeGeneratorMock() : genFunctionResult(0), declBuiltinFunctionsCalled(false), genFunctionCalled(0), counter(0) { }
+    CodeGeneratorMock()
+        : function(0), genFunctionResult(0), declBuiltinFunctionsCalled(false), genFunctionCalled(0), counter(0) { }
     
     virtual llvm::Function *genFunction(const rask::ast::Function& f, llvm::Module& module)
     {
         genFunctionCalled = ++counter;
-        function = f;
+        function = &f;
         
         genFunctionResult = llvm::Function::Create(llvm::FunctionType::get(llvm::Type::getVoidTy(module.getContext()), false), llvm::Function::ExternalLinkage, "stub", &module);
 
@@ -79,7 +80,7 @@ void object::test<1>()
     ensure_equals("gen", cg.genFunctionCalled, 2);
     ensure_size("main", module->getFunctionList(), 1u);
     ensure_contains("stub", module->getFunctionList(), cg.genFunctionResult);
-    ensure("function", cg.function == ast.main);
+    ensure("function", cg.function == &ast.main);
 }
 
 

@@ -15,31 +15,31 @@ namespace
     
 class BuilderMock : public rask::ast::Builder
 {
-    public:
+public:
 
-        const rask::cst::Function *function;
-        int buildFunctionCalled;
-        int counter;
-        bool buildFunctionSuccessful;
-        rask::ast::Function buildFunctionResult;
+    const rask::cst::Function *function;
+    int buildFunctionCalled;
+    int counter;
+    bool buildFunctionSuccessful;
+    rask::ast::Function buildFunctionResult;
 
-        BuilderMock(rask::error::Logger& logger)
+    BuilderMock(rask::error::Logger& logger)
         : rask::ast::Builder(logger), function(0), counter(0), buildFunctionSuccessful(true)
-        {
-            buildFunctionResult.addStmt(rask::ast::FunctionCall(1));
-            buildFunctionResult.addStmt(rask::ast::FunctionCall(2));
-            buildFunctionResult.addStmt(rask::ast::FunctionCall(3));
-        }
+    {
+        buildFunctionResult.addStmt(rask::ast::FunctionCall(1));
+        buildFunctionResult.addStmt(rask::ast::FunctionCall(2));
+        buildFunctionResult.addStmt(rask::ast::FunctionCall(3));
+    }
 
-        virtual boost::optional<rask::ast::Function> buildFunction(const rask::cst::Function& f)
-        {
-            buildFunctionCalled = ++counter;
-            function = &f;
+    virtual boost::optional<rask::ast::Function> buildFunction(const rask::cst::Function& f)
+    {
+        buildFunctionCalled = ++counter;
+        function = &f;
 
-            if (!buildFunctionSuccessful) return boost::none;
+        if (!buildFunctionSuccessful) return boost::none;
 
-            return buildFunctionResult;
-        }
+        return buildFunctionResult;
+    }
 };
 
 }

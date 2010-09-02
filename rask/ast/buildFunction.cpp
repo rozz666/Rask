@@ -35,11 +35,11 @@ struct StatementVisitor : boost::static_visitor<bool>
 
     bool operator()(const cst::VarDecl& vd)
     {
-        SharedVarDecl d = b.buildVarDecl(vd);
+        boost::optional<ast::VarDecl> d = b.buildVarDecl(vd);
         
         if (!d) return false;
         
-        f.addStmt(d);
+        f.addStmt(*d);
 
         return true;
     }

@@ -48,12 +48,12 @@ void object::test<2>()
     ast::FunctionCall fc(5);
     cst::Identifier name;
     name.value = "asia";
-    ast::SharedVarDecl vd(new ast::VarDecl(name, 0));
+    ast::VarDecl vd(name, 0);
     f.addStmt(fc);
     f.addStmt(vd);
     ensure_equals("count", f.stmtCount(), 2u);
     ensure_equals("call", boost::get<ast::FunctionCall>(f.stmt(0)), fc);
-    ensure_equals("name", boost::get<ast::SharedVarDecl>(f.stmt(1))->name().value, name.value);
+    ensure_equals("name", boost::get<ast::VarDecl>(f.stmt(1)).var()->name().value, name.value);
 }
 
 template <>
@@ -77,6 +77,19 @@ void object::test<3>()
 
     ensure("eq 3", f1 == f2);
     ensure_not("neq 3", f1 != f2);
+
+    cst::Identifier name;
+    name.value = "asia";
+    ast::VarDecl vd(name, 1);
+    f1.addStmt(vd);
+    
+    ensure_not("eq 4", f1 == f2);
+    ensure("neq 4", f1 != f2);
+    
+    f2.addStmt(vd);
+    
+    ensure("eq 5", f1 == f2);
+    ensure_not("neq 5", f1 != f2);
 }
     
 }
