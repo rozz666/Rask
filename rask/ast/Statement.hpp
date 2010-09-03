@@ -18,9 +18,21 @@ namespace rask
 namespace ast
 {
 
-typedef boost::int32_t FunctionCall;
-    
+typedef boost::variant<boost::int32_t, SharedVariable> FunctionCall;
+
+inline boost::int32_t& getInt32(FunctionCall& fc) { return boost::get<boost::int32_t>(fc); }
+inline const boost::int32_t& getInt32(const FunctionCall& fc) { return boost::get<boost::int32_t>(fc); }
+
+inline SharedVariable& getVariable(FunctionCall& fc) { return boost::get<SharedVariable>(fc); }
+inline const SharedVariable& getVariable(const FunctionCall& fc) { return boost::get<SharedVariable>(fc); }
+
 typedef boost::variant<VarDecl, FunctionCall> Statement;
+
+inline FunctionCall& getFunctionCall(Statement& s) { return boost::get<FunctionCall>(s); }
+inline const FunctionCall& getFunctionCall(const Statement& s) { return boost::get<FunctionCall>(s); }
+
+inline VarDecl& getVarDecl(Statement& s) { return boost::get<VarDecl>(s); }
+inline const VarDecl& getVarDecl(const Statement& s) { return boost::get<VarDecl>(s); }
 
 }
 

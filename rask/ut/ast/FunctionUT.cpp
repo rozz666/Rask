@@ -52,7 +52,7 @@ void object::test<2>()
     f.addStmt(fc);
     f.addStmt(vd);
     ensure_equals("count", f.stmtCount(), 2u);
-    ensure_equals("call", boost::get<ast::FunctionCall>(f.stmt(0)), fc);
+    ensure_equals("call", boost::get<boost::int32_t>(boost::get<ast::FunctionCall>(f.stmt(0))), boost::get<boost::int32_t>(fc));
     ensure_equals("name", boost::get<ast::VarDecl>(f.stmt(1)).var()->name().value, name.value);
 }
 

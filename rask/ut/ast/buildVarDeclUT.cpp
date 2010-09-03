@@ -16,9 +16,10 @@ namespace tut
 struct buildVarDecl_TestData
 {
     rask::error::Logger logger;
+    rask::ast::SymbolTable st;
     rask::ast::Builder builder;
 
-    buildVarDecl_TestData() : builder(logger) { }
+    buildVarDecl_TestData() : builder(logger, st) { }
 };
 
 typedef test_group<buildVarDecl_TestData> factory;
@@ -40,9 +41,8 @@ void object::test<1>()
     using namespace rask;
 
     cst::VarDecl cvd;
-    cvd.name.value = "x";
-    cvd.value = cst::Constant();
-    cvd.value->value = 1;
+    cvd.name = cst::Identifier::create(Position(), "x");
+    cvd.value = cst::Constant::create(Position(), 1);
 
     boost::optional<ast::VarDecl> vd = builder.buildVarDecl(cvd);
 
@@ -51,6 +51,7 @@ void object::test<1>()
     ensure_equals("name pos", vd->var()->name().position, cvd.name.position);
     ensure_equals("name str", vd->var()->name().value, cvd.name.value);
     ensure_equals("value", vd->value(), cvd.value->value);
+    ensure("st", st.get(cvd.name) == vd->var());
 }
 
 template <>
@@ -60,8 +61,7 @@ void object::test<2>()
     using namespace rask;
 
     cst::VarDecl cvd;
-    cvd.name.position = Position("xxx", 1, 2);
-    cvd.name.value = "x";
+    cvd.name = cst::Identifier::create(Position(), "x");
     
     boost::optional<ast::VarDecl> vd = builder.buildVarDecl(cvd);
     

@@ -76,12 +76,14 @@ int main(int argc, char **argv)
 
     if (cst)
     {
-        boost::optional<rask::ast::Tree> ast = ast::Builder(logger).buildTree(*cst);
+        ast::SymbolTable symbolTable;
+        boost::optional<rask::ast::Tree> ast = ast::Builder(logger, symbolTable).buildTree(*cst);
 
         if (ast && !params.noOutput)
         {
             llvm::LLVMContext context;
-            cg::CodeGenerator cg;
+            cg::SymbolTable symbolTable;
+            cg::CodeGenerator cg(symbolTable);
 
             std::auto_ptr<llvm::Module> module = cg.genModule(*ast, context);
 

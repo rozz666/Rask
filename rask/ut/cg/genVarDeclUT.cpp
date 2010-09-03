@@ -21,9 +21,10 @@ struct genVarDecl_TestData
 {
     llvm::LLVMContext ctx;
     std::auto_ptr<llvm::BasicBlock> block;
+    rask::cg::SymbolTable st;
     rask::cg::CodeGenerator cg;
     
-    genVarDecl_TestData() : block(llvm::BasicBlock::Create(ctx))
+    genVarDecl_TestData() : block(llvm::BasicBlock::Create(ctx)), cg(st)
     {
     }
 };
@@ -58,6 +59,7 @@ void object::test<1>()
     ensure("alloca", &*it == alloc);
     ensure_equals("alloca name", alloc->getNameStr(), name.value);
     ensure("alloca type", alloc->getAllocatedType() == llvm::IntegerType::get(ctx, 32));
+    ensure("st", st.get(name) == alloc);
     ++it;
 
     ensure("store", llvm::isa<llvm::StoreInst>(*it));

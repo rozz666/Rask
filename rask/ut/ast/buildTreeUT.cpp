@@ -17,6 +17,7 @@ class BuilderMock : public rask::ast::Builder
 {
 public:
 
+    rask::ast::SymbolTable st;
     const rask::cst::Function *function;
     int buildFunctionCalled;
     int counter;
@@ -24,7 +25,7 @@ public:
     rask::ast::Function buildFunctionResult;
 
     BuilderMock(rask::error::Logger& logger)
-        : rask::ast::Builder(logger), function(0), counter(0), buildFunctionSuccessful(true)
+        : rask::ast::Builder(logger, st), function(0), counter(0), buildFunctionSuccessful(true)
     {
         buildFunctionResult.addStmt(rask::ast::FunctionCall(1));
         buildFunctionResult.addStmt(rask::ast::FunctionCall(2));

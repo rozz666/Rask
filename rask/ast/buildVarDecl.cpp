@@ -23,7 +23,10 @@ boost::optional<VarDecl> Builder::buildVarDecl(const cst::VarDecl& vd)
         return boost::none;
     }
     
-    return VarDecl(vd.name, vd.value->value);
+    VarDecl decl(vd.name, vd.value->value);
+    symbolTable_.add(decl.var());
+    
+    return decl;
 }
    
     

@@ -22,6 +22,12 @@ struct Constant
 {
     Position position;
     boost::int32_t value;
+
+    static Constant create(Position position, boost::int32_t value)
+    {
+        Constant c = { position, value };
+        return c;
+    }
 };
 
 }

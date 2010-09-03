@@ -38,8 +38,9 @@ public:
     int counter;
     std::vector<GenFunctionCall> genFunctionCallCalls;
     std::vector<GenVarDecl> genVarDeclCalls;
+    rask::cg::SymbolTable symbolTable;
     
-    CodeGeneratorMock() : counter(0) { }
+    CodeGeneratorMock() : rask::cg::CodeGenerator(symbolTable), counter(0) { }
 
     virtual llvm::CallInst *genFunctionCall(const rask::ast::FunctionCall& fc, llvm::BasicBlock& block, llvm::Module& module)
     {
@@ -54,7 +55,6 @@ public:
         genVarDeclCalls.push_back(gfd);
         return 0;
     }
-    
 };
     
 }

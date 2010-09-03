@@ -11,6 +11,7 @@
 
 #include <boost/optional.hpp>
 #include <rask/ast/Tree.hpp>
+#include <rask/ast/SymbolTable.hpp>
 #include <rask/cst/Tree.hpp>
 #include <rask/error/Logger.hpp>
 
@@ -23,7 +24,7 @@ class Builder
 {
 public:
 
-    Builder(error::Logger& logger) : logger_(logger) { }
+    Builder(error::Logger& logger, SymbolTable& symbolTable) : logger_(logger), symbolTable_(symbolTable) { }
     
     virtual boost::optional<FunctionCall> buildFunctionCall(const cst::FunctionCall& fc);
     virtual boost::optional<Function> buildFunction(const cst::Function& f);
@@ -33,7 +34,8 @@ public:
 private:
 
     error::Logger& logger_;
-
+    SymbolTable& symbolTable_;
+    
     std::string functionSignature(const std::string& name, const std::vector<cst::Expression>& args);
 };
 

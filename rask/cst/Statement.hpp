@@ -21,6 +21,12 @@ namespace cst
 
 typedef boost::variant<FunctionCall, VarDecl> Statement;
 
+inline FunctionCall& getFunctionCall(Statement& s) { return boost::get<FunctionCall>(s); }
+inline const FunctionCall& getFunctionCall(const Statement& s) { return boost::get<FunctionCall>(s); }
+
+inline VarDecl& getVarDecl(Statement& s) { return boost::get<VarDecl>(s); }
+inline const VarDecl& getVarDecl(const Statement& s) { return boost::get<VarDecl>(s); }
+
 }
 }
 

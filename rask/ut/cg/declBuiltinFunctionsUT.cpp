@@ -40,8 +40,9 @@ void object::test<1>()
     
     llvm::LLVMContext context;
     std::auto_ptr<llvm::Module> module(new llvm::Module("testModule", context));
-    
-    cg::CodeGenerator().declBuiltinFunctions(*module);
+
+    cg::SymbolTable st;
+    cg::CodeGenerator(st).declBuiltinFunctions(*module);
 
     ensure_size("decl", module->getFunctionList(), 1u);
 

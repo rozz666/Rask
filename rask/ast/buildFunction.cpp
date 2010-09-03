@@ -44,23 +44,6 @@ struct StatementVisitor : boost::static_visitor<bool>
         return true;
     }
 };
-    
-boost::optional<FunctionCall> Builder::buildFunctionCall(const cst::FunctionCall& call)
-{
-    if (call.function.value != "print")
-    {
-        logger_.log(error::Message::unknownIdentifier(call.function.position, call.function.value));
-        return boost::none;
-    }
-    
-    if (call.args.size() != 1)
-    {
-        logger_.log(error::Message::functionNotFound(call.function.position, functionSignature("print", call.args)));
-        return boost::none;
-    }
-    
-    return boost::get<cst::Constant>(call.args[0]).value;
-}
 
 boost::optional<Function> Builder::buildFunction(const cst::Function& cf)
 {

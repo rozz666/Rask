@@ -39,7 +39,8 @@ public:
     int counter;
 
     CodeGeneratorMock()
-        : function(0), genFunctionResult(0), declBuiltinFunctionsCalled(false), genFunctionCalled(0), counter(0) { }
+        : rask::cg::CodeGenerator(dummyST_), function(0), genFunctionResult(0),
+        declBuiltinFunctionsCalled(false), genFunctionCalled(0), counter(0) { }
     
     virtual llvm::Function *genFunction(const rask::ast::Function& f, llvm::Module& module)
     {
@@ -55,6 +56,10 @@ public:
     {
         declBuiltinFunctionsCalled = ++counter;
     }
+    
+private:
+        
+    rask::cg::SymbolTable dummyST_;
 };
 
 }

@@ -22,6 +22,12 @@ struct Identifier
 {
     Position position;
     std::string value;
+
+    static Identifier create(Position position, std::string value)
+    {
+        Identifier id = { position, value };
+        return id;
+    }
 };
 
 }
