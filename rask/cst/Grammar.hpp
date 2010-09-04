@@ -20,7 +20,7 @@
 #include <boost/spirit/home/classic/iterator/position_iterator.hpp>
 
 #include <rask/Position.hpp>
-#include <rask/cst/Function.hpp>
+#include <rask/cst/Tree.hpp>
 #include <rask/error/Logger.hpp>
 
 namespace rask
@@ -203,10 +203,10 @@ boost::phoenix::function<errorMessageImpl> errorMessage;
 }
 
 template <typename Iterator>
-struct Grammar : qi::grammar<Iterator, cst::Function(), ascii::space_type> 
+struct Grammar : qi::grammar<Iterator, cst::Tree(), ascii::space_type>
 {
     Grammar(error::Logger& errorLogger)
-        : Grammar::base_type(function, "function")
+        : Grammar::base_type(tree, "tree")
     {
         identifier %= inputPos >> qi::lexeme[qi::char_("a-zA-Z_") >> *qi::char_("a-zA-Z0-9_")];
         returnType %= qi::lit("void");
@@ -217,15 +217,17 @@ struct Grammar : qi::grammar<Iterator, cst::Function(), ascii::space_type>
         statement %= (variableDeclaration | functionCall) > ';';
         function %=
             identifier > '(' > ')' > "->" > (returnType | error(&error::Message::missingReturnType, &errorLogger)) >
-            '{' > *statement > '}' > qi::eoi;
+            '{' > *statement > '}';
+        tree %= *function > inputPos > qi::eoi;
 
         qi::on_error<qi::fail>
         (
-            function,
+            tree,
             detail::errorMessage(&errorLogger, qi::labels::_4, qi::labels::_3)
         );
     }
 
+    qi::rule<Iterator, cst::Tree(), ascii::space_type> tree;
     qi::rule<Iterator, cst::Identifier(), ascii::space_type> identifier;
     qi::rule<Iterator, void(), ascii::space_type> returnType;
     qi::rule<Iterator, cst::Function(), ascii::space_type> function;

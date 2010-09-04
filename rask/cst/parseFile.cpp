@@ -31,9 +31,9 @@ boost::optional<Tree> parseFile(InputStream& is, error::Logger& logger)
     Grammar grammar(logger);
     cst::Tree cst;
 
-    bool r = boost::spirit::qi::phrase_parse(iter, end, grammar, space, cst.main);
+    bool r = boost::spirit::qi::phrase_parse(iter, end, grammar, space, cst);
 
-    if (r && iter == end && logger.errors().empty())
+    if (r && iter == end && logger.errors().empty() && cst.functions.size() > 0)
     {
         return cst;
     }

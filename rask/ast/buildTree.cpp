@@ -15,7 +15,7 @@ namespace ast
 
 boost::optional<Tree> Builder::buildTree(const cst::Tree& cst)
 {
-    boost::optional<Function> f = buildFunction(cst.main);
+    boost::optional<Function> f = buildFunction(cst.functions[0]);
 
     if (!f) return boost::none;
     

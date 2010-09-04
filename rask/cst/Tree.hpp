@@ -19,7 +19,8 @@ namespace cst
     
 struct Tree
 {
-    cst::Function main;
+    std::vector<cst::Function> functions;
+    Position end;
 };
     
 }
@@ -27,7 +28,8 @@ struct Tree
 
 BOOST_FUSION_ADAPT_STRUCT(
     rask::cst::Tree,
-    (rask::cst::Function, main)
+    (std::vector<rask::cst::Function>, functions)
+    (rask::Position, end)
 )
                           
 #endif /* RASK_CST_TREE_HPP */

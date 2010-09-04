@@ -54,7 +54,10 @@ struct buildAST_TestData
     BuilderMock builder;
     rask::cst::Tree cst;
 
-    buildAST_TestData() : builder(logger) { }
+    buildAST_TestData() : builder(logger)
+    {
+        cst.functions.resize(1);
+    }
 };
 
 typedef test_group<buildAST_TestData> factory;
@@ -81,7 +84,7 @@ void object::test<1>()
     ensure("built", ast);
     ensure("result", ast->main == builder.buildFunctionResult);
     ensure_equals("called", builder.buildFunctionCalled, 1);
-    ensure("main", builder.function == &cst.main);
+    ensure("main", builder.function == &cst.functions[0]);
 }
 
 template <>
@@ -96,7 +99,7 @@ void object::test<2>()
     
     ensure_not("not built", ast);
     ensure_equals("called", builder.buildFunctionCalled, 1);
-    ensure("main", builder.function == &cst.main);
+    ensure("main", builder.function == &cst.functions[0]);
 }
 
 }

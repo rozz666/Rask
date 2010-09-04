@@ -20,6 +20,12 @@ namespace cst
 
 typedef boost::variant<Constant, Identifier> Expression;
 
+inline Constant& getConstant(Expression& e) { return boost::get<Constant>(e); }
+inline const Constant& getConstant(const Expression& e) { return boost::get<Constant>(e); }
+
+inline Identifier& getIdentifier(Expression& e) { return boost::get<Identifier>(e); }
+inline const Identifier& getIdentifier(const Expression& e) { return boost::get<Identifier>(e); }
+
 }
 }
 

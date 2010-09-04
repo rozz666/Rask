@@ -21,6 +21,12 @@ void ensure_size(const M& msg, Cont& cont, Size size)
 }
 
 template <typename M, typename Cont>
+void ensure_empty(const M& msg, Cont& cont)
+{
+    ensure(msg, cont.empty());
+}
+
+template <typename M, typename Cont>
 void ensure_contains(const M& msg, Cont& cont, typename Cont::iterator::pointer what)
 {
     for (typename Cont::iterator it = cont.begin(), end = cont.end();  it != end; ++it)
