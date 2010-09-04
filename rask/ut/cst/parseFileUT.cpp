@@ -44,9 +44,9 @@ struct parseMain_TestData
         return boost::get<rask::cst::FunctionCall>(stmt);
     }
 
-    const rask::cst::VarDecl& getVDecl(const rask::cst::Statement& stmt)
+    const rask::cst::VariableDecl& getVDecl(const rask::cst::Statement& stmt)
     {
-        return boost::get<rask::cst::VarDecl>(stmt);
+        return boost::get<rask::cst::VariableDecl>(stmt);
     }
 
     const rask::cst::Identifier& getId(const rask::cst::Expression& expr)

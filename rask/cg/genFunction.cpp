@@ -31,9 +31,9 @@ struct StatementVisitor : boost::static_visitor<void>
         cg.genFunctionCall(fc, entry, module);
     }
 
-    void operator()(const ast::VarDecl& vd)
+    void operator()(const ast::VariableDecl& vd)
     {
-        cg.genVarDecl(vd, entry);
+        cg.genVariableDecl(vd, entry);
     }
 };
         

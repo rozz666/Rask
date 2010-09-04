@@ -33,9 +33,9 @@ struct StatementVisitor : boost::static_visitor<bool>
         return true;
     }
 
-    bool operator()(const cst::VarDecl& vd)
+    bool operator()(const cst::VariableDecl& vd)
     {
-        boost::optional<ast::VarDecl> d = b.buildVarDecl(vd);
+        boost::optional<ast::VariableDecl> d = b.buildVariableDecl(vd);
         
         if (!d) return false;
         

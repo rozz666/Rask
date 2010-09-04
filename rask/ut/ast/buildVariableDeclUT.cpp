@@ -13,22 +13,22 @@
 namespace tut
 {
 
-struct buildVarDecl_TestData
+struct buildVariableDecl_TestData
 {
     rask::error::Logger logger;
     rask::ast::SymbolTable st;
     rask::ast::Builder builder;
 
-    buildVarDecl_TestData() : builder(logger, st) { }
+    buildVariableDecl_TestData() : builder(logger, st) { }
 };
 
-typedef test_group<buildVarDecl_TestData> factory;
+typedef test_group<buildVariableDecl_TestData> factory;
 typedef factory::object object;
 }
 
 namespace
 {
-tut::factory tf("rask.ast.Builder.buildVarDecl");
+tut::factory tf("rask.ast.Builder.buildVariableDecl");
 }
 
 namespace tut
@@ -40,11 +40,11 @@ void object::test<1>()
 {
     using namespace rask;
 
-    cst::VarDecl cvd;
+    cst::VariableDecl cvd;
     cvd.name = cst::Identifier::create(Position(), "x");
     cvd.value = cst::Constant::create(Position(), 1);
 
-    boost::optional<ast::VarDecl> vd = builder.buildVarDecl(cvd);
+    boost::optional<ast::VariableDecl> vd = builder.buildVariableDecl(cvd);
 
     ensure("built", vd);
     ensure("no errors", logger.errors().empty());
@@ -60,10 +60,10 @@ void object::test<2>()
 {
     using namespace rask;
 
-    cst::VarDecl cvd;
+    cst::VariableDecl cvd;
     cvd.name = cst::Identifier::create(Position(), "x");
     
-    boost::optional<ast::VarDecl> vd = builder.buildVarDecl(cvd);
+    boost::optional<ast::VariableDecl> vd = builder.buildVariableDecl(cvd);
     
     ensure_not("not built", vd);
     ensure_equals("1 error", logger.errors().size(), 1u);

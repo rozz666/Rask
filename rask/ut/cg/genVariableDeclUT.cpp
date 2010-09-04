@@ -17,25 +17,25 @@
 namespace tut
 {
 
-struct genVarDecl_TestData
+struct genVariableDecl_TestData
 {
     llvm::LLVMContext ctx;
     std::auto_ptr<llvm::BasicBlock> block;
     rask::cg::SymbolTable st;
     rask::cg::CodeGenerator cg;
     
-    genVarDecl_TestData() : block(llvm::BasicBlock::Create(ctx)), cg(st)
+    genVariableDecl_TestData() : block(llvm::BasicBlock::Create(ctx)), cg(st)
     {
     }
 };
 
-typedef test_group<genVarDecl_TestData> factory;
+typedef test_group<genVariableDecl_TestData> factory;
 typedef factory::object object;
 }
 
 namespace
 {
-tut::factory tf("rask.cg.CodeGenerator.genVarDecl");
+tut::factory tf("rask.cg.CodeGenerator.genVariableDecl");
 }
 
 namespace tut
@@ -49,9 +49,9 @@ void object::test<1>()
 
     cst::Identifier name;
     name.value = "asia";
-    ast::VarDecl vd(name, 10);
+    ast::VariableDecl vd(name, 10);
 
-    llvm::AllocaInst *alloc = cg.genVarDecl(vd, *block);
+    llvm::AllocaInst *alloc = cg.genVariableDecl(vd, *block);
 
     ensure_equals("2 instr", block->size(), 2u);
     llvm::BasicBlock::iterator it = block->begin();

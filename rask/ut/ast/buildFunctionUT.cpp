@@ -17,10 +17,10 @@ class BuilderMock : public rask::ast::Builder
 {
 public:
 
-    struct BuildVarDecl
+    struct BuildVariableDecl
     {
         int N;
-        const rask::cst::VarDecl *vd;
+        const rask::cst::VariableDecl *vd;
     };
     
     struct BuildFunctionCall
@@ -30,22 +30,22 @@ public:
     };
     
     int counter;
-    std::vector<BuildVarDecl> buildVarDeclCalls;
+    std::vector<BuildVariableDecl> buildVariableDeclCalls;
     std::vector<BuildFunctionCall> buildFunctionCallCalls;
-    bool buildVarDeclSuccessful;
+    bool buildVariableDeclSuccessful;
     bool buildFunctionCallSuccessful;
 
     BuilderMock(rask::error::Logger& logger, rask::ast::SymbolTable st)
-        : rask::ast::Builder(logger, st), counter(0), buildVarDeclSuccessful(true), buildFunctionCallSuccessful(true) { }
+        : rask::ast::Builder(logger, st), counter(0), buildVariableDeclSuccessful(true), buildFunctionCallSuccessful(true) { }
     
-    virtual boost::optional<rask::ast::VarDecl> buildVarDecl(const rask::cst::VarDecl& vd)
+    virtual boost::optional<rask::ast::VariableDecl> buildVariableDecl(const rask::cst::VariableDecl& vd)
     {
-        BuildVarDecl bvd = { ++counter, &vd };
-        buildVarDeclCalls.push_back(bvd);
+        BuildVariableDecl bvd = { ++counter, &vd };
+        buildVariableDeclCalls.push_back(bvd);
 
-        if (!buildVarDeclSuccessful) return boost::none;
+        if (!buildVariableDeclSuccessful) return boost::none;
         
-        return rask::ast::VarDecl(vd.name, 0);
+        return rask::ast::VariableDecl(vd.name, 0);
     }
 
     virtual boost::optional<rask::ast::FunctionCall> buildFunctionCall(const rask::cst::FunctionCall& fc)
@@ -159,10 +159,10 @@ void object::test<4>()
 {
     using namespace rask;
 
-    cst::VarDecl vd1;
+    cst::VariableDecl vd1;
     vd1.name.value = "a";
     cf.stmts.push_back(vd1);
-    cst::VarDecl vd2;
+    cst::VariableDecl vd2;
     vd2.name.value = "b";
     cf.stmts.push_back(vd2);
 
@@ -170,14 +170,14 @@ void object::test<4>()
     
     ensure("built", f);
     ensure_equals("no errors", logger.errors().size(), 0u);
-    ensure_equals("2 decls", builder.buildVarDeclCalls.size(), 2u);
-    ensure_equals("decl 1", builder.buildVarDeclCalls[0].N, 1);
-    ensure("decl 1 vd", builder.buildVarDeclCalls[0].vd == &getVarDecl(cf.stmts[0]));
-    ensure_equals("decl 2", builder.buildVarDeclCalls[1].N, 2);
-    ensure("decl 2 vd", builder.buildVarDeclCalls[1].vd == &getVarDecl(cf.stmts[1]));
+    ensure_equals("2 decls", builder.buildVariableDeclCalls.size(), 2u);
+    ensure_equals("decl 1", builder.buildVariableDeclCalls[0].N, 1);
+    ensure("decl 1 vd", builder.buildVariableDeclCalls[0].vd == &getVariableDecl(cf.stmts[0]));
+    ensure_equals("decl 2", builder.buildVariableDeclCalls[1].N, 2);
+    ensure("decl 2 vd", builder.buildVariableDeclCalls[1].vd == &getVariableDecl(cf.stmts[1]));
     ensure_equals("stmt count", f->stmtCount(), 2u);
-    ensure_equals("stmt 1", getVarDecl(f->stmt(0)).var()->name().value, vd1.name.value);
-    ensure_equals("stmt 2", getVarDecl(f->stmt(1)).var()->name().value, vd2.name.value);
+    ensure_equals("stmt 1", getVariableDecl(f->stmt(0)).var()->name().value, vd1.name.value);
+    ensure_equals("stmt 2", getVariableDecl(f->stmt(1)).var()->name().value, vd2.name.value);
 }
 
 template <>
@@ -186,18 +186,18 @@ void object::test<5>()
 {
     using namespace rask;
     
-    cf.stmts.push_back(cst::VarDecl());
-    cf.stmts.push_back(cst::VarDecl());
+    cf.stmts.push_back(cst::VariableDecl());
+    cf.stmts.push_back(cst::VariableDecl());
     
-    builder.buildVarDeclSuccessful = false;
+    builder.buildVariableDeclSuccessful = false;
     
     boost::optional<ast::Function> f = builder.buildFunction(cf);
     
     ensure_not("not built", f);
     ensure_equals("no errors", logger.errors().size(), 0u);
-    ensure_equals("1 decl", builder.buildVarDeclCalls.size(), 1u);
-    ensure_equals("decl 1", builder.buildVarDeclCalls[0].N, 1);
-    ensure("decl 1 vd", builder.buildVarDeclCalls[0].vd == &boost::get<cst::VarDecl>(cf.stmts[0]));
+    ensure_equals("1 decl", builder.buildVariableDeclCalls.size(), 1u);
+    ensure_equals("decl 1", builder.buildVariableDeclCalls[0].N, 1);
+    ensure("decl 1 vd", builder.buildVariableDeclCalls[0].vd == &boost::get<cst::VariableDecl>(cf.stmts[0]));
 }
 
 }

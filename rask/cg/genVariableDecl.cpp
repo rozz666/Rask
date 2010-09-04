@@ -14,7 +14,7 @@ namespace rask
 namespace cg
 {
 
-llvm::AllocaInst *CodeGenerator::genVarDecl(const ast::VarDecl& vd, llvm::BasicBlock& block)
+llvm::AllocaInst *CodeGenerator::genVariableDecl(const ast::VariableDecl& vd, llvm::BasicBlock& block)
 {
     llvm::LLVMContext& ctx = block.getContext();
     llvm::AllocaInst *alloca = new llvm::AllocaInst(llvm::IntegerType::get(ctx, 32), vd.var()->name().value, &block);

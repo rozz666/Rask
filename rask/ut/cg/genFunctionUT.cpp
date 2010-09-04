@@ -28,16 +28,16 @@ public:
         llvm::Module *module;
     };
 
-    struct GenVarDecl
+    struct GenVariableDecl
     {
         int N;
-        const rask::ast::VarDecl *vd;
+        const rask::ast::VariableDecl *vd;
         llvm::BasicBlock *block;
     };
     
     int counter;
     std::vector<GenFunctionCall> genFunctionCallCalls;
-    std::vector<GenVarDecl> genVarDeclCalls;
+    std::vector<GenVariableDecl> genVariableDeclCalls;
     rask::cg::SymbolTable symbolTable;
     
     CodeGeneratorMock() : rask::cg::CodeGenerator(symbolTable), counter(0) { }
@@ -49,10 +49,10 @@ public:
         return 0;
     }
 
-    virtual llvm::AllocaInst *genVarDecl(const rask::ast::VarDecl& vd, llvm::BasicBlock& block)
+    virtual llvm::AllocaInst *genVariableDecl(const rask::ast::VariableDecl& vd, llvm::BasicBlock& block)
     {
-        GenVarDecl gfd = { ++counter, &vd, &block };
-        genVarDeclCalls.push_back(gfd);
+        GenVariableDecl gfd = { ++counter, &vd, &block };
+        genVariableDeclCalls.push_back(gfd);
         return 0;
     }
 };
@@ -146,9 +146,9 @@ void object::test<3>()
     
     cst::Identifier name;
     name.value = "asia";
-    ast::VarDecl vd1(name, 1);
+    ast::VariableDecl vd1(name, 1);
     name.value = "kasia";
-    ast::VarDecl vd2(name, 2);
+    ast::VariableDecl vd2(name, 2);
     
     f.addStmt(vd1);
     f.addStmt(vd2);
@@ -157,13 +157,13 @@ void object::test<3>()
     
     ensureMainDef(gf);
     ensure_equals("1 instruction", entry->size(), 1u);
-    ensure_equals("#genVD", cg.genVarDeclCalls.size(), 2u);
-    ensure_equals("genVD 1 N", cg.genVarDeclCalls[0].N, 1);
-    ensure_equals("genVD 1 vd", cg.genVarDeclCalls[0].vd, &boost::get<ast::VarDecl>(f.stmt(0)));
-    ensure_equals("genVD 1 block", cg.genVarDeclCalls[0].block, entry);
-    ensure_equals("genVD 2 N", cg.genVarDeclCalls[1].N, 2);
-    ensure_equals("genVD 2 vd", cg.genVarDeclCalls[1].vd, &boost::get<ast::VarDecl>(f.stmt(1)));
-    ensure_equals("genVD 2 block", cg.genVarDeclCalls[1].block, entry);
+    ensure_equals("#genVD", cg.genVariableDeclCalls.size(), 2u);
+    ensure_equals("genVD 1 N", cg.genVariableDeclCalls[0].N, 1);
+    ensure_equals("genVD 1 vd", cg.genVariableDeclCalls[0].vd, &boost::get<ast::VariableDecl>(f.stmt(0)));
+    ensure_equals("genVD 1 block", cg.genVariableDeclCalls[0].block, entry);
+    ensure_equals("genVD 2 N", cg.genVariableDeclCalls[1].N, 2);
+    ensure_equals("genVD 2 vd", cg.genVariableDeclCalls[1].vd, &boost::get<ast::VariableDecl>(f.stmt(1)));
+    ensure_equals("genVD 2 block", cg.genVariableDeclCalls[1].block, entry);
     ensure("ret", llvm::isa<llvm::ReturnInst>(entry->front()));
 }
 

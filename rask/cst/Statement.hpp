@@ -12,20 +12,20 @@
 
 #include <boost/variant.hpp>
 #include <rask/cst/FunctionCall.hpp>
-#include <rask/cst/VarDecl.hpp>
+#include <rask/cst/VariableDecl.hpp>
 
 namespace rask
 {
 namespace cst
 {
 
-typedef boost::variant<FunctionCall, VarDecl> Statement;
+typedef boost::variant<FunctionCall, VariableDecl> Statement;
 
 inline FunctionCall& getFunctionCall(Statement& s) { return boost::get<FunctionCall>(s); }
 inline const FunctionCall& getFunctionCall(const Statement& s) { return boost::get<FunctionCall>(s); }
 
-inline VarDecl& getVarDecl(Statement& s) { return boost::get<VarDecl>(s); }
-inline const VarDecl& getVarDecl(const Statement& s) { return boost::get<VarDecl>(s); }
+inline VariableDecl& getVariableDecl(Statement& s) { return boost::get<VariableDecl>(s); }
+inline const VariableDecl& getVariableDecl(const Statement& s) { return boost::get<VariableDecl>(s); }
 
 }
 }

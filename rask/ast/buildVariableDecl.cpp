@@ -15,7 +15,7 @@ namespace rask
 namespace ast
 {
 
-boost::optional<VarDecl> Builder::buildVarDecl(const cst::VarDecl& vd)
+boost::optional<VariableDecl> Builder::buildVariableDecl(const cst::VariableDecl& vd)
 {
     if (!vd.value)
     {
@@ -23,7 +23,7 @@ boost::optional<VarDecl> Builder::buildVarDecl(const cst::VarDecl& vd)
         return boost::none;
     }
     
-    VarDecl decl(vd.name, vd.value->value);
+    VariableDecl decl(vd.name, vd.value->value);
     symbolTable_.add(decl.var());
     
     return decl;

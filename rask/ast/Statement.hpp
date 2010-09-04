@@ -11,7 +11,7 @@
 
 #include <boost/variant.hpp>
 #include <boost/cstdint.hpp>
-#include <rask/ast/VarDecl.hpp>
+#include <rask/ast/VariableDecl.hpp>
 
 namespace rask
 {
@@ -26,13 +26,13 @@ inline const boost::int32_t& getInt32(const FunctionCall& fc) { return boost::ge
 inline SharedVariable& getVariable(FunctionCall& fc) { return boost::get<SharedVariable>(fc); }
 inline const SharedVariable& getVariable(const FunctionCall& fc) { return boost::get<SharedVariable>(fc); }
 
-typedef boost::variant<VarDecl, FunctionCall> Statement;
+typedef boost::variant<VariableDecl, FunctionCall> Statement;
 
 inline FunctionCall& getFunctionCall(Statement& s) { return boost::get<FunctionCall>(s); }
 inline const FunctionCall& getFunctionCall(const Statement& s) { return boost::get<FunctionCall>(s); }
 
-inline VarDecl& getVarDecl(Statement& s) { return boost::get<VarDecl>(s); }
-inline const VarDecl& getVarDecl(const Statement& s) { return boost::get<VarDecl>(s); }
+inline VariableDecl& getVariableDecl(Statement& s) { return boost::get<VariableDecl>(s); }
+inline const VariableDecl& getVariableDecl(const Statement& s) { return boost::get<VariableDecl>(s); }
 
 }
 

@@ -17,11 +17,11 @@ namespace rask
 namespace ast
 {
 
-class VarDecl
+class VariableDecl
 {
 public:
 
-    VarDecl(const cst::Identifier& name, boost::int32_t value) : var_(new Variable(name)), value_(value) { }
+    VariableDecl(const cst::Identifier& name, boost::int32_t value) : var_(new Variable(name)), value_(value) { }
     
     SharedVariable var() const { return var_; }
     boost::int32_t value() const { return value_; }
@@ -32,12 +32,12 @@ private:
     boost::int32_t value_;
 };
 
-inline bool operator==(const VarDecl& left, const VarDecl& right)
+inline bool operator==(const VariableDecl& left, const VariableDecl& right)
 {
     return left.var() == right.var() && left.value() == right.value();
 }
 
-inline bool operator!=(const VarDecl& left, const VarDecl& right)
+inline bool operator!=(const VariableDecl& left, const VariableDecl& right)
 {
     return !(left == right);
 }

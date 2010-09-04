@@ -80,7 +80,7 @@ void object::test<2>()
 
     cst::Identifier name;
     name.value = "asia";
-    ast::VarDecl vd(name, 1);
+    ast::VariableDecl vd(name, 1);
     ast::FunctionCall fc(vd.var());
 
     st.add(name, a1);

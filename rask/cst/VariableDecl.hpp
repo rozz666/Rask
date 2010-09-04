@@ -19,7 +19,7 @@ namespace rask
 namespace cst
 {
 
-struct VarDecl
+struct VariableDecl
 {
     Identifier name;
     boost::optional<Constant> value;
@@ -29,7 +29,7 @@ struct VarDecl
 }
 
 BOOST_FUSION_ADAPT_STRUCT(
-    rask::cst::VarDecl,
+    rask::cst::VariableDecl,
     (rask::cst::Identifier, name)
     (boost::optional<rask::cst::Constant>, value)
 )
