@@ -17,7 +17,6 @@ ERROR_COUNT=0
 
 for SUITE in $SUITE_LIST
 do
-    echo -n "$SUITE:"
     SUITE_DIR="$CURRENT_DIR/$SUITE"
     cd "$SUITE_DIR"
 
@@ -25,11 +24,19 @@ do
     
     if [ ! -e "list" ]
     then
-        echo "Missing $SUITE/list"
+        echo "$SUITE: Missing $SUITE/list"
         continue;
     fi
 
     LIST=`cat list`
+
+    if [ "$LIST" == "" ]
+    then
+        continue;
+    fi
+
+    echo -n "$SUITE:"
+
     for TEST in $LIST
     do
         SOURCE="${TEST%%:*}"
