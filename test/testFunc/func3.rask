@@ -1,0 +1,9 @@
+f() -> void
+{
+    print(1);
+}
+
+g() -> void
+{
+    print(2);
+}

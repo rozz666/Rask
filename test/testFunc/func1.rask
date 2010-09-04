@@ -1,15 +1,29 @@
-f() -> void
+f1() -> void
+{
+}
+
+f2() -> void
 {
     print(1);
 }
 
-g() -> void
+f3() -> void
 {
     print(2);
+    print(3);
+}
+
+f4() -> void
+{
+    f3();
+    print(4);
 }
 
 main() -> void
 {
-    f();
-    g();
+    f1();
+    f2();
+    f3();
+    f4();
+    print(5);
 }

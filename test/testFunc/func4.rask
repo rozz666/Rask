@@ -1,0 +1,4 @@
+abc() -> void { }
+abc() -> void { }
+main() -> void { }
+

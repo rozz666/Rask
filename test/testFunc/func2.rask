@@ -1,0 +1,19 @@
+main() -> void
+{
+    f();
+}
+
+f() -> void
+{
+    g();
+}
+
+g() -> void
+{
+    h();
+}
+
+h() -> void
+{
+    print(1);
+}
