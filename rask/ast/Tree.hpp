@@ -18,7 +18,7 @@ namespace ast
  
 struct Tree
 {
-    ast::Function main;
+    ast::SharedFunction main;
 };
     
 }

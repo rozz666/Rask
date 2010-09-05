@@ -85,7 +85,7 @@ void object::test<1>()
     ensure_equals("gen", cg.genFunctionCalled, 2);
     ensure_size("main", module->getFunctionList(), 1u);
     ensure_contains("stub", module->getFunctionList(), cg.genFunctionResult);
-    ensure("function", cg.function == &ast.main);
+    ensure("function", cg.function == &*ast.main);
 }
 
 

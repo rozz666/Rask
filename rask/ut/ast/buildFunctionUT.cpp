@@ -35,7 +35,7 @@ public:
     bool buildVariableDeclSuccessful;
     bool buildFunctionCallSuccessful;
 
-    BuilderMock(rask::error::Logger& logger, rask::ast::SymbolTable st)
+    BuilderMock(rask::error::Logger& logger, rask::ast::SymbolTable& st)
         : rask::ast::Builder(logger, st), counter(0), buildVariableDeclSuccessful(true), buildFunctionCallSuccessful(true) { }
     
     virtual boost::optional<rask::ast::VariableDecl> buildVariableDecl(const rask::cst::VariableDecl& vd)
@@ -69,13 +69,17 @@ struct buildFunctionAST_TestData
     rask::error::Logger logger;
     const std::string file;
     rask::cst::Function cf;
+    rask::ast::SharedFunction f;
     rask::ast::SymbolTable st;
     BuilderMock builder;
     
     buildFunctionAST_TestData() : file("test.rask"), builder(logger, st)
     {
-        cf.name.value = "main";
-        cf.name.position = rask::Position(file, 1, 2);
+        cf.name = rask::cst::Identifier::create(rask::Position(file, 1, 2), "main");
+
+        f.reset(new rask::ast::Function(cf.name));
+        
+        st.add(f);
     }
 };
 
@@ -97,9 +101,8 @@ void object::test<1>()
 {
     using namespace rask;
 
-    boost::optional<ast::Function> f = builder.buildFunction(cf);
-
-    ensure("built", f);
+    ensure("built", builder.buildFunction(cf));
+    
     ensure_equals("no errors", logger.errors().size(), 0u);
     ensure_equals("no stmts", f->stmtCount(), 0u);
 }
@@ -118,9 +121,8 @@ void object::test<2>()
     getFunctionCall(cf.stmts[0]).args.push_back(cst::Constant::create(Position(), c1));
     getFunctionCall(cf.stmts[1]).args.push_back(cst::Constant::create(Position(), c2));
 
-    boost::optional<ast::Function> f = builder.buildFunction(cf);
-
-    ensure("built", f);
+    ensure("built", builder.buildFunction(cf));
+    
     ensure_equals("no errors", logger.errors().size(), 0u);
     ensure_equals("count", f->stmtCount(), 2u);
     ensure_equals("fcall 1", getInt32(getFunctionCall(f->stmt(0))), c1);
@@ -143,9 +145,8 @@ void object::test<3>()
     
     builder.buildFunctionCallSuccessful = false;
     
-    boost::optional<ast::Function> f = builder.buildFunction(cf);
+    ensure_not("not built", builder.buildFunction(cf));
     
-    ensure_not("not built", f);
     ensure_equals("no errors", logger.errors().size(), 0u);
     ensure_equals("buildFC #", builder.buildFunctionCallCalls.size(), 1u);
     ensure_equals("buildFC 1", builder.buildFunctionCallCalls[0].N, 1);
@@ -166,9 +167,8 @@ void object::test<4>()
     vd2.name.value = "b";
     cf.stmts.push_back(vd2);
 
-    boost::optional<ast::Function> f = builder.buildFunction(cf);
+    ensure("built", builder.buildFunction(cf));
     
-    ensure("built", f);
     ensure_equals("no errors", logger.errors().size(), 0u);
     ensure_equals("2 decls", builder.buildVariableDeclCalls.size(), 2u);
     ensure_equals("decl 1", builder.buildVariableDeclCalls[0].N, 1);
@@ -191,9 +191,8 @@ void object::test<5>()
     
     builder.buildVariableDeclSuccessful = false;
     
-    boost::optional<ast::Function> f = builder.buildFunction(cf);
+    ensure_not("not built", builder.buildFunction(cf));
     
-    ensure_not("not built", f);
     ensure_equals("no errors", logger.errors().size(), 0u);
     ensure_equals("1 decl", builder.buildVariableDeclCalls.size(), 1u);
     ensure_equals("decl 1", builder.buildVariableDeclCalls[0].N, 1);

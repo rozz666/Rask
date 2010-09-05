@@ -28,7 +28,7 @@ public:
     
     virtual boost::optional<FunctionCall> buildFunctionCall(const cst::FunctionCall& fc);
     virtual boost::optional<FunctionDecl> buildFunctionDecl(const cst::Function& f);
-    virtual boost::optional<Function> buildFunction(const cst::Function& f);
+    virtual bool buildFunction(const cst::Function& f);
     virtual boost::optional<Tree> buildTree(const cst::Tree& cst);
     virtual boost::optional<VariableDecl> buildVariableDecl(const cst::VariableDecl& vd);
 

@@ -20,7 +20,7 @@ std::auto_ptr<llvm::Module> CodeGenerator::genModule(const ast::Tree& ast, llvm:
     std::auto_ptr<llvm::Module> module(new llvm::Module("mainModule", context));
 
     declBuiltinFunctions(*module);
-    genFunction(ast.main, *module);
+    genFunction(*ast.main, *module);
 
     return module;
 }

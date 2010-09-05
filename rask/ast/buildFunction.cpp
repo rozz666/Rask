@@ -45,17 +45,17 @@ struct StatementVisitor : boost::static_visitor<bool>
     }
 };
 
-boost::optional<Function> Builder::buildFunction(const cst::Function& cf)
+bool Builder::buildFunction(const cst::Function& cf)
 {
-    Function af;
+    SharedFunction f = symbolTable_.getFunction(cf.name.value);
 
     BOOST_FOREACH(const cst::Statement& stmt, cf.stmts)
     {
-        StatementVisitor sv(*this, af);
-        if (!stmt.apply_visitor(sv)) return boost::none;
+        StatementVisitor sv(*this, *f);
+        if (!stmt.apply_visitor(sv)) return false;
     }
-
-    return af;
+    
+    return true;
 }
 
 std::string Builder::functionSignature(const std::string& name, const std::vector<cst::Expression>& args)

@@ -18,28 +18,40 @@ class BuilderMock : public rask::ast::Builder
 public:
 
     rask::ast::SymbolTable st;
+    const rask::cst::Function *functionDecl;
     const rask::cst::Function *function;
+    int buildFunctionDeclCalled;
     int buildFunctionCalled;
     int counter;
+    bool buildFunctionDeclSuccessful;
     bool buildFunctionSuccessful;
-    rask::ast::Function buildFunctionResult;
+    rask::ast::SharedFunction buildFunctionDeclResult;
 
     BuilderMock(rask::error::Logger& logger)
-        : rask::ast::Builder(logger, st), function(0), counter(0), buildFunctionSuccessful(true)
+        : rask::ast::Builder(logger, st), functionDecl(0), function(0), buildFunctionDeclCalled(0), buildFunctionCalled(0),
+        counter(0), buildFunctionDeclSuccessful(true), buildFunctionSuccessful(true)
     {
-        buildFunctionResult.addStmt(rask::ast::FunctionCall(1));
-        buildFunctionResult.addStmt(rask::ast::FunctionCall(2));
-        buildFunctionResult.addStmt(rask::ast::FunctionCall(3));
     }
 
-    virtual boost::optional<rask::ast::Function> buildFunction(const rask::cst::Function& f)
+    virtual boost::optional<rask::ast::FunctionDecl> buildFunctionDecl(const rask::cst::Function& f)
+    {
+        buildFunctionDeclCalled = ++counter;
+        functionDecl = &f;
+        
+        if (!buildFunctionDeclSuccessful) return boost::none;
+
+        rask::ast::FunctionDecl fd(f.name);
+        buildFunctionDeclResult = fd.function();
+
+        return fd;
+    }
+    
+    virtual bool buildFunction(const rask::cst::Function& f)
     {
         buildFunctionCalled = ++counter;
         function = &f;
 
-        if (!buildFunctionSuccessful) return boost::none;
-
-        return buildFunctionResult;
+        return buildFunctionSuccessful;
     }
 };
 
@@ -82,9 +94,11 @@ void object::test<1>()
     boost::optional<ast::Tree> ast = builder.buildTree(cst);
 
     ensure("built", ast);
-    ensure("result", ast->main == builder.buildFunctionResult);
-    ensure_equals("called", builder.buildFunctionCalled, 1);
-    ensure("main", builder.function == &cst.functions[0]);
+    ensure_equals("called 1", builder.buildFunctionDeclCalled, 1);
+    ensure_equals("called 2", builder.buildFunctionCalled, 2);
+    ensure("result", ast->main == builder.buildFunctionDeclResult);
+    ensure("f 1", builder.functionDecl == &cst.functions[0]);
+    ensure("f 2", builder.function == &cst.functions[0]);
 }
 
 template <>
@@ -95,11 +109,25 @@ void object::test<2>()
     
     builder.buildFunctionSuccessful = false;
 
-    boost::optional<ast::Tree> ast = builder.buildTree(cst);
+    ensure_not("not built", builder.buildTree(cst));
+    ensure_equals("called", builder.buildFunctionDeclCalled, 1);
+    ensure_equals("called", builder.buildFunctionCalled, 2);
+    ensure("f 1", builder.functionDecl == &cst.functions[0]);
+    ensure("f 2", builder.function == &cst.functions[0]);
+}
+
+template <>
+template <>
+void object::test<3>()
+{
+    using namespace rask;
     
-    ensure_not("not built", ast);
-    ensure_equals("called", builder.buildFunctionCalled, 1);
-    ensure("main", builder.function == &cst.functions[0]);
+    builder.buildFunctionDeclSuccessful = false;
+    
+    ensure_not("not built", builder.buildTree(cst));
+    ensure_equals("called", builder.buildFunctionDeclCalled, 1);
+    ensure_equals("not called", builder.buildFunctionCalled, 0);
+    ensure("f 1", builder.functionDecl == &cst.functions[0]);
 }
 
 }

@@ -15,12 +15,14 @@ namespace ast
 
 boost::optional<Tree> Builder::buildTree(const cst::Tree& cst)
 {
-    boost::optional<Function> f = buildFunction(cst.functions[0]);
+    boost::optional<FunctionDecl> fd = buildFunctionDecl(cst.functions[0]);
 
-    if (!f) return boost::none;
+    if (!fd) return boost::none;
+    
+    if (!buildFunction(cst.functions[0])) return boost::none;
     
     Tree ast;
-    ast.main = *f;
+    ast.main = fd->function();
     
     return ast;
 }  
