@@ -51,7 +51,7 @@ void object::test<1>()
     ensure_equals("name pos", vd->var()->name().position, cvd.name.position);
     ensure_equals("name str", vd->var()->name().value, cvd.name.value);
     ensure_equals("value", vd->value(), cvd.value->value);
-    ensure("st", st.get(cvd.name) == vd->var());
+    ensure("st", st.getVariable(cvd.name.value) == vd->var());
 }
 
 template <>

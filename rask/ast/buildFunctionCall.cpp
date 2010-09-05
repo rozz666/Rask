@@ -27,7 +27,7 @@ struct MakeFunctionCall : boost::static_visitor<FunctionCall>
 
     FunctionCall operator()(const cst::Identifier& id)
     {
-        return st.get(id);
+        return st.getVariable(id.value);
     }
 };
     

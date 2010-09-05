@@ -9,7 +9,7 @@
 #ifndef RASK_AST_TREE_HPP
 #define RASK_AST_TREE_HPP
 
-#include <rask/ast/Function.hpp>
+#include <rask/ast/FunctionDecl.hpp>
 
 namespace rask
 {  

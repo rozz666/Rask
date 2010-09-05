@@ -97,7 +97,7 @@ void object::test<1>()
 {
     using namespace rask;
 
-    boost::optional<ast::Function> f = builder.buildFunction(cf);
+    boost::optional<ast::SharedFunction> f = builder.buildFunction(cf);
 
     ensure("built", f);
     ensure_equals("no errors", logger.errors().size(), 0u);

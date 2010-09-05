@@ -15,6 +15,7 @@
 #include <stdexcept>
 #include <rask/cst/Identifier.hpp>
 #include <rask/ast/Variable.hpp>
+#include <rask/ast/Function.hpp>
 
 namespace rask
 {
@@ -31,27 +32,52 @@ public:
     
 class SymbolTable
 {
-    typedef std::map<std::string, SharedVariable> Vars;
-    
 public:
     
-    void add(SharedVariable var)
+    SharedVariable add(SharedVariable var)
     {
-        vars_.insert(Vars::value_type(var->name().value, var));
+        return add(vars_, var);
+    }
+
+    SharedFunction add(SharedFunction function)
+    {
+        return add(functions_, function);
     }
     
-    SharedVariable get(const cst::Identifier& name) const
+    SharedVariable getVariable(const std::string& name) const
     {
-        Vars::const_iterator it = vars_.find(name.value);
+        return get(vars_, name);
+    }
 
-        if (it == vars_.end()) throw SymbolTableError("Symbol \'" + name.value + "\' not found");
-        
-        return it->second;
+    SharedFunction getFunction(const std::string& name) const
+    {
+        return get(functions_, name);
     }
 
 private:
 
+    typedef std::map<std::string, SharedVariable> Vars;
+    typedef std::map<std::string, SharedFunction> Functions;
+
     Vars vars_;
+    Functions functions_;
+
+    template <typename M>
+    static typename M::mapped_type add(M& m, const typename M::mapped_type& v)
+    {
+        return m.insert(typename M::value_type(v->name().value, v)).first->second;
+    }
+
+    template <typename M>
+    static typename M::mapped_type get(const M& m, const std::string& name)
+    {
+        typename M::const_iterator it = m.find(name);
+        
+        if (it == m.end()) throw SymbolTableError("Symbol \'" + name + "\' not found");
+        
+        return it->second;
+    }
+
 };
 
 }

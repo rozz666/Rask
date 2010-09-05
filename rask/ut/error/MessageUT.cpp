@@ -156,5 +156,20 @@ void object::test<15>()
     ensure_equals(error::Message::uninitializedVariable(pos, "abc"), error::Message(pos, "uninitialized variable 'abc'"));
 }
     
+template <>
+template <>
+void object::test<16>()
+{
+    using namespace rask;
+    ensure_equals(error::Message::redefinition(pos, "abc"), error::Message(pos, "redefinition of abc"));
+}
+
+template <>
+template <>
+void object::test<17>()
+{
+    using namespace rask;
+    ensure_equals(error::Message::previousDefinition(pos, "abc"), error::Message(pos, "abc previously defined here"));
+}
 
 }

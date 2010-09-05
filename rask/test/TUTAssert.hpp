@@ -36,7 +36,16 @@ void ensure_contains(const M& msg, Cont& cont, typename Cont::iterator::pointer 
     
     fail(msg);
 }
-    
+
+inline std::string formatMessage(const char *what, const char *file, int line)
+{
+    std::ostringstream ss;
+    ss << file << ":" << line << ": " << what;
+    return ss.str();
+}
+
+#define ENSURE(x) ensure(formatMessage(#x, __FILE__, __LINE__), (x))
+
 }
 
 #endif /* RASK_TEST_TUTASSERT_HPP */

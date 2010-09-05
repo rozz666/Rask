@@ -1,2 +1,2 @@
 Refactor Mocks using macro-based automatic generation.
-
+Separate local symbol table from global.
