@@ -75,7 +75,9 @@ void object::test<1>()
     
     llvm::LLVMContext context;
     ast::Tree ast;
-
+    ast::SharedFunction f1(new ast::Function(cst::Identifier::create(Position(), "abc")));
+    ast.add(f1);
+    
     CodeGeneratorMock cg;
     
     std::auto_ptr<llvm::Module> module = cg.genModule(ast, context);
@@ -85,7 +87,7 @@ void object::test<1>()
     ensure_equals("gen", cg.genFunctionCalled, 2);
     ensure_size("main", module->getFunctionList(), 1u);
     ensure_contains("stub", module->getFunctionList(), cg.genFunctionResult);
-    ensure("function", cg.function == &*ast.main);
+    ensure("function", cg.function == ast.function(0).get());
 }
 
 

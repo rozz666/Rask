@@ -6,6 +6,7 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
+#include <boost/foreach.hpp>
 #include <rask/ast/Builder.hpp>
 
 namespace rask
@@ -15,14 +16,27 @@ namespace ast
 
 boost::optional<Tree> Builder::buildTree(const cst::Tree& cst)
 {
-    boost::optional<FunctionDecl> fd = buildFunctionDecl(cst.functions[0]);
-
-    if (!fd) return boost::none;
-    
-    if (!buildFunction(cst.functions[0])) return boost::none;
-    
     Tree ast;
-    ast.main = fd->function();
+    bool failed = false;
+    
+    BOOST_FOREACH(const cst::Function& f, cst.functions)
+    {
+        if (boost::optional<FunctionDecl> fd = buildFunctionDecl(f))
+        {
+            ast.add(fd->function());
+        }
+        else
+        {
+            failed = true;
+        }
+    }
+    
+    BOOST_FOREACH(const cst::Function& f, cst.functions)
+    {
+        if (!buildFunction(f)) failed = true;
+    }
+
+    if (failed) return boost::none;
     
     return ast;
 }  

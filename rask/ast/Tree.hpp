@@ -9,6 +9,7 @@
 #ifndef RASK_AST_TREE_HPP
 #define RASK_AST_TREE_HPP
 
+#include <vector>
 #include <rask/ast/FunctionDecl.hpp>
 
 namespace rask
@@ -16,9 +17,28 @@ namespace rask
 namespace ast
 {
  
-struct Tree
+class Tree
 {
-    ast::SharedFunction main;
+public:
+
+    void add(SharedFunction f)
+    {
+        functions_.push_back(f);
+    }
+
+    SharedFunction function(std::size_t i) const
+    {
+        return functions_[i];
+    }
+    
+    std::size_t functionCount() const
+    {
+        return functions_.size();
+    }
+
+private:
+
+    std::vector<SharedFunction> functions_;
 };
     
 }
