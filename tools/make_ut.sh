@@ -23,7 +23,7 @@ CODE="// Rask
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <tut/tut.hpp>
-#include <tut/../contrib/tut_macros.h> 
+#include <tut/../contrib/tut_macros.h>
 
 namespace tut
 {

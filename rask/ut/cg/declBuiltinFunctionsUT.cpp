@@ -10,8 +10,8 @@
 #include <tut/../contrib/tut_macros.h>
 #include <llvm/LLVMContext.h>
 #include <llvm/DerivedTypes.h>
-#include <rask/test/TUTAssert.hpp>
 #include <rask/cg/CodeGenerator.hpp>
+#include <rask/test/TUTAssert.hpp>
 
 namespace tut
 {

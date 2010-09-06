@@ -1,2 +1,3 @@
 Refactor Mocks using macro-based automatic generation.
 Separate local symbol table from global.
+Remove "global" variables from ast::Builder and cg::CodeGenerator.

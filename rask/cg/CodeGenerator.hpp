@@ -31,6 +31,7 @@ public:
     virtual llvm::CallInst *genFunctionCall(const ast::FunctionCall& fc, llvm::BasicBlock& block, llvm::Module& module);
     virtual llvm::AllocaInst *genVariableDecl(const ast::VariableDecl& vd, llvm::BasicBlock& block);
     virtual llvm::Function *genFunction(const ast::Function& f, llvm::Module& module);
+    virtual void declFunction(const ast::Function& f, llvm::Module& module);
     virtual void declBuiltinFunctions(llvm::Module& module);
     virtual std::auto_ptr<llvm::Module> genModule(const ast::Tree& ast, llvm::LLVMContext& context);
 
