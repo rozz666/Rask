@@ -6,6 +6,7 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
+#include <boost/foreach.hpp>
 #include <llvm/LLVMContext.h>
 #include <llvm/DerivedTypes.h>
 #include <rask/cg/CodeGenerator.hpp>
@@ -20,8 +21,17 @@ std::auto_ptr<llvm::Module> CodeGenerator::genModule(const ast::Tree& ast, llvm:
     std::auto_ptr<llvm::Module> module(new llvm::Module("mainModule", context));
 
     declBuiltinFunctions(*module);
-    genFunction(*ast.function(0), *module);
-
+    
+    for (std::size_t i = 0; i != ast.functionCount(); ++i)
+    {
+        declFunction(*ast.function(i), *module);
+    }
+    
+    for (std::size_t i = 0; i != ast.functionCount(); ++i)
+    {
+        genFunction(*ast.function(i), *module);
+    }
+    
     return module;
 }
 

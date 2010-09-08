@@ -32,29 +32,48 @@ class CodeGeneratorMock : public rask::cg::CodeGenerator
 {
 public:
 
-    const rask::ast::Function *function;
-    llvm::Function *genFunctionResult;
-    int declBuiltinFunctionsCalled;
-    int genFunctionCalled;
-    int counter;
-
-    CodeGeneratorMock()
-        : rask::cg::CodeGenerator(dummyST_), function(0), genFunctionResult(0),
-        declBuiltinFunctionsCalled(false), genFunctionCalled(0), counter(0) { }
-    
-    virtual llvm::Function *genFunction(const rask::ast::Function& f, llvm::Module& module)
+    struct GenFunction
     {
-        genFunctionCalled = ++counter;
-        function = &f;
-        
-        genFunctionResult = llvm::Function::Create(llvm::FunctionType::get(llvm::Type::getVoidTy(module.getContext()), false), llvm::Function::ExternalLinkage, "stub", &module);
+        int N;
+        const rask::ast::Function *f;
+        llvm::Module *module;
+    };
+    
+    struct DeclFunction
+    {
+        int N;
+        const rask::ast::Function *f;
+        llvm::Module *module;
+    };
+    
+    int counter;
+    int declBuiltinFunctionsCalled;
+    llvm::Module *declBuiltinFunctionsModule;
+    std::vector<DeclFunction> declFunctionCalls;
+    std::vector<GenFunction> genFunctionCalls;
+    
+    CodeGeneratorMock()
+        : rask::cg::CodeGenerator(dummyST_), counter(0), 
+        declBuiltinFunctionsCalled(0), declBuiltinFunctionsModule(0) { }
+    
+    virtual void genFunction(const rask::ast::Function& f, llvm::Module& module)
+    {
+        GenFunction gf = { ++counter, &f, &module };
 
-        return genFunctionResult;
+        genFunctionCalls.push_back(gf);
+    }
+
+    virtual void declFunction(const rask::ast::Function& f, llvm::Module& module)
+    {
+        DeclFunction df = { ++counter, &f, &module };
+        
+        declFunctionCalls.push_back(df);
     }
 
     virtual void declBuiltinFunctions(llvm::Module& module)
     {
         declBuiltinFunctionsCalled = ++counter;
+        declBuiltinFunctionsModule = &module;
     }
     
 private:
@@ -76,18 +95,33 @@ void object::test<1>()
     llvm::LLVMContext context;
     ast::Tree ast;
     ast::SharedFunction f1(new ast::Function(cst::Identifier::create(Position(), "abc")));
+    ast::SharedFunction f2(new ast::Function(cst::Identifier::create(Position(), "def")));
     ast.add(f1);
+    ast.add(f2);
     
     CodeGeneratorMock cg;
     
     std::auto_ptr<llvm::Module> module = cg.genModule(ast, context);
 
     ensure_equals("context", &module->getContext(), &context);
+
     ensure_equals("builtin", cg.declBuiltinFunctionsCalled, 1);
-    ensure_equals("gen", cg.genFunctionCalled, 2);
-    ensure_size("main", module->getFunctionList(), 1u);
-    ensure_contains("stub", module->getFunctionList(), cg.genFunctionResult);
-    ensure("function", cg.function == ast.function(0).get());
+
+    ensure_equals("2 decls", cg.declFunctionCalls.size(), 2u);
+    ensure("decl 1 N", cg.declFunctionCalls[0].N == 2);
+    ensure("decl 1 f", cg.declFunctionCalls[0].f == f1.get());
+    ensure("decl 1 m", cg.declFunctionCalls[0].module == module.get());
+    ensure("decl 2 N", cg.declFunctionCalls[1].N == 3);
+    ensure("decl 2 f", cg.declFunctionCalls[1].f == f2.get());
+    ensure("decl 2 m", cg.declFunctionCalls[1].module == module.get());
+    
+    ensure_equals("2 gens", cg.genFunctionCalls.size(), 2u);
+    ensure("gen 1 N", cg.genFunctionCalls[0].N == 4);
+    ensure("gen 1 f", cg.genFunctionCalls[0].f == f1.get());
+    ensure("gen 1 m", cg.genFunctionCalls[0].module == module.get());
+    ensure("gen 2 N", cg.genFunctionCalls[1].N == 5);
+    ensure("gen 2 f", cg.genFunctionCalls[1].f == f2.get());
+    ensure("gen 2 m", cg.genFunctionCalls[1].module == module.get());
 }
 
 

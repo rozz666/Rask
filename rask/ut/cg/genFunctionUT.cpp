@@ -62,33 +62,23 @@ public:
 namespace tut
 {
 
-struct genFunctionIR_TestData
+struct genFunction_TestData
 {
-    rask::ast::Function f;
     llvm::LLVMContext ctx;
     std::auto_ptr<llvm::Module> module;
     CodeGeneratorMock cg;
-    llvm::BasicBlock *entry;
+    rask::ast::Function f;
     
-    genFunctionIR_TestData() : module(new llvm::Module("testModule", ctx))
+    genFunction_TestData()
+        : module(new llvm::Module("testModule", ctx)),
+        f(rask::cst::Identifier::create(rask::Position(), "abc"))
     {
         cg.declBuiltinFunctions(*module);
-    }
-
-    void ensureMainDef(llvm::Function *gf)
-    {
-        ensure("pointer type", llvm::isa<llvm::PointerType>(gf->getType()));
-        ensure_equals("type", gf->getType()->getElementType(), llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), false));
-        ensure_equals("linkage", gf->getLinkage(), llvm::Function::ExternalLinkage);
-        ensure_equals("name", gf->getNameStr(), "main");
-        ensure_equals("module", gf->getParent(), module.get());
-        ensure_equals("entry", gf->getBasicBlockList().size(), 1u);
-        entry = &gf->getBasicBlockList().front();
-        ensure_equals("entry name", entry->getNameStr(), "entry");
+        cg.declFunction(f, *module);
     }
 };
 
-typedef test_group<genFunctionIR_TestData> factory;
+typedef test_group<genFunction_TestData> factory;
 typedef factory::object object;
 }
 
@@ -106,9 +96,12 @@ void object::test<1>()
 {
     using namespace rask;
 
-    llvm::Function *gf = cg.genFunction(f, *module);
-
-    ensureMainDef(gf);
+    cg.genFunction(f, *module);
+    llvm::Function *gf = module->getFunction(f.name().value);
+    
+    ensure_equals("entry", gf->getBasicBlockList().size(), 1u);
+    llvm::BasicBlock *entry = &gf->getBasicBlockList().front();
+    ensure_equals("entry name", entry->getNameStr(), "entry");
     ensure_equals("1 instruction", entry->size(), 1u);
     ensure("ret", llvm::isa<llvm::ReturnInst>(entry->front()));
 }
@@ -122,17 +115,20 @@ void object::test<2>()
     f.addStmt(ast::FunctionCall(1));
     f.addStmt(ast::FunctionCall(2));
     
-    llvm::Function *gf = cg.genFunction(f, *module);
-
-    ensureMainDef(gf);
+    cg.genFunction(f, *module);
+    llvm::Function *gf = module->getFunction(f.name().value);
+    
+    ensure_equals("entry", gf->getBasicBlockList().size(), 1u);
+    llvm::BasicBlock *entry = &gf->getBasicBlockList().front();
+    ensure_equals("entry name", entry->getNameStr(), "entry");
     ensure_equals("1 instruction", entry->size(), 1u);
     ensure_equals("#genFC", cg.genFunctionCallCalls.size(), 2u);
     ensure_equals("genFC 1 N", cg.genFunctionCallCalls[0].N, 1);
-    ensure_equals("genFC 1 fc", cg.genFunctionCallCalls[0].fc, &boost::get<ast::FunctionCall>(f.stmt(0)));
+    ensure_equals("genFC 1 fc", cg.genFunctionCallCalls[0].fc, &getFunctionCall(f.stmt(0)));
     ensure_equals("genFC 1 block", cg.genFunctionCallCalls[0].block, entry);
     ensure_equals("genFC 1 module", cg.genFunctionCallCalls[0].module, module.get());
     ensure_equals("genFC 2 N", cg.genFunctionCallCalls[1].N, 2);
-    ensure_equals("genFC 2 fc", cg.genFunctionCallCalls[1].fc, &boost::get<ast::FunctionCall>(f.stmt(1)));
+    ensure_equals("genFC 2 fc", cg.genFunctionCallCalls[1].fc, &getFunctionCall(f.stmt(1)));
     ensure_equals("genFC 2 block", cg.genFunctionCallCalls[1].block, entry);
     ensure_equals("genFC 2 module", cg.genFunctionCallCalls[1].module, module.get());
     ensure("ret", llvm::isa<llvm::ReturnInst>(entry->front()));
@@ -153,16 +149,19 @@ void object::test<3>()
     f.addStmt(vd1);
     f.addStmt(vd2);
     
-    llvm::Function *gf = cg.genFunction(f, *module);
+    cg.genFunction(f, *module);
+    llvm::Function *gf = module->getFunction(f.name().value);
     
-    ensureMainDef(gf);
+    ensure_equals("entry", gf->getBasicBlockList().size(), 1u);
+    llvm::BasicBlock *entry = &gf->getBasicBlockList().front();
+    ensure_equals("entry name", entry->getNameStr(), "entry");
     ensure_equals("1 instruction", entry->size(), 1u);
     ensure_equals("#genVD", cg.genVariableDeclCalls.size(), 2u);
     ensure_equals("genVD 1 N", cg.genVariableDeclCalls[0].N, 1);
-    ensure_equals("genVD 1 vd", cg.genVariableDeclCalls[0].vd, &boost::get<ast::VariableDecl>(f.stmt(0)));
+    ensure_equals("genVD 1 vd", cg.genVariableDeclCalls[0].vd, &getVariableDecl(f.stmt(0)));
     ensure_equals("genVD 1 block", cg.genVariableDeclCalls[0].block, entry);
     ensure_equals("genVD 2 N", cg.genVariableDeclCalls[1].N, 2);
-    ensure_equals("genVD 2 vd", cg.genVariableDeclCalls[1].vd, &boost::get<ast::VariableDecl>(f.stmt(1)));
+    ensure_equals("genVD 2 vd", cg.genVariableDeclCalls[1].vd, &getVariableDecl(f.stmt(1)));
     ensure_equals("genVD 2 block", cg.genVariableDeclCalls[1].block, entry);
     ensure("ret", llvm::isa<llvm::ReturnInst>(entry->front()));
 }

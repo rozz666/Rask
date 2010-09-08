@@ -24,7 +24,6 @@ class Function
 {
 public:
 
-    Function() { }
     Function(const cst::Identifier& name) : name_(name) { }
 
     cst::Identifier name() const { return name_; }

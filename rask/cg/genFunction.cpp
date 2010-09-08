@@ -37,11 +37,9 @@ struct StatementVisitor : boost::static_visitor<void>
     }
 };
         
-llvm::Function *CodeGenerator::genFunction(const ast::Function& f, llvm::Module& module)
+void CodeGenerator::genFunction(const ast::Function& f, llvm::Module& module)
 {
-    llvm::FunctionType *type = llvm::FunctionType::get(llvm::Type::getVoidTy(module.getContext()), false);
-    llvm::Function *func = llvm::Function::Create(type, llvm::Function::ExternalLinkage, "main", &module);
-
+    llvm::Function *func = module.getFunction(f.name().value);
     llvm::BasicBlock *entry = llvm::BasicBlock::Create(module.getContext(), "entry", func);
 
     StatementVisitor sv(*this, module, *entry);
@@ -52,8 +50,6 @@ llvm::Function *CodeGenerator::genFunction(const ast::Function& f, llvm::Module&
     }
 
     llvm::ReturnInst::Create(module.getContext(), entry);
-    
-    return func;
 }
     
 }
