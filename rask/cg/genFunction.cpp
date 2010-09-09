@@ -37,7 +37,7 @@ struct StatementVisitor : boost::static_visitor<void>
     }
 };
         
-void CodeGenerator::genFunction(const ast::Function& f, llvm::Module& module)
+void CodeGenerator::genFunction(const ast::CustomFunction& f, llvm::Module& module)
 {
     llvm::Function *func = module.getFunction(f.name().value);
     llvm::BasicBlock *entry = llvm::BasicBlock::Create(module.getContext(), "entry", func);

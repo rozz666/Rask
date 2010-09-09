@@ -42,7 +42,7 @@ void object::test<1>()
     std::auto_ptr<llvm::Module> module(new llvm::Module("testModule", context));
     rask::cg::SymbolTable st;
     rask::cg::CodeGenerator cg(st);
-    ast::Function f(cst::Identifier::create(Position(), "f1"));
+    ast::CustomFunction f(cst::Identifier::create(Position(), "f1"));
 
     cg.declFunction(f, *module);
 

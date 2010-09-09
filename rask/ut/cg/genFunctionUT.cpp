@@ -67,7 +67,7 @@ struct genFunction_TestData
     llvm::LLVMContext ctx;
     std::auto_ptr<llvm::Module> module;
     CodeGeneratorMock cg;
-    rask::ast::Function f;
+    rask::ast::CustomFunction f;
     
     genFunction_TestData()
         : module(new llvm::Module("testModule", ctx)),

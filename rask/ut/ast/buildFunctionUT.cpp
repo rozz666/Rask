@@ -69,7 +69,7 @@ struct buildFunctionAST_TestData
     rask::error::Logger logger;
     const std::string file;
     rask::cst::Function cf;
-    rask::ast::SharedFunction f;
+    rask::ast::SharedCustomFunction f;
     rask::ast::SymbolTable st;
     BuilderMock builder;
     
@@ -77,7 +77,7 @@ struct buildFunctionAST_TestData
     {
         cf.name = rask::cst::Identifier::create(rask::Position(file, 1, 2), "main");
 
-        f.reset(new rask::ast::Function(cf.name));
+        f.reset(new rask::ast::CustomFunction(cf.name));
         
         st.add(f);
     }

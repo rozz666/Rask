@@ -21,12 +21,12 @@ class Tree
 {
 public:
 
-    void add(SharedFunction f)
+    void add(SharedCustomFunction f)
     {
         functions_.push_back(f);
     }
 
-    SharedFunction function(std::size_t i) const
+    SharedCustomFunction function(std::size_t i) const
     {
         return functions_[i];
     }
@@ -38,7 +38,7 @@ public:
 
 private:
 
-    std::vector<SharedFunction> functions_;
+    std::vector<SharedCustomFunction> functions_;
 };
     
 }

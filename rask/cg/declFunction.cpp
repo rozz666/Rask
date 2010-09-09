@@ -18,7 +18,7 @@ namespace rask
 namespace cg
 {
 
-void CodeGenerator::declFunction(const ast::Function& f, llvm::Module& module)
+void CodeGenerator::declFunction(const ast::CustomFunction& f, llvm::Module& module)
 {
     llvm::FunctionType *fType = llvm::FunctionType::get(llvm::Type::getVoidTy(module.getContext()), false);
     llvm::Function::Create(fType, llvm::Function::ExternalLinkage, f.name().value, &module);

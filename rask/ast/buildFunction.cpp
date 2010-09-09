@@ -18,9 +18,9 @@ namespace ast
 struct StatementVisitor : boost::static_visitor<bool>
 {
     Builder& b;
-    Function& f;
+    CustomFunction& f;
 
-    StatementVisitor(Builder& b, Function& f) : b(b), f(f) { }
+    StatementVisitor(Builder& b, CustomFunction& f) : b(b), f(f) { }
 
     bool operator()(const cst::FunctionCall& call)
     {
@@ -47,7 +47,7 @@ struct StatementVisitor : boost::static_visitor<bool>
 
 bool Builder::buildFunction(const cst::Function& cf)
 {
-    SharedFunction f = symbolTable_.getFunction(cf.name.value);
+    SharedCustomFunction f = boost::dynamic_pointer_cast<CustomFunction>(symbolTable_.getFunction(cf.name.value));
 
     BOOST_FOREACH(const cst::Statement& stmt, cf.stmts)
     {

@@ -9,7 +9,7 @@
 #ifndef RASK_AST_FUNCTIONDECL_HPP
 #define RASK_AST_FUNCTIONDECL_HPP
 
-#include <rask/ast/Function.hpp>
+#include <rask/ast/CustomFunction.hpp>
 
 namespace rask
 {
@@ -20,12 +20,12 @@ class FunctionDecl
 {
 public:
 
-    FunctionDecl(const cst::Identifier& name) : function_(new Function(name)) { }
+    FunctionDecl(const cst::Identifier& name) : function_(new CustomFunction(name)) { }
     
-    SharedFunction function() const { return function_; }
+    SharedCustomFunction function() const { return function_; }
 
 private:
-    SharedFunction function_;    
+    SharedCustomFunction function_;    
 };
 
 }

@@ -14,6 +14,7 @@ if [ ! "$#" = "2" ]; then
 fi
 NAME="$1"
 DESC="$2"
+HEADER=${DESC//"."/"/"}
 CODE="// Rask
 //
 // Copyright (c) 2010 Rafal Przywarski
@@ -24,6 +25,7 @@ CODE="// Rask
 //
 #include <tut/tut.hpp>
 #include <tut/../contrib/tut_macros.h>
+#include <${HEADER}.hpp>
 
 namespace tut
 {

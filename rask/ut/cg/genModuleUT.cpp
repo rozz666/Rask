@@ -35,14 +35,14 @@ public:
     struct GenFunction
     {
         int N;
-        const rask::ast::Function *f;
+        const rask::ast::CustomFunction *f;
         llvm::Module *module;
     };
     
     struct DeclFunction
     {
         int N;
-        const rask::ast::Function *f;
+        const rask::ast::CustomFunction *f;
         llvm::Module *module;
     };
     
@@ -56,14 +56,14 @@ public:
         : rask::cg::CodeGenerator(dummyST_), counter(0), 
         declBuiltinFunctionsCalled(0), declBuiltinFunctionsModule(0) { }
     
-    virtual void genFunction(const rask::ast::Function& f, llvm::Module& module)
+    virtual void genFunction(const rask::ast::CustomFunction& f, llvm::Module& module)
     {
         GenFunction gf = { ++counter, &f, &module };
 
         genFunctionCalls.push_back(gf);
     }
 
-    virtual void declFunction(const rask::ast::Function& f, llvm::Module& module)
+    virtual void declFunction(const rask::ast::CustomFunction& f, llvm::Module& module)
     {
         DeclFunction df = { ++counter, &f, &module };
         
@@ -94,8 +94,8 @@ void object::test<1>()
     
     llvm::LLVMContext context;
     ast::Tree ast;
-    ast::SharedFunction f1(new ast::Function(cst::Identifier::create(Position(), "abc")));
-    ast::SharedFunction f2(new ast::Function(cst::Identifier::create(Position(), "def")));
+    ast::SharedCustomFunction f1(new ast::CustomFunction(cst::Identifier::create(Position(), "abc")));
+    ast::SharedCustomFunction f2(new ast::CustomFunction(cst::Identifier::create(Position(), "def")));
     ast.add(f1);
     ast.add(f2);
     
