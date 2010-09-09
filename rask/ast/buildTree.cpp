@@ -37,6 +37,16 @@ boost::optional<Tree> Builder::buildTree(const cst::Tree& cst)
     }
 
     if (failed) return boost::none;
+
+    try
+    {
+        symbolTable_.getFunction("main");
+    }
+    catch (const SymbolTableError& )
+    {
+        logger_.log(error::Message::missingMainFunction(Position(cst.end.file)));
+        return boost::none;
+    }
     
     return ast;
 }  

@@ -73,7 +73,7 @@ int main(int argc, char **argv)
     InputStream is(params.inputFiles[0], f);
     error::Logger logger;
 
-    boost::optional<rask::cst::Tree> cst = rask::cst::parseFile(is, logger);
+    boost::optional<cst::Tree> cst = cst::parseFile(is, logger);
 
     if (cst)
     {
@@ -81,7 +81,7 @@ int main(int argc, char **argv)
         ast::BuiltinFunctions builtinFunctions;
         builtinFunctions.declare(symbolTable);
         
-        boost::optional<rask::ast::Tree> ast = ast::Builder(logger, symbolTable).buildTree(*cst);
+        boost::optional<ast::Tree> ast = ast::Builder(logger, symbolTable).buildTree(*cst);
 
         if (ast && !params.noOutput)
         {
