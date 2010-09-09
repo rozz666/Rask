@@ -8,6 +8,7 @@
 //
 #include <tut/tut.hpp>
 #include <tut/../contrib/tut_macros.h>
+#include <boost/assign/list_of.hpp>
 #include <rask/test/TUTAssert.hpp>
 #include <rask/ast/CustomFunction.hpp>
 
@@ -54,7 +55,8 @@ void object::test<1>()
     cst::Identifier name = cst::Identifier::create(Position("abc", 10, 20), "kasia");
     ast::CustomFunction cf(name);
     ast::Function& f = cf;
-    ast::FunctionCall fc(5);
+    ast::SharedCustomFunction dummy(new ast::CustomFunction(cst::Identifier::create(Position(), "test")));
+    ast::FunctionCall fc(dummy, ast::FunctionCall::Arguments());
     ast::VariableDecl vd(cst::Identifier::create(Position("xx", 1, 2), "asia"), 0);
     ensure_equals("no stmts", cf.stmtCount(), 0u);
     cf.addStmt(fc);
@@ -63,8 +65,9 @@ void object::test<1>()
     ensure_equals("name val", f.name().value, name.value);
     ensure_equals("arg count", f.argCount(), 0u);
     ensure_equals("count", cf.stmtCount(), 2u);
-    ensure_equals("call", boost::get<boost::int32_t>(boost::get<ast::FunctionCall>(cf.stmt(0))), boost::get<boost::int32_t>(fc));
-    ensure("var", boost::get<ast::VariableDecl>(cf.stmt(1)).var() == vd.var());
+    ensure("call", getFunctionCall(cf.stmt(0)).function().lock() == dummy);
+    ensure_equals("call args", getFunctionCall(cf.stmt(0)).args().size(), 0u);
+    ensure("var", getVariableDecl(cf.stmt(1)).var() == vd.var());
 }
 
 template <>

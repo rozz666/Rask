@@ -22,7 +22,7 @@
 namespace builtin
 {
 
-void _rask_print_int(int32_t n)
+void rask_print_int(int32_t n)
 {   
     std::cout << n << std::endl;
 }
@@ -59,8 +59,8 @@ int main(int, char **argv)
         return 1;
     }
 
-    llvm::Function *print = engine->FindFunctionNamed("_rask_print_int");
-    engine->addGlobalMapping(print, (void *)(intptr_t)&builtin::_rask_print_int);
+    llvm::Function *print = engine->FindFunctionNamed("print");
+    engine->addGlobalMapping(print, (void *)(intptr_t)&builtin::rask_print_int);
    
     llvm::Function *mainf = module->getFunction("main");
 

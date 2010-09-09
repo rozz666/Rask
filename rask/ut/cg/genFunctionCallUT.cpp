@@ -10,6 +10,7 @@
 #include <tut/../contrib/tut_macros.h> 
 #include <rask/cg/CodeGenerator.hpp>
 #include <rask/cg/SymbolTable.hpp>
+#include <rask/ast/BuiltinFunction.hpp>
 #include <llvm/LLVMContext.h>
 #include <llvm/Instructions.h>
 #include <llvm/DerivedTypes.h>
@@ -32,6 +33,9 @@ struct genFunctionCall_TestData
     {
         cg.declBuiltinFunctions(*module);
 
+        llvm::FunctionType *dummyType = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), false);
+        llvm::Function::Create(dummyType, llvm::Function::ExternalLinkage, "dummy", &*module);
+        
         llvm::FunctionType *type = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), false);
         llvm::Function *func = llvm::Function::Create(type, llvm::Function::ExternalLinkage, "main", &*module);
         block = llvm::BasicBlock::Create(ctx, "entry", func);
@@ -55,8 +59,11 @@ template <>
 void object::test<1>()
 {
     using namespace rask;
-    
-    ast::FunctionCall fc(5);
+
+    ast::SharedBuiltinFunction print(new ast::BuiltinFunction("print", 1));
+    ast::FunctionCall::Arguments args;
+    args.push_back(ast::Constant(5));
+    ast::FunctionCall fc(print, args);
     
     llvm::CallInst *call = cg.genFunctionCall(fc, *block, *module);
 
@@ -66,9 +73,9 @@ void object::test<1>()
     
     ensure("call", &*it == call);
     
-    ensure("called", call->getCalledFunction() == module->getFunction("_rask_print_int"));
+    ensure("called", call->getCalledFunction() == module->getFunction(print->name().value));
     ensure_equals("num ops", call->getNumOperands(), 2u);
-    ensure("value", call->getOperand(1) == llvm::ConstantInt::get(ctx, llvm::APInt(32, boost::get<boost::int32_t>(fc), true)));
+    ensure("value", call->getOperand(1) == llvm::ConstantInt::get(ctx, llvm::APInt(32, getConstant(args[0]), true)));
     ensure("C cc", call->getCallingConv() == llvm::CallingConv::C);
 }
 
@@ -81,8 +88,11 @@ void object::test<2>()
     cst::Identifier name;
     name.value = "asia";
     ast::VariableDecl vd(name, 1);
-    ast::FunctionCall fc(vd.var());
-
+    ast::SharedBuiltinFunction print(new ast::BuiltinFunction("print", 1));
+    ast::FunctionCall::Arguments args;
+    args.push_back(vd.var());
+    ast::FunctionCall fc(print, args);
+    
     st.add(name, a1);
     
     llvm::CallInst *call = cg.genFunctionCall(fc, *block, *module);
@@ -100,9 +110,31 @@ void object::test<2>()
     
     ensure("call", &*it == call);
     
-    ensure("called", call->getCalledFunction() == module->getFunction("_rask_print_int"));
+    ensure("called", call->getCalledFunction() == module->getFunction(print->name().value));
     ensure_equals("num ops", call->getNumOperands(), 2u);
     ensure("value", call->getOperand(1) == load);
+    ensure("C cc", call->getCallingConv() == llvm::CallingConv::C);
+}
+
+template <>
+template <>
+void object::test<3>()
+{
+    using namespace rask;
+    
+    ast::SharedBuiltinFunction dummy(new ast::BuiltinFunction("print", 1));
+    ast::FunctionCall fc(dummy, ast::FunctionCall::Arguments());
+    
+    llvm::CallInst *call = cg.genFunctionCall(fc, *block, *module);
+    
+    ensure_equals("1 instr", block->size(), 1u);
+    
+    llvm::BasicBlock::iterator it = block->begin();
+    
+    ensure("call", &*it == call);
+    
+    ensure("called", call->getCalledFunction() == module->getFunction(dummy->name().value));
+    ensure_equals("num ops", call->getNumOperands(), 1u);
     ensure("C cc", call->getCallingConv() == llvm::CallingConv::C);
 }
 

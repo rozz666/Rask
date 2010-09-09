@@ -12,6 +12,7 @@
 #include <boost/program_options.hpp> 
 #include <rask/cst/parseFile.hpp>
 #include <rask/ast/Builder.hpp>
+#include <rask/ast/BuiltinFunctions.hpp>
 #include <rask/cg/CodeGenerator.hpp>
 #include <llvm/LLVMContext.h>
 #include <llvm/Bitcode/BitstreamWriter.h>
@@ -77,6 +78,9 @@ int main(int argc, char **argv)
     if (cst)
     {
         ast::SymbolTable symbolTable;
+        ast::BuiltinFunctions builtinFunctions;
+        builtinFunctions.declare(symbolTable);
+        
         boost::optional<rask::ast::Tree> ast = ast::Builder(logger, symbolTable).buildTree(*cst);
 
         if (ast && !params.noOutput)

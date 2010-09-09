@@ -6,8 +6,9 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <tut/tut.hpp>
 #include <iostream>
+#include <tut/tut_restartable.hpp>
+#include <tut/tut.hpp>
 #include <rask/ut/tut_color_console_reporter.hpp>
 
 namespace tut
@@ -19,12 +20,13 @@ test_runner_singleton runner;
 
 int main()
 {
-    tut::color_console_reporter reporter;
-    tut::runner.get().set_callback(&reporter);
 
     try
     {
-        tut::runner.get().run_tests();
+        tut::color_console_reporter reporter;
+        tut::restartable_wrapper restartable;
+        restartable.set_callback(&reporter);
+        restartable.run_tests();
     }
     catch (const std::exception& ex)
     {

@@ -112,8 +112,8 @@ void object::test<2>()
 {
     using namespace rask;
    
-    f.addStmt(ast::FunctionCall(1));
-    f.addStmt(ast::FunctionCall(2));
+    f.addStmt(ast::FunctionCall(ast::WeakFunction(), ast::FunctionCall::Arguments()));
+    f.addStmt(ast::FunctionCall(ast::WeakFunction(), ast::FunctionCall::Arguments()));
     
     cg.genFunction(f, *module);
     llvm::Function *gf = module->getFunction(f.name().value);

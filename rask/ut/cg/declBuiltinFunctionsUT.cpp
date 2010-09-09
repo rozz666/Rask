@@ -52,7 +52,7 @@ void object::test<1>()
     printIntArgs.push_back(llvm::IntegerType::get(context, 32));
     llvm::FunctionType *printIntType = llvm::FunctionType::get(llvm::Type::getVoidTy(context), printIntArgs, false);
 
-    ensure_equals(printInt.getNameStr(), "_rask_print_int");
+    ensure_equals(printInt.getNameStr(), "print");
     ensure("pointer type", llvm::isa<llvm::PointerType>(printInt.getType()));
     ensure("type", printInt.getType()->getElementType() == printIntType);
     ensure("no body", printInt.getBasicBlockList().empty());

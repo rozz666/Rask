@@ -24,7 +24,7 @@ void CodeGenerator::declBuiltinFunctions(llvm::Module& module)
     std::vector<const llvm::Type*> printIntArgs;
     printIntArgs.push_back(llvm::IntegerType::get(context, 32));
     llvm::FunctionType *printIntType = llvm::FunctionType::get(llvm::Type::getVoidTy(context), printIntArgs, false);
-    llvm::Function::Create(printIntType, llvm::Function::ExternalLinkage, "_rask_print_int", &module);
+    llvm::Function::Create(printIntType, llvm::Function::ExternalLinkage, "print", &module);
 }
     
 }

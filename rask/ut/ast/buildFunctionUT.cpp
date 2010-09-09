@@ -55,7 +55,10 @@ public:
 
         if (!buildFunctionCallSuccessful) return boost::none;
 
-        return rask::ast::FunctionCall(boost::get<rask::cst::Constant>(fc.args[0]).value);
+        rask::ast::FunctionCall::Arguments args;
+        args.push_back(rask::ast::Constant(getConstant(fc.args[0]).value));
+
+        return rask::ast::FunctionCall(rask::ast::WeakFunction(), args);
     }
 };
     
@@ -125,8 +128,8 @@ void object::test<2>()
     
     ensure_equals("no errors", logger.errors().size(), 0u);
     ensure_equals("count", f->stmtCount(), 2u);
-    ensure_equals("fcall 1", getInt32(getFunctionCall(f->stmt(0))), c1);
-    ensure_equals("fcall 2", getInt32(getFunctionCall(f->stmt(1))), c2);
+    ensure_equals("fcall 1", getConstant(getFunctionCall(f->stmt(0)).args()[0]), c1);
+    ensure_equals("fcall 2", getConstant(getFunctionCall(f->stmt(1)).args()[0]), c2);
     ensure_equals("buildFC #", builder.buildFunctionCallCalls.size(), 2u);
     ensure_equals("buildFC 1", builder.buildFunctionCallCalls[0].N, 1);
     ensure("buildFC 1 fc", builder.buildFunctionCallCalls[0].fc == &getFunctionCall(cf.stmts[0]));

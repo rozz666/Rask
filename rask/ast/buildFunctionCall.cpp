@@ -7,6 +7,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <sstream>
+#include <boost/foreach.hpp>
 #include <rask/ast/Builder.hpp>
 
 namespace rask
@@ -14,18 +15,18 @@ namespace rask
 namespace ast
 {
 
-struct MakeFunctionCall : boost::static_visitor<FunctionCall>
+struct MakeExpression : boost::static_visitor<Expression>
 {
     SymbolTable& st;
 
-    MakeFunctionCall(SymbolTable& st) : st(st) { }
+    MakeExpression(SymbolTable& st) : st(st) { }
     
-    FunctionCall operator()(const cst::Constant& c)
+    Expression operator()(const cst::Constant& c)
     {
-        return c.value;
+        return Constant(c.value);
     }
 
-    FunctionCall operator()(const cst::Identifier& id)
+    Expression operator()(const cst::Identifier& id)
     {
         return st.getVariable(id.value);
     }
@@ -33,21 +34,32 @@ struct MakeFunctionCall : boost::static_visitor<FunctionCall>
     
 boost::optional<FunctionCall> Builder::buildFunctionCall(const cst::FunctionCall& call)
 {
-    if (call.function.value != "print")
+    try
+    {
+        SharedFunction f = symbolTable_.getFunction(call.function.value);
+
+        if (call.args.size() != f->argCount())
+        {
+            logger_.log(error::Message::functionNotFound(call.function.position, functionSignature(f->name().value, call.args)));
+            return boost::none;
+        }
+
+        FunctionCall::Arguments args;
+
+        BOOST_FOREACH(const cst::Expression& e, call.args)
+        {
+            MakeExpression me(symbolTable_);
+            
+            args.push_back(e.apply_visitor(me));
+        }
+
+        return FunctionCall(f, args);
+    }
+    catch (const SymbolTableError& )
     {
         logger_.log(error::Message::unknownIdentifier(call.function.position, call.function.value));
         return boost::none;
     }
-
-    if (call.args.size() != 1)
-    {
-        logger_.log(error::Message::functionNotFound(call.function.position, functionSignature("print", call.args)));
-        return boost::none;
-    }
-
-    MakeFunctionCall mfc(symbolTable_);
-
-    return call.args[0].apply_visitor(mfc);
 }
     
 }
