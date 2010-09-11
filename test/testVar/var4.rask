@@ -1,0 +1,5 @@
+main() -> void
+{
+    var y = x;
+    print(y);
+}
