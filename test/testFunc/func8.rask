@@ -1,0 +1,10 @@
+f() -> void
+{
+    var local = 1;
+    print(local);
+}
+
+main() -> void
+{
+    print(local);
+}
