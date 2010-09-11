@@ -1,0 +1,9 @@
+f(int32 arg) -> void
+{
+    print(arg);
+}
+
+main() -> void
+{
+    f(1);
+}

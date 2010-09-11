@@ -1,0 +1,10 @@
+f(int32 arg) -> void
+{
+    print(arg);
+}
+
+main() -> void
+{
+    var x = 5;
+    f(x);
+}

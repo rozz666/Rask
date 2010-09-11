@@ -1,0 +1,14 @@
+f(int32 arg1, int32 arg2) -> void
+{
+    print(arg1);
+    print(arg2);
+}
+
+main() -> void
+{
+    f(1, 2);
+    var x = 10;
+    f(x, 2);
+    f(1, x);
+    f(x, x);
+}
