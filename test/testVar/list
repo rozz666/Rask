@@ -1,2 +1,4 @@
 var1.rask:test:var1.out
 var2.rask:error:var2.out
+var3.rask:test:var3.out
+var4.rask:error:var4.out

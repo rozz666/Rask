@@ -15,23 +15,6 @@ namespace rask
 namespace ast
 {
 
-struct MakeExpression : boost::static_visitor<Expression>
-{
-    SymbolTable& st;
-
-    MakeExpression(SymbolTable& st) : st(st) { }
-    
-    Expression operator()(const cst::Constant& c)
-    {
-        return Constant(c.value);
-    }
-
-    Expression operator()(const cst::Identifier& id)
-    {
-        return st.getVariable(id.value);
-    }
-};
-    
 boost::optional<FunctionCall> Builder::buildFunctionCall(const cst::FunctionCall& call)
 {
     try
@@ -48,9 +31,7 @@ boost::optional<FunctionCall> Builder::buildFunctionCall(const cst::FunctionCall
 
         BOOST_FOREACH(const cst::Expression& e, call.args)
         {
-            MakeExpression me(symbolTable_);
-            
-            args.push_back(e.apply_visitor(me));
+            args.push_back(*buildExpression(e, symbolTable_));
         }
 
         return FunctionCall(f, args);

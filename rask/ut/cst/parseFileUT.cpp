@@ -297,8 +297,8 @@ void object::test<14>()
     ensure_equals("y position", getVariableDecl(tree->functions[0].stmts[1]).name.position, Position(source.file(), 4, 9));
     ensure_equals("y name", getVariableDecl(tree->functions[0].stmts[1]).name.value, "y");
     ensure("y has value", getVariableDecl(tree->functions[0].stmts[1]).value);
-    ensure_equals("y value", getVariableDecl(tree->functions[0].stmts[1]).value->value, -2);
-    ensure_equals("y value position", getVariableDecl(tree->functions[0].stmts[1]).value->position, Position(source.file(), 4, 13));
+    ensure_equals("y value", getConstant(*getVariableDecl(tree->functions[0].stmts[1]).value).value, -2);
+    ensure_equals("y value position", getConstant(*getVariableDecl(tree->functions[0].stmts[1]).value).position, Position(source.file(), 4, 13));
 }
 
 template <>
@@ -352,6 +352,31 @@ void object::test<16>()
     ensure_equals(tree->functions[1].name.value, "f2");
     ensure_equals(tree->functions[1].name.position, Position(source.file(), 4, 1));
     ensure_empty("f2 no stmts", tree->functions[1].stmts);
+}
+
+template <>
+template <>
+void object::test<17>()
+{
+    using namespace rask;
+    
+    ss << "main() -> void\n{\n    var a = b;\n}";
+    
+    InputStream source("test.rask", ss);
+    
+    boost::optional<cst::Tree> tree = cst::parseFile(source, errorLogger);
+    
+    ensure("parsed", tree);
+    ensureNoErrors();
+    ensure_size("functions", tree->functions, 1u);
+    
+    ensure_equals("statements", tree->functions[0].stmts.size(), 1u);
+   
+    ensure_equals("a position", getVariableDecl(tree->functions[0].stmts[0]).name.position, Position(source.file(), 3, 9));
+    ensure_equals("a name", getVariableDecl(tree->functions[0].stmts[0]).name.value, "a");
+    ensure("a has value", getVariableDecl(tree->functions[0].stmts[0]).value);
+    ensure_equals("b position", getIdentifier(*getVariableDecl(tree->functions[0].stmts[0]).value).position, Position(source.file(), 3, 13));
+    ensure_equals("b name", getIdentifier(*getVariableDecl(tree->functions[0].stmts[0]).value).value, "b");
 }
 
 }

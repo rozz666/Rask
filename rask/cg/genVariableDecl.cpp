@@ -18,7 +18,7 @@ llvm::AllocaInst *CodeGenerator::genVariableDecl(const ast::VariableDecl& vd, ll
 {
     llvm::LLVMContext& ctx = block.getContext();
     llvm::AllocaInst *alloca = new llvm::AllocaInst(llvm::IntegerType::get(ctx, 32), vd.var()->name().value, &block);
-    llvm::ConstantInt *value = llvm::ConstantInt::get(ctx, llvm::APInt(32, vd.value(), true));
+    llvm::ConstantInt *value = llvm::ConstantInt::get(ctx, llvm::APInt(32, getConstant(vd.value()), true));
     new llvm::StoreInst(value, alloca, &block);
 
     symbolTable_.add(vd.var()->name(), alloca);

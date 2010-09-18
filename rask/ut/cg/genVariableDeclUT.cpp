@@ -64,7 +64,7 @@ void object::test<1>()
 
     ensure("store", llvm::isa<llvm::StoreInst>(*it));
     llvm::StoreInst *store = llvm::cast<llvm::StoreInst>(&*it);
-    ensure("store value", store->getOperand(0) == llvm::ConstantInt::get(ctx, llvm::APInt(32, vd.value(), true)));
+    ensure("store value", store->getOperand(0) == llvm::ConstantInt::get(ctx, llvm::APInt(32, getConstant(vd.value()), true)));
     ensure("store ptr", store->getOperand(1) == alloc);
 }
 

@@ -213,7 +213,7 @@ struct Grammar : qi::grammar<Iterator, cst::Tree(), ascii::space_type>
         constant %= inputPos >> qi::int_;
         expression %= constant | identifier;
         functionCall %= identifier > '(' > -(expression % ',') > ')';
-        variableDeclaration %= qi::lit("var") > identifier > -('=' > constant);
+        variableDeclaration %= qi::lit("var") > identifier > -('=' > expression);
         statement %= (variableDeclaration | functionCall) > ';';
         function %=
             identifier > '(' > ')' > "->" > (returnType | error(&error::Message::missingReturnType, &errorLogger)) >

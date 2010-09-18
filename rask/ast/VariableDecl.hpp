@@ -11,6 +11,7 @@
 
 #include <boost/cstdint.hpp>
 #include <rask/ast/Variable.hpp>
+#include <rask/ast/Expression.hpp>
 
 namespace rask
 {
@@ -21,17 +22,17 @@ class VariableDecl
 {
 public:
 
-    VariableDecl(const cst::Identifier& name, boost::int32_t value) : var_(new Variable(name)), value_(value) { }
+    VariableDecl(const cst::Identifier& name, const ast::Expression& value) : var_(new Variable(name)), value_(value) { }
     
     SharedVariable var() const { return var_; }
-    boost::int32_t value() const { return value_; }
+    ast::Expression value() const { return value_; }
 
 private:
 
     SharedVariable var_;
-    boost::int32_t value_;
+    ast::Expression value_;
 };
-
+/*
 inline bool operator==(const VariableDecl& left, const VariableDecl& right)
 {
     return left.var() == right.var() && left.value() == right.value();
@@ -41,7 +42,7 @@ inline bool operator!=(const VariableDecl& left, const VariableDecl& right)
 {
     return !(left == right);
 }
-
+*/
 }
 }
 

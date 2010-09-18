@@ -12,7 +12,7 @@
 #include <boost/optional.hpp>
 #include <boost/fusion/adapted/struct/adapt_struct.hpp>
 #include <rask/cst/Identifier.hpp>
-#include <rask/cst/Constant.hpp>
+#include <rask/cst/Expression.hpp>
 
 namespace rask
 {
@@ -22,7 +22,7 @@ namespace cst
 struct VariableDecl
 {
     Identifier name;
-    boost::optional<Constant> value;
+    boost::optional<Expression> value;
 };
 
 }
@@ -31,7 +31,7 @@ struct VariableDecl
 BOOST_FUSION_ADAPT_STRUCT(
     rask::cst::VariableDecl,
     (rask::cst::Identifier, name)
-    (boost::optional<rask::cst::Constant>, value)
+    (boost::optional<rask::cst::Expression>, value)
 )
                           
 #endif // RASK_CST_VARDECL_HPP

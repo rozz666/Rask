@@ -21,8 +21,8 @@ boost::optional<VariableDecl> Builder::buildVariableDecl(const cst::VariableDecl
         logger_.log(error::Message::uninitializedVariable(vd.name.position, vd.name.value));
         return boost::none;
     }
-    
-    VariableDecl decl(vd.name, vd.value->value);
+
+    VariableDecl decl(vd.name, *buildExpression(*vd.value, symbolTable_));
     symbolTable_.add(decl.var());
     
     return decl;

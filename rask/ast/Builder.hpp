@@ -31,7 +31,7 @@ public:
     virtual bool buildFunction(const cst::Function& f);
     virtual boost::optional<Tree> buildTree(const cst::Tree& cst);
     virtual boost::optional<VariableDecl> buildVariableDecl(const cst::VariableDecl& vd);
-
+    virtual boost::optional<Expression> buildExpression(const cst::Expression& expr, SymbolTable& st);
 private:
 
     error::Logger& logger_;

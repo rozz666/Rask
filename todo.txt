@@ -1,3 +1,7 @@
 Refactor Mocks using macro-based automatic generation.
 Separate local symbol table from global.
 Remove "global" variables from ast::Builder and cg::CodeGenerator.
+Make MakeExpression a function (buildExpression) instead of a helper functor in buildFunctionCall.cpp
+The same applies to GetValue.
+Check if variable is already declared
+Make VariableDecl value not optional
