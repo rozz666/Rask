@@ -114,6 +114,7 @@ void object::test<4>()
     
     ENSURE_EQUALS(mockable.testFunc4(), 5);
     ENSURE_EQUALS(mockable.testFunc4(), 6);
+    ENSURE_EQUALS(mockable.testFunc4(), 6);
 }
 
 template <>
@@ -133,18 +134,7 @@ template <>
 template <>
 void object::test<6>()
 {
-    bool thrown = false;
-    
-    try
-    {
-        ENSURE_CALL(mock, testFunc(1));
-    }
-    catch (const tut::failure& e)
-    {
-        thrown = true;
-    }
-    
-    ENSURE(thrown);
+    ENSURE_THROWS(ENSURE_CALL(mock, testFunc(1)), tut::failure);
 }
     
 template <>
@@ -185,6 +175,24 @@ void object::test<10>()
     mock.testFunc5(y);
     
     ENSURE_THROWS(ENSURE_CALL(mock, testFunc5(x)), tut::failure);
+}
+
+template <>
+template <>
+void object::test<11>()
+{
+    ENSURE_THROWS(mockable.testFunc4(), tut::failure);
+}
+
+template <>
+template <>
+void object::test<12>()
+{
+    ENSURE_NO_CALLS(mock, testFunc3);
+    
+    mock.testFunc3();
+    
+    ENSURE_THROWS(ENSURE_NO_CALLS(mock, testFunc3), tut::failure);
 }
 
 }

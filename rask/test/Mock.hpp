@@ -10,10 +10,10 @@
 #define RASK_TEST_MOCK_HPP
 
 #include <boost/ptr_container/ptr_deque.hpp>
-#include <queue>
+#include <deque>
 #include <boost/preprocessor.hpp>
 #include <boost/mpl/if.hpp>
-#include <boost/type_traits/is_void.hpp>
+#include <rask/test/TUTAssert.hpp>
 
 namespace rask
 {
@@ -49,12 +49,12 @@ private:
 #define MOCK_DECLARE_ARG_NC(r, data, elem) , BOOST_PP_TUPLE_ELEM(2, 0, elem) BOOST_PP_TUPLE_ELEM(2, 1, elem)
 #define MOCK_DECLARE_ARG_TYPE(r, data, i, elem) BOOST_PP_COMMA_IF(i) BOOST_PP_TUPLE_ELEM(2, 0, elem)
 #define MOCK_ENUM_ARG(r, data, elem) , BOOST_PP_TUPLE_ELEM(2, 1, elem)
-#define MOCK_TEST_ARG(r, data, elem) \
+#define MOCK_TEST_ARG(r, data, i, elem) \
 if (!Test<BOOST_PP_TUPLE_ELEM(2, 0, elem)>::equal(BOOST_PP_TUPLE_ELEM(2, 1, elem), call.BOOST_PP_TUPLE_ELEM(2, 1, elem))) \
 { \
     std::ostringstream ss; \
-    ss << "Mismatched parameter arg: expected arg "; \
-    fail(formatMessage(ss.str().c_str(), file, line)); \
+    ss << "Mismatched parameter " << (i + 1); \
+    tut::fail(tut::formatMessage(ss.str().c_str(), file, line)); \
 }
 
 #define MOCK_DECL_MEMBERS(vars) \
@@ -64,7 +64,7 @@ if (!Test<BOOST_PP_TUPLE_ELEM(2, 0, elem)>::equal(BOOST_PP_TUPLE_ELEM(2, 1, elem
     BOOST_PP_SEQ_FOR_EACH_I(MOCK_DECLARE_ARG, _, args)
 
 #define MOCK_DECL_ARG_TYPES(args) \
-BOOST_PP_SEQ_FOR_EACH_I(MOCK_DECLARE_ARG_TYPE, _, args)
+    BOOST_PP_SEQ_FOR_EACH_I(MOCK_DECLARE_ARG_TYPE, _, args)
 
 #define MOCK_DECL_ARGS_NC(args) \
     BOOST_PP_SEQ_FOR_EACH(MOCK_DECLARE_ARG_NC, _, args)
@@ -73,11 +73,10 @@ BOOST_PP_SEQ_FOR_EACH_I(MOCK_DECLARE_ARG_TYPE, _, args)
     BOOST_PP_SEQ_FOR_EACH(MOCK_ENUM_ARG, _, args)
 
 #define MOCK_TEST_ARGS(args) \
-    BOOST_PP_SEQ_FOR_EACH(MOCK_TEST_ARG, _, args)
+    BOOST_PP_SEQ_FOR_EACH_I(MOCK_TEST_ARG, _, args)
 
 #define MOCK_METHOD(retType, name, args) \
 struct name##__type { \
-    typedef typename boost::mpl::if_<boost::is_void<retType>, int, retType>::type retValueType; \
     struct Call \
     { \
         unsigned callIndex__;\
@@ -110,21 +109,36 @@ struct name##__type { \
         } \
     }; \
     boost::ptr_deque<Call> calls; \
-    std::queue<retValueType> retValues; \
+    template <typename T, bool dummy = true> \
+    struct Return \
+    { \
+        std::deque<T> values; \
+        T get() \
+        { \
+            if (values.empty()) tut::fail("No return value specified for " #name); \
+            T val = values.front(); \
+            if (values.size() > 1) values.pop_front();\
+            return val; \
+        } \
+    }; \
+    template <bool dummy> \
+    struct Return<void, dummy> \
+    { \
+        void get() { } \
+    }; \
+    Return<retType> ret; \
 } name##__; \
 name##__type& call__##name(MOCK_DECL_ARG_TYPES(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) { return name##__; } \
 retType name(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) \
 { \
     name##__type::Call c = { getCallIndex() MOCK_ENUM_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END)) }; \
     name##__.calls.push_back(new name##__type::Call(c)); \
-    name##__type::retValueType ret = name##__.retValues.front(); \
-    name##__.retValues.pop();\
-    return (retType) ret; \
+    return name##__.ret.get(); \
 }
 
 #define MOCK_RETURN(mock, func, value) \
 do { \
-    mock.func##__.retValues.push(value); \
+    mock.func##__.ret.values.push_back(value); \
 } while (0)
 
 #define ENSURE_CALL(mock, call) \
@@ -136,6 +150,11 @@ do { \
     mock.call__##call.calls.front().verify__(__FILE__, __LINE__, mock.call__##call.calls.front()).call; \
     mock.call__##call.calls.pop_front(); \
 } while(0)
+
+#define ENSURE_NO_CALLS(mock, func) \
+do { \
+    if (!mock.func##__.calls.empty()) FAIL(#func " called"); \
+} while (0)
  
 }
 }

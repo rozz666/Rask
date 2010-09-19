@@ -8,67 +8,28 @@
 //
 #include <tut/tut.hpp>
 #include <tut/../contrib/tut_macros.h>
+#include <rask/test/Mock.hpp>
 #include <rask/ast/Builder.hpp>
 
 namespace
 {
     
-class BuilderMock : public rask::ast::Builder
+MOCK(BuilderMock, rask::ast::Builder)
 {
 public:
 
     rask::ast::SymbolTable st;
     rask::ast::SharedCustomFunction main;
 
-    struct BuildFunctionDecl
-    {
-        int N;
-        const rask::cst::Function *f;
-        boost::optional<rask::ast::FunctionDecl> result;
-    };
-
-    struct BuildFunction
-    {
-        int N;
-        const rask::cst::Function *f;
-    };
-
-    int counter;
-    std::vector<BuildFunctionDecl> buildFunctionDeclCalls;
-    std::vector<BuildFunction> buildFunctionCalls;
-    bool buildFunctionDeclSuccessful;
-    bool buildFunctionSuccessful;
-
     BuilderMock(rask::error::Logger& logger)
-        : rask::ast::Builder(logger, st), main(new rask::ast::CustomFunction(rask::cst::Identifier::create(rask::Position(), "main"))),
-        counter(0), buildFunctionDeclSuccessful(true), buildFunctionSuccessful(true)
+        : rask::ast::Builder(logger, st),
+        main(new rask::ast::CustomFunction(rask::cst::Identifier::create(rask::Position(), "main")))
     {
         st.add(main);
     }
 
-    virtual boost::optional<rask::ast::FunctionDecl> buildFunctionDecl(const rask::cst::Function& f)
-    {
-        BuildFunctionDecl bfd = { ++counter, &f };
-
-        buildFunctionDeclCalls.push_back(bfd);
-        
-        if (!buildFunctionDeclSuccessful) return boost::none;
-
-        rask::ast::FunctionDecl fd(f.name);
-
-        buildFunctionDeclCalls.back().result = fd;
-        
-        return fd;
-    }
-    
-    virtual bool buildFunction(const rask::cst::Function& f)
-    {
-        BuildFunction bf = { ++counter, &f };
-
-        buildFunctionCalls.push_back(bf);
-
-        return buildFunctionSuccessful;
-    }
+    MOCK_METHOD(boost::optional<rask::ast::FunctionDecl>, buildFunctionDecl, (const rask::cst::Function&, f));
+    MOCK_METHOD(bool, buildFunction, (const rask::cst::Function&, f));
 };
 
 }
@@ -108,13 +69,13 @@ void object::test<1>()
 
     boost::optional<ast::Tree> ast = builder.buildTree(cst);
 
-    ensure("built", ast);
-    ensure_equals("no errors", logger.errors().size(), 0u);
-    ensure_equals("count", ast->functionCount(), 0u);
-    ensure_equals("no calls 1", builder.buildFunctionDeclCalls.size(), 0u);
-    ensure_equals("no calls 2", builder.buildFunctionCalls.size(), 0u);
+    ENSURE(ast);
+    ENSURE_EQUALS(logger.errors().size(), 0u);
+    ENSURE_EQUALS(ast->functionCount(), 0u);
+    ENSURE_NO_CALLS(builder, buildFunctionDecl);
+    ENSURE_NO_CALLS(builder, buildFunction);
 }
-    
+
 template <>
 template <>
 void object::test<2>()
@@ -122,24 +83,26 @@ void object::test<2>()
     using namespace rask;
 
     cst.functions.resize(2);
+
+    ast::FunctionDecl fd1(cst::Identifier::create(Position(), "f1"));
+    ast::FunctionDecl fd2(cst::Identifier::create(Position(), "f2"));
+    MOCK_RETURN(builder, buildFunctionDecl, fd1);
+    MOCK_RETURN(builder, buildFunctionDecl, fd2);
+    MOCK_RETURN(builder, buildFunction, true);
     
     boost::optional<ast::Tree> ast = builder.buildTree(cst);
-
-    ensure("built", ast);
-    ensure_equals("no errors", logger.errors().size(), 0u);
-    ensure_equals("count", ast->functionCount(), 2u);
-    ensure_equals("decl calls", builder.buildFunctionDeclCalls.size(), 2u);
-    ensure_equals("calls", builder.buildFunctionCalls.size(), 2u);
-    ensure_equals("decl called 1", builder.buildFunctionDeclCalls[0].N, 1);
-    ensure_equals("decl called 2", builder.buildFunctionDeclCalls[1].N, 2);
-    ensure_equals("called 1", builder.buildFunctionCalls[0].N, 3);
-    ensure_equals("called 2", builder.buildFunctionCalls[1].N, 4);
-    ensure("result", ast->function(0) == builder.buildFunctionDeclCalls[0].result->function());
-    ensure("result", ast->function(1) == builder.buildFunctionDeclCalls[1].result->function());
-    ensure("fd 1", builder.buildFunctionDeclCalls[0].f == &cst.functions[0]);
-    ensure("f 1", builder.buildFunctionCalls[0].f == &cst.functions[0]);
-    ensure("fd 2", builder.buildFunctionDeclCalls[1].f == &cst.functions[1]);
-    ensure("f 2", builder.buildFunctionCalls[1].f == &cst.functions[1]);
+   
+    ENSURE(ast);
+    ENSURE_EQUALS(logger.errors().size(), 0u);
+    ENSURE_EQUALS(ast->functionCount(), 2u);
+    ENSURE(ast->function(0) == fd1.function());
+    ENSURE(ast->function(1) == fd2.function());
+    ENSURE_CALL(builder, buildFunctionDecl(cst.functions[0]));
+    ENSURE_CALL(builder, buildFunctionDecl(cst.functions[1]));
+    ENSURE_NO_CALLS(builder, buildFunctionDecl);
+    ENSURE_CALL(builder, buildFunction(cst.functions[0]));
+    ENSURE_CALL(builder, buildFunction(cst.functions[1]));
+    ENSURE_NO_CALLS(builder, buildFunction);
 }
 
 template <>
@@ -150,18 +113,18 @@ void object::test<3>()
     
     cst.functions.resize(2);
 
-    builder.buildFunctionDeclSuccessful = false;
-
-    ensure_not("not built", builder.buildTree(cst));
-    ensure_equals("no errors", logger.errors().size(), 0u);
-    ensure_equals("decl calls", builder.buildFunctionDeclCalls.size(), 2u);
-    ensure_equals("calls", builder.buildFunctionCalls.size(), 2u);
-    ensure_equals("decl called 1", builder.buildFunctionDeclCalls[0].N, 1);
-    ensure_equals("decl called 2", builder.buildFunctionDeclCalls[1].N, 2);
-    ensure_equals("called 1", builder.buildFunctionCalls[0].N, 3);
-    ensure_equals("called 2", builder.buildFunctionCalls[1].N, 4);
-    ensure("fd 1", builder.buildFunctionDeclCalls[0].f == &cst.functions[0]);
-    ensure("fd 2", builder.buildFunctionDeclCalls[1].f == &cst.functions[1]);
+    MOCK_RETURN(builder, buildFunctionDecl, boost::none);
+    MOCK_RETURN(builder, buildFunction, false);
+    MOCK_RETURN(builder, buildFunction, true);
+    
+    ENSURE(!builder.buildTree(cst));
+    ENSURE_EQUALS(logger.errors().size(), 0u);
+    ENSURE_CALL(builder, buildFunctionDecl(cst.functions[0]));
+    ENSURE_CALL(builder, buildFunctionDecl(cst.functions[1]));
+    ENSURE_NO_CALLS(builder, buildFunctionDecl);
+    ENSURE_CALL(builder, buildFunction(cst.functions[0]));
+    ENSURE_CALL(builder, buildFunction(cst.functions[1]));
+    ENSURE_NO_CALLS(builder, buildFunction);
 }
 
 template <>
@@ -172,20 +135,17 @@ void object::test<4>()
     
     cst.functions.resize(2);
 
-    builder.buildFunctionSuccessful = false;
+    MOCK_RETURN(builder, buildFunctionDecl, ast::FunctionDecl(cst::Identifier::create(Position(), "f")));
+    MOCK_RETURN(builder, buildFunction, false);
     
-    ensure_not("not built", builder.buildTree(cst));
-    ensure_equals("no errors", logger.errors().size(), 0u);
-    ensure_equals("decl calls", builder.buildFunctionDeclCalls.size(), 2u);
-    ensure_equals("calls", builder.buildFunctionCalls.size(), 2u);
-    ensure_equals("decl called 1", builder.buildFunctionDeclCalls[0].N, 1);
-    ensure_equals("decl called 2", builder.buildFunctionDeclCalls[1].N, 2);
-    ensure_equals("called 1", builder.buildFunctionCalls[0].N, 3);
-    ensure_equals("called 2", builder.buildFunctionCalls[1].N, 4);
-    ensure("fd 1", builder.buildFunctionDeclCalls[0].f == &cst.functions[0]);
-    ensure("f 1", builder.buildFunctionCalls[0].f == &cst.functions[0]);
-    ensure("fd 2", builder.buildFunctionDeclCalls[1].f == &cst.functions[1]);
-    ensure("f 2", builder.buildFunctionCalls[1].f == &cst.functions[1]);
+    ENSURE(!builder.buildTree(cst));
+    ENSURE_EQUALS(logger.errors().size(), 0u);
+    ENSURE_CALL(builder, buildFunctionDecl(cst.functions[0]));
+    ENSURE_CALL(builder, buildFunctionDecl(cst.functions[1]));
+    ENSURE_NO_CALLS(builder, buildFunctionDecl);
+    ENSURE_CALL(builder, buildFunction(cst.functions[0]));
+    ENSURE_CALL(builder, buildFunction(cst.functions[1]));
+    ENSURE_NO_CALLS(builder, buildFunction);
 }
 
 template <>
@@ -197,9 +157,9 @@ void object::test<5>()
     cst.end = Position("xxx", 1, 2);
     builder.st = ast::SymbolTable();
     
-    ensure_not("not built", builder.buildTree(cst));
-    ensure_equals("1 error", logger.errors().size(), 1u);
-    ensure_equals("error", logger.errors()[0], error::Message::missingMainFunction(Position(cst.end.file)));
+    ENSURE(!builder.buildTree(cst));
+    ENSURE_EQUALS(logger.errors().size(), 1u);
+    ENSURE_EQUALS(logger.errors()[0], error::Message::missingMainFunction(Position(cst.end.file)));
 }
 
 }
