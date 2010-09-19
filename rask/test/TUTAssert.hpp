@@ -44,7 +44,22 @@ inline std::string formatMessage(const char *what, const char *file, int line)
     return ss.str();
 }
 
+#define FAIL(msg) fail(formatMessage(msg, __FILE__, __LINE__))
 #define ENSURE(x) ensure(formatMessage(#x, __FILE__, __LINE__), (x))
+#define ENSURE_EQUALS(expr, expected) ensure_equals(formatMessage(#expr, __FILE__, __LINE__), (expr), (expected))
+#define ENSURE_THROWS(expr, ex) \
+    do { \
+        bool thrown = false; \
+        try \
+        { \
+            expr; \
+        } \
+        catch (const ex& ) \
+        { \
+            thrown = true; \
+        } \
+        if (!thrown) fail(formatMessage(#expr " has not thrown", __FILE__, __LINE__)); \
+    } while (0)
 
 }
 
