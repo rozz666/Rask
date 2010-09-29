@@ -7,59 +7,22 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <tut/tut.hpp>
-#include <tut/../contrib/tut_macros.h> 
+#include <tut/../contrib/tut_macros.h>
+#include <rask/test/Mock.hpp>
 #include <rask/ast/Builder.hpp>
 
 namespace
 {
 
-class BuilderMock : public rask::ast::Builder
+MOCK(BuilderMock, rask::ast::Builder)
 {
 public:
 
-    struct BuildVariableDecl
-    {
-        int N;
-        const rask::cst::VariableDecl *vd;
-    };
-    
-    struct BuildFunctionCall
-    {
-        int N;
-        const rask::cst::FunctionCall *fc;
-    };
-    
-    int counter;
-    std::vector<BuildVariableDecl> buildVariableDeclCalls;
-    std::vector<BuildFunctionCall> buildFunctionCallCalls;
-    bool buildVariableDeclSuccessful;
-    bool buildFunctionCallSuccessful;
-
     BuilderMock(rask::error::Logger& logger, rask::ast::SymbolTable& st)
-        : rask::ast::Builder(logger, st), counter(0), buildVariableDeclSuccessful(true), buildFunctionCallSuccessful(true) { }
-    
-    virtual boost::optional<rask::ast::VariableDecl> buildVariableDecl(const rask::cst::VariableDecl& vd)
-    {
-        BuildVariableDecl bvd = { ++counter, &vd };
-        buildVariableDeclCalls.push_back(bvd);
+        : rask::ast::Builder(logger, st) { }
 
-        if (!buildVariableDeclSuccessful) return boost::none;
-        
-        return rask::ast::VariableDecl(vd.name, 0);
-    }
-
-    virtual boost::optional<rask::ast::FunctionCall> buildFunctionCall(const rask::cst::FunctionCall& fc)
-    {
-        BuildFunctionCall bfc = { ++counter, &fc };
-        buildFunctionCallCalls.push_back(bfc);
-
-        if (!buildFunctionCallSuccessful) return boost::none;
-
-        rask::ast::FunctionCall::Arguments args;
-        args.push_back(rask::ast::Constant(getConstant(fc.args[0]).value));
-
-        return rask::ast::FunctionCall(rask::ast::WeakFunction(), args);
-    }
+    MOCK_METHOD(boost::optional<rask::ast::VariableDecl>, buildVariableDecl, (const rask::cst::VariableDecl&, vd));
+    MOCK_METHOD(boost::optional<rask::ast::FunctionCall>, buildFunctionCall, (const rask::cst::FunctionCall& ,fc));
 };
     
 }
@@ -104,10 +67,10 @@ void object::test<1>()
 {
     using namespace rask;
 
-    ensure("built", builder.buildFunction(cf));
+    ENSURE(builder.buildFunction(cf));
     
-    ensure_equals("no errors", logger.errors().size(), 0u);
-    ensure_equals("no stmts", f->stmtCount(), 0u);
+    ENSURE_EQUALS(logger.errors().size(), 0u);
+    ENSURE_EQUALS(f->stmtCount(), 0u);
 }
         
         
@@ -117,24 +80,23 @@ void object::test<2>()
 {
     using namespace rask;
 
-    boost::int32_t c1 = 1;
-    boost::int32_t c2 = 2;
+    const unsigned n1 = 1;
+    const unsigned n2 = 2;
     
     cf.stmts.resize(2, cst::FunctionCall());
-    getFunctionCall(cf.stmts[0]).args.push_back(cst::Constant::create(Position(), c1));
-    getFunctionCall(cf.stmts[1]).args.push_back(cst::Constant::create(Position(), c2));
 
-    ensure("built", builder.buildFunction(cf));
+    MOCK_RETURN(builder, buildFunctionCall, ast::FunctionCall(ast::WeakFunction(), ast::FunctionCall::Arguments(n1)));
+    MOCK_RETURN(builder, buildFunctionCall, ast::FunctionCall(ast::WeakFunction(), ast::FunctionCall::Arguments(n2)));
     
-    ensure_equals("no errors", logger.errors().size(), 0u);
-    ensure_equals("count", f->stmtCount(), 2u);
-    ensure_equals("fcall 1", getConstant(getFunctionCall(f->stmt(0)).args()[0]), c1);
-    ensure_equals("fcall 2", getConstant(getFunctionCall(f->stmt(1)).args()[0]), c2);
-    ensure_equals("buildFC #", builder.buildFunctionCallCalls.size(), 2u);
-    ensure_equals("buildFC 1", builder.buildFunctionCallCalls[0].N, 1);
-    ensure("buildFC 1 fc", builder.buildFunctionCallCalls[0].fc == &getFunctionCall(cf.stmts[0]));
-    ensure_equals("buildFC 2", builder.buildFunctionCallCalls[1].N, 2);
-    ensure("buildFC 2 fc", builder.buildFunctionCallCalls[1].fc == &getFunctionCall(cf.stmts[1]));
+    ENSURE(builder.buildFunction(cf));
+    
+    ENSURE_EQUALS(logger.errors().size(), 0u);
+    ENSURE_EQUALS(f->stmtCount(), 2u);
+    ENSURE_EQUALS(getFunctionCall(f->stmt(0)).args().size(), n1);
+    ENSURE_EQUALS(getFunctionCall(f->stmt(1)).args().size(), n2);
+    ENSURE_CALL(builder, buildFunctionCall(getFunctionCall(cf.stmts[0])));
+    ENSURE_CALL(builder, buildFunctionCall(getFunctionCall(cf.stmts[1])));
+    ENSURE_NO_CALLS(builder, buildFunctionCall);
 }
 
 template <>
@@ -143,19 +105,15 @@ void object::test<3>()
 {
     using namespace rask;
     
-    cf.stmts.push_back(cst::FunctionCall());
-    cf.stmts.push_back(cst::FunctionCall());
+    cf.stmts.resize(2, cst::FunctionCall());
     
-    builder.buildFunctionCallSuccessful = false;
+    MOCK_RETURN(builder, buildFunctionCall, boost::none);
     
-    ensure_not("not built", builder.buildFunction(cf));
-    
-    ensure_equals("no errors", logger.errors().size(), 0u);
-    ensure_equals("buildFC #", builder.buildFunctionCallCalls.size(), 1u);
-    ensure_equals("buildFC 1", builder.buildFunctionCallCalls[0].N, 1);
-    ensure("buildFC 1 fc", builder.buildFunctionCallCalls[0].fc == &getFunctionCall(cf.stmts[0]));
+    ENSURE(!builder.buildFunction(cf));
+    ENSURE_EQUALS(logger.errors().size(), 0u);
+    ENSURE_CALL(builder, buildFunctionCall(getFunctionCall(cf.stmts[0])));
+    ENSURE_NO_CALLS(builder, buildFunctionCall);
 }
-
 
 template <>
 template <>
@@ -163,24 +121,24 @@ void object::test<4>()
 {
     using namespace rask;
 
-    cst::VariableDecl vd1;
-    vd1.name.value = "a";
-    cf.stmts.push_back(vd1);
-    cst::VariableDecl vd2;
-    vd2.name.value = "b";
-    cf.stmts.push_back(vd2);
+    const std::string n1 = "a";
+    const std::string n2 = "b";
 
-    ensure("built", builder.buildFunction(cf));
+    cf.stmts.resize(2, cst::VariableDecl());
     
-    ensure_equals("no errors", logger.errors().size(), 0u);
-    ensure_equals("2 decls", builder.buildVariableDeclCalls.size(), 2u);
-    ensure_equals("decl 1", builder.buildVariableDeclCalls[0].N, 1);
-    ensure("decl 1 vd", builder.buildVariableDeclCalls[0].vd == &getVariableDecl(cf.stmts[0]));
-    ensure_equals("decl 2", builder.buildVariableDeclCalls[1].N, 2);
-    ensure("decl 2 vd", builder.buildVariableDeclCalls[1].vd == &getVariableDecl(cf.stmts[1]));
-    ensure_equals("stmt count", f->stmtCount(), 2u);
-    ensure_equals("stmt 1", getVariableDecl(f->stmt(0)).var()->name().value, vd1.name.value);
-    ensure_equals("stmt 2", getVariableDecl(f->stmt(1)).var()->name().value, vd2.name.value);
+    MOCK_RETURN(builder, buildVariableDecl, ast::VariableDecl(cst::Identifier::create(Position(), n1), ast::WeakVariable()));
+    MOCK_RETURN(builder, buildVariableDecl, ast::VariableDecl(cst::Identifier::create(Position(), n2), ast::WeakVariable()));
+    
+    ENSURE(builder.buildFunction(cf));
+    
+    ENSURE_EQUALS(logger.errors().size(), 0u);
+    ENSURE_CALL(builder, buildVariableDecl(getVariableDecl(cf.stmts[0])));
+    ENSURE_CALL(builder, buildVariableDecl(getVariableDecl(cf.stmts[1])));
+    ENSURE_NO_CALLS(builder, buildVariableDecl);
+    
+    ENSURE_EQUALS(f->stmtCount(), 2u);
+    ENSURE_EQUALS(getVariableDecl(f->stmt(0)).var()->name().value, n1);
+    ENSURE_EQUALS(getVariableDecl(f->stmt(1)).var()->name().value, n2);
 }
 
 template <>
@@ -189,17 +147,15 @@ void object::test<5>()
 {
     using namespace rask;
     
-    cf.stmts.push_back(cst::VariableDecl());
-    cf.stmts.push_back(cst::VariableDecl());
+    cf.stmts.resize(2, cst::VariableDecl());
+
+    MOCK_RETURN(builder, buildVariableDecl, boost::none);
     
-    builder.buildVariableDeclSuccessful = false;
+    ENSURE(!builder.buildFunction(cf));
     
-    ensure_not("not built", builder.buildFunction(cf));
-    
-    ensure_equals("no errors", logger.errors().size(), 0u);
-    ensure_equals("1 decl", builder.buildVariableDeclCalls.size(), 1u);
-    ensure_equals("decl 1", builder.buildVariableDeclCalls[0].N, 1);
-    ensure("decl 1 vd", builder.buildVariableDeclCalls[0].vd == &boost::get<cst::VariableDecl>(cf.stmts[0]));
+    ENSURE_EQUALS(logger.errors().size(), 0u);
+    ENSURE_CALL(builder, buildVariableDecl(boost::get<cst::VariableDecl>(cf.stmts[0])));
+    ENSURE_NO_CALLS(builder, buildVariableDecl);
 }
 
 }
