@@ -3,5 +3,4 @@ Remove "global" variables from ast::Builder and cg::CodeGenerator.
 Make MakeExpression a function (buildExpression) instead of a helper functor in buildFunctionCall.cpp
 The same applies to GetValue.
 Check if variable is already declared
-Make VariableDecl value not optional
 check if buildTreeUT::test<3> is correct
