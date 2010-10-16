@@ -9,6 +9,7 @@
 #include <tut/tut.hpp>
 #include <tut/../contrib/tut_macros.h>
 #include <rask/cg/CodeGenerator.hpp>
+#include <rask/test/TUTAssert.hpp>
 #include <llvm/LLVMContext.h>
 #include <llvm/BasicBlock.h>
 #include <llvm/DerivedTypes.h>
@@ -53,19 +54,19 @@ void object::test<1>()
 
     llvm::AllocaInst *alloc = cg.genVariableDecl(vd, *block);
 
-    ensure_equals("2 instr", block->size(), 2u);
+    ENSURE_EQUALS(block->size(), 2u);
     llvm::BasicBlock::iterator it = block->begin();
 
-    ensure("alloca", &*it == alloc);
-    ensure_equals("alloca name", alloc->getNameStr(), name.value);
-    ensure("alloca type", alloc->getAllocatedType() == llvm::IntegerType::get(ctx, 32));
-    ensure("st", st.get(name) == alloc);
+    ENSURE(&*it == alloc);
+    ENSURE_EQUALS(alloc->getNameStr(), name.value);
+    ENSURE(alloc->getAllocatedType() == llvm::IntegerType::get(ctx, 32));
+    ENSURE(st.get(name) == alloc);
     ++it;
 
-    ensure("store", llvm::isa<llvm::StoreInst>(*it));
+    ENSURE(llvm::isa<llvm::StoreInst>(*it));
     llvm::StoreInst *store = llvm::cast<llvm::StoreInst>(&*it);
-    ensure("store value", store->getOperand(0) == llvm::ConstantInt::get(ctx, llvm::APInt(32, getConstant(vd.value()), true)));
-    ensure("store ptr", store->getOperand(1) == alloc);
+    ENSURE(store->getValueOperand() == llvm::ConstantInt::get(ctx, llvm::APInt(32, getConstant(vd.value()), true)));
+    ENSURE(store->getPointerOperand() == alloc);
 }
 
 

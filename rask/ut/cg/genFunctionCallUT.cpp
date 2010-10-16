@@ -7,10 +7,11 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <tut/tut.hpp>
-#include <tut/../contrib/tut_macros.h> 
+#include <tut/../contrib/tut_macros.h>
 #include <rask/cg/CodeGenerator.hpp>
 #include <rask/cg/SymbolTable.hpp>
 #include <rask/ast/BuiltinFunction.hpp>
+#include <rask/test/TUTAssert.hpp>
 #include <llvm/LLVMContext.h>
 #include <llvm/Instructions.h>
 #include <llvm/DerivedTypes.h>
@@ -67,16 +68,15 @@ void object::test<1>()
     
     llvm::CallInst *call = cg.genFunctionCall(fc, *block, *module);
 
-    ensure_equals("1 instr", block->size(), 1u);
+    ENSURE_EQUALS(block->size(), 1u);
 
     llvm::BasicBlock::iterator it = block->begin();
     
-    ensure("call", &*it == call);
-    
-    ensure("called", call->getCalledFunction() == module->getFunction(print->name().value));
-    ensure_equals("num ops", call->getNumOperands(), 2u);
-    ensure("value", call->getOperand(1) == llvm::ConstantInt::get(ctx, llvm::APInt(32, getConstant(args[0]), true)));
-    ensure("C cc", call->getCallingConv() == llvm::CallingConv::C);
+    ENSURE(&*it == call);
+    ENSURE(call->getCalledFunction() == module->getFunction(print->name().value));
+    ENSURE_EQUALS(call->getNumOperands(), 2u);
+    ENSURE(call->getArgOperand(0) == llvm::ConstantInt::get(ctx, llvm::APInt(32, getConstant(args[0]), true)));
+    ENSURE(call->getCallingConv() == llvm::CallingConv::C);
 }
 
 template <>
@@ -97,23 +97,22 @@ void object::test<2>()
     
     llvm::CallInst *call = cg.genFunctionCall(fc, *block, *module);
     
-    ensure_equals("2 instr", block->size(), 2u);
+    ENSURE_EQUALS(block->size(), 2u);
     
     llvm::BasicBlock::iterator it = block->begin();
 
-    ensure("load", llvm::isa<llvm::LoadInst>(*it));
+    ENSURE(llvm::isa<llvm::LoadInst>(*it));
     llvm::LoadInst *load = llvm::cast<llvm::LoadInst>(&*it);
 
-    ensure("src", load->getPointerOperand() == st.get(name));
+    ENSURE(load->getPointerOperand() == st.get(name));
     
     ++it;
     
-    ensure("call", &*it == call);
-    
-    ensure("called", call->getCalledFunction() == module->getFunction(print->name().value));
-    ensure_equals("num ops", call->getNumOperands(), 2u);
-    ensure("value", call->getOperand(1) == load);
-    ensure("C cc", call->getCallingConv() == llvm::CallingConv::C);
+    ENSURE(&*it == call);
+    ENSURE(call->getCalledFunction() == module->getFunction(print->name().value));
+    ENSURE_EQUALS(call->getNumOperands(), 2u);
+    ENSURE(call->getArgOperand(0) == load);
+    ENSURE(call->getCallingConv() == llvm::CallingConv::C);
 }
 
 template <>
@@ -127,15 +126,14 @@ void object::test<3>()
     
     llvm::CallInst *call = cg.genFunctionCall(fc, *block, *module);
     
-    ensure_equals("1 instr", block->size(), 1u);
+    ENSURE_EQUALS(block->size(), 1u);
     
     llvm::BasicBlock::iterator it = block->begin();
     
-    ensure("call", &*it == call);
-    
-    ensure("called", call->getCalledFunction() == module->getFunction(dummy->name().value));
-    ensure_equals("num ops", call->getNumOperands(), 1u);
-    ensure("C cc", call->getCallingConv() == llvm::CallingConv::C);
+    ENSURE(&*it == call);
+    ENSURE(call->getCalledFunction() == module->getFunction(dummy->name().value));
+    ENSURE_EQUALS(call->getNumOperands(), 1u);
+    ENSURE(call->getCallingConv() == llvm::CallingConv::C);
 }
 
 }
