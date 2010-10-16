@@ -8,6 +8,7 @@
 //
 #include <tut/tut.hpp>
 #include <tut/../contrib/tut_macros.h>
+#include <boost/scoped_ptr.hpp>
 #include <rask/cg/CodeGenerator.hpp>
 #include <rask/test/TUTAssert.hpp>
 #include <llvm/LLVMContext.h>
@@ -21,7 +22,7 @@ namespace tut
 struct genVariableDecl_TestData
 {
     llvm::LLVMContext ctx;
-    std::auto_ptr<llvm::BasicBlock> block;
+    boost::scoped_ptr<llvm::BasicBlock> block;
     rask::cg::SymbolTable st;
     rask::cg::CodeGenerator cg;
     

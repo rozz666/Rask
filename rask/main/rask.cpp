@@ -9,6 +9,7 @@
 #include <iostream>
 #include <iterator>
 #include <memory>
+#include <boost/scoped_ptr.hpp>
 #include <llvm/LLVMContext.h>
 #include <llvm/Module.h>
 #include <llvm/Bitcode/ReaderWriter.h>
@@ -33,7 +34,7 @@ int main(int, char **argv)
 {
     llvm::InitializeNativeTarget();
     
-    std::auto_ptr<llvm::MemoryBuffer> buf(llvm::MemoryBuffer::getFile(argv[1]));
+    boost::scoped_ptr<llvm::MemoryBuffer> buf(llvm::MemoryBuffer::getFile(argv[1]));
 
     if (!buf.get())
     {
@@ -43,7 +44,7 @@ int main(int, char **argv)
     
     llvm::LLVMContext context;
     
-    std::auto_ptr<llvm::Module> module(llvm::ParseBitcodeFile(buf.get(), context));
+    boost::scoped_ptr<llvm::Module> module(llvm::ParseBitcodeFile(buf.get(), context));
 
     if (!module.get())
     {

@@ -8,6 +8,7 @@
 //
 #include <tut/tut.hpp>
 #include <tut/../contrib/tut_macros.h> 
+#include <boost/scoped_ptr.hpp>
 #include <rask/cg/CodeGenerator.hpp>
 #include <rask/test/Mock.hpp>
 #include <llvm/LLVMContext.h>
@@ -37,7 +38,7 @@ namespace tut
 struct genFunction_TestData
 {
     llvm::LLVMContext ctx;
-    std::auto_ptr<llvm::Module> module;
+    boost::scoped_ptr<llvm::Module> module;
     CodeGeneratorMock cg;
     rask::ast::CustomFunction f;
     

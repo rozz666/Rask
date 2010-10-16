@@ -1,4 +1,3 @@
-Replace auto_ptr's with scope_ptr's.
 Separate local symbol table from global.
 Remove "global" variables from ast::Builder and cg::CodeGenerator.
 Make MakeExpression a function (buildExpression) instead of a helper functor in buildFunctionCall.cpp

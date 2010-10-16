@@ -8,6 +8,7 @@
 //
 #include <tut/tut.hpp>
 #include <tut/../contrib/tut_macros.h>
+#include <boost/scoped_ptr.hpp>
 #include <rask/cg/CodeGenerator.hpp>
 #include <rask/cg/SymbolTable.hpp>
 #include <rask/ast/BuiltinFunction.hpp>
@@ -22,7 +23,7 @@ namespace tut
 struct genFunctionCall_TestData
 {
     llvm::LLVMContext ctx;
-    std::auto_ptr<llvm::Module> module;
+    boost::scoped_ptr<llvm::Module> module;
     llvm::BasicBlock *block;
     rask::cg::SymbolTable st;
     rask::cg::CodeGenerator cg;

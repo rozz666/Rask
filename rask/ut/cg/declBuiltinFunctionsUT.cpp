@@ -8,6 +8,7 @@
 //
 #include <tut/tut.hpp>
 #include <tut/../contrib/tut_macros.h>
+#include <boost/scoped_ptr.hpp>
 #include <llvm/LLVMContext.h>
 #include <llvm/DerivedTypes.h>
 #include <rask/cg/CodeGenerator.hpp>
@@ -39,7 +40,7 @@ void object::test<1>()
     using namespace rask;
     
     llvm::LLVMContext context;
-    std::auto_ptr<llvm::Module> module(new llvm::Module("testModule", context));
+    boost::scoped_ptr<llvm::Module> module(new llvm::Module("testModule", context));
 
     cg::SymbolTable st;
     cg::CodeGenerator(st).declBuiltinFunctions(*module);
