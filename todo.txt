@@ -1,4 +1,3 @@
-Refactor Mocks using macro-based automatic generation.
 Replace auto_ptr's with scope_ptr's.
 Separate local symbol table from global.
 Remove "global" variables from ast::Builder and cg::CodeGenerator.
