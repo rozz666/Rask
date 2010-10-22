@@ -21,14 +21,6 @@ namespace rask
 {
 namespace ast
 {
-
-class SymbolTableError : public std::logic_error
-{
-public:
-
-    SymbolTableError(const std::string& msg) : std::logic_error(msg) { }
-};
-   
     
 class SymbolTable
 {
@@ -44,12 +36,12 @@ public:
         return add(functions_, function);
     }
     
-    SharedVariable getVariable(const std::string& name) const
+    boost::optional<SharedVariable> getVariable(const std::string& name) const
     {
         return get(vars_, name);
     }
 
-    SharedFunction getFunction(const std::string& name) const
+    boost::optional<SharedFunction> getFunction(const std::string& name) const
     {
         return get(functions_, name);
     }
@@ -69,11 +61,11 @@ private:
     }
 
     template <typename M>
-    static typename M::mapped_type get(const M& m, const std::string& name)
+    static boost::optional<typename M::mapped_type> get(const M& m, const std::string& name)
     {
         typename M::const_iterator it = m.find(name);
         
-        if (it == m.end()) throw SymbolTableError("Symbol \'" + name + "\' not found");
+        if (it == m.end()) return boost::none;
         
         return it->second;
     }

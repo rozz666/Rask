@@ -41,7 +41,7 @@ void object::test<1>()
 
     bfs.declare(st);
 
-    ast::SharedFunction print = st.getFunction("print");
+    ast::SharedFunction print = *st.getFunction("print");
 
     ensure("builtin", boost::dynamic_pointer_cast<ast::BuiltinFunction>(print));
     ensure_equals("name", print->name().value, "print");

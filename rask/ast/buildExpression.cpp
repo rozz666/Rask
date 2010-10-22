@@ -16,24 +16,34 @@ namespace ast
 
 struct BuildExpression : boost::static_visitor<boost::optional<Expression> >
 {
-    SymbolTable& st;
+    error::Logger& logger;
+    const SymbolTable& st;
 
-    BuildExpression(SymbolTable& st) : st(st) { }
+    BuildExpression(const SymbolTable& st, error::Logger& logger)
+        : logger(logger), st(st) { }
 
     Expression operator()(const cst::Constant& c)
     {
         return Constant(c.value);
     }
 
-    Expression operator()(const cst::Identifier& id)
+    boost::optional<Expression> operator()(const cst::Identifier& id)
     {
-        return st.getVariable(id.value);
+        boost::optional<SharedVariable> var = st.getVariable(id.value);
+
+        if (!var)
+        {
+            logger.log(error::Message::unknownIdentifier(id.position, id.value));
+            return boost::none;
+        }
+        
+        return Expression(*var);
     }
 };
     
-boost::optional<Expression> Builder::buildExpression(const cst::Expression& expr, SymbolTable& st)
+boost::optional<Expression> Builder::buildExpression(const cst::Expression& expr, const SymbolTable& st)
 {
-    BuildExpression b(st);
+    BuildExpression b(st, logger_);
     return expr.apply_visitor(b);
 }
 
