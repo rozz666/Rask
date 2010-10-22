@@ -8,7 +8,24 @@
 //
 #include <tut/tut.hpp>
 #include <tut/../contrib/tut_macros.h>
+#include <rask/test/TUTAssert.hpp>
+#include <rask/test/Mock.hpp>
 #include <rask/ast/Builder.hpp>
+
+namespace
+{
+    
+MOCK(BuilderMock, rask::ast::Builder)
+{
+public:
+
+    BuilderMock(rask::error::Logger& logger, rask::ast::SymbolTable& st)
+        : rask::ast::Builder(logger, st) { }
+
+    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildExpression, (const rask::cst::Expression&, expr)(const rask::ast::SymbolTable&, st));
+};
+    
+}
 
 namespace tut
 {
@@ -17,9 +34,10 @@ struct buildVariableDecl_TestData
 {
     rask::error::Logger logger;
     rask::ast::SymbolTable st;
-    rask::ast::Builder builder;
-
-    buildVariableDecl_TestData() : builder(logger, st) { }
+    BuilderMock builder;
+    rask::ast::Constant dummy;
+    
+    buildVariableDecl_TestData() : builder(logger, st), dummy(123) { }
 };
 
 typedef test_group<buildVariableDecl_TestData> factory;
@@ -41,17 +59,20 @@ void object::test<1>()
     using namespace rask;
 
     cst::VariableDecl cvd;
-    cvd.name = cst::Identifier::create(Position(), "x");
+    cvd.name = cst::Identifier::create(Position("a", 1, 2), "x");
     cvd.value = cst::Constant::create(Position(), 1);
 
+    MOCK_RETURN(builder, buildExpression, ast::Expression(dummy));
+    
     boost::optional<ast::VariableDecl> vd = builder.buildVariableDecl(cvd);
 
-    ensure("built", vd);
-    ensure("no errors", logger.errors().empty());
-    ensure_equals("name pos", vd->var()->name().position, cvd.name.position);
-    ensure_equals("name str", vd->var()->name().value, cvd.name.value);
-    ensure_equals("value", getConstant(vd->value()), getConstant(*cvd.value).value);
-    ensure("st", st.getVariable(cvd.name.value) == vd->var());
+    ENSURE(vd);
+    ENSURE(logger.errors().empty());
+    ENSURE_CALL(builder, buildExpression(*cvd.value, st));
+    ENSURE_EQUALS(vd->var()->name().position, cvd.name.position);
+    ENSURE_EQUALS(vd->var()->name().value, cvd.name.value);
+    ENSURE_EQUALS(getConstant(vd->value()), dummy);
+    ENSURE(st.getVariable(cvd.name.value) == vd->var());
 }
 
 template <>
@@ -61,13 +82,11 @@ void object::test<2>()
     using namespace rask;
 
     cst::VariableDecl cvd;
-    cvd.name = cst::Identifier::create(Position(), "x");
+    cvd.name = cst::Identifier::create(Position("abc", 1, 3), "x");
     
-    boost::optional<ast::VariableDecl> vd = builder.buildVariableDecl(cvd);
-    
-    ensure_not("not built", vd);
-    ensure_equals("1 error", logger.errors().size(), 1u);
-    
+    ENSURE(!builder.buildVariableDecl(cvd));
+    ENSURE_EQUALS(logger.errors().size(), 1u);
+    ENSURE_EQUALS(logger.errors()[0], error::Message::uninitializedVariable(cvd.name.position, cvd.name.value));
 }
 
 template <>
@@ -75,23 +94,39 @@ template <>
 void object::test<3>()
 {
     using namespace rask;
-
-    ast::SharedVariable y(new ast::Variable(cst::Identifier::create(Position(), "y")));
-    st.add(y);
-    
     cst::VariableDecl cvd;
     cvd.name = cst::Identifier::create(Position(), "x");
-    cvd.value = cst::Identifier::create(Position(), y->name().value);
+    cvd.value = cst::Identifier::create(Position(), "y");
+
+    MOCK_RETURN(builder, buildExpression, ast::Expression(dummy));
     
     boost::optional<ast::VariableDecl> vd = builder.buildVariableDecl(cvd);
     
-    ensure("built", vd);
-    ensure("no errors", logger.errors().empty());
-    ensure_equals("name pos", vd->var()->name().position, cvd.name.position);
-    ensure_equals("name str", vd->var()->name().value, cvd.name.value);
-    ensure_equals("y pos", getVariable(vd->value()).lock()->name().position, getIdentifier(*cvd.value).position);
-    ensure_equals("y str", getVariable(vd->value()).lock()->name().value, getIdentifier(*cvd.value).value);
-    ensure("st", st.getVariable(cvd.name.value) == vd->var());
+    ENSURE(vd);
+    ENSURE(logger.errors().empty());
+    ENSURE_CALL(builder, buildExpression(*cvd.value, st));
+    ENSURE_EQUALS(vd->var()->name().position, cvd.name.position);
+    ENSURE_EQUALS(vd->var()->name().value, cvd.name.value);
+    ENSURE_EQUALS(getConstant(vd->value()), dummy);
+    ENSURE(st.getVariable(cvd.name.value) == vd->var());
+   
+}
+
+template <>
+template <>
+void object::test<4>()
+{
+    using namespace rask;
+    
+    cst::VariableDecl cvd;
+    cvd.name = cst::Identifier::create(Position("abc", 1, 3), "x");
+    cvd.value = cst::Identifier::create(Position(), "y");
+
+    MOCK_RETURN(builder, buildExpression, boost::none);
+    
+    ENSURE(!builder.buildVariableDecl(cvd));
+    ENSURE(logger.errors().empty());
+    ENSURE_CALL(builder, buildExpression(*cvd.value, st));
 }
 
 }
