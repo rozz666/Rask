@@ -94,29 +94,6 @@ template <>
 void object::test<3>()
 {
     using namespace rask;
-    cst::VariableDecl cvd;
-    cvd.name = cst::Identifier::create(Position(), "x");
-    cvd.value = cst::Identifier::create(Position(), "y");
-
-    MOCK_RETURN(builder, buildExpression, ast::Expression(dummy));
-    
-    boost::optional<ast::VariableDecl> vd = builder.buildVariableDecl(cvd);
-    
-    ENSURE(vd);
-    ENSURE(logger.errors().empty());
-    ENSURE_CALL(builder, buildExpression(*cvd.value, st));
-    ENSURE_EQUALS(vd->var()->name().position, cvd.name.position);
-    ENSURE_EQUALS(vd->var()->name().value, cvd.name.value);
-    ENSURE_EQUALS(getConstant(vd->value()), dummy);
-    ENSURE(st.getVariable(cvd.name.value) == vd->var());
-   
-}
-
-template <>
-template <>
-void object::test<4>()
-{
-    using namespace rask;
     
     cst::VariableDecl cvd;
     cvd.name = cst::Identifier::create(Position("abc", 1, 3), "x");
