@@ -25,6 +25,7 @@ CODE="// Rask
 //
 #include <tut/tut.hpp>
 #include <tut/../contrib/tut_macros.h>
+#include <rask/test/TUTAssert.hpp>
 #include <${HEADER}.hpp>
 
 namespace tut
