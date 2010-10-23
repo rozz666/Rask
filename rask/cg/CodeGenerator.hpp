@@ -34,7 +34,7 @@ public:
     virtual void declFunction(const ast::CustomFunction& f, llvm::Module& module);
     virtual void declBuiltinFunctions(llvm::Module& module);
     virtual std::auto_ptr<llvm::Module> genModule(const ast::Tree& ast, llvm::LLVMContext& context);
-    virtual llvm::Value *genValue(const ast::Expression& expr, const SymbolTable& symbolTable, llvm::BasicBlock& block, llvm::Module& module);
+    virtual llvm::Value *genValue(const ast::Expression& expr, const SymbolTable& symbolTable, llvm::BasicBlock& block);
 
 private:
 

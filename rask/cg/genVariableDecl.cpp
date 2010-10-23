@@ -17,8 +17,8 @@ namespace cg
 llvm::AllocaInst *CodeGenerator::genVariableDecl(const ast::VariableDecl& vd, llvm::BasicBlock& block)
 {
     llvm::LLVMContext& ctx = block.getContext();
+    llvm::Value *value = genValue(vd.value(), symbolTable_, block);
     llvm::AllocaInst *alloca = new llvm::AllocaInst(llvm::IntegerType::get(ctx, 32), vd.var()->name().value, &block);
-    llvm::ConstantInt *value = llvm::ConstantInt::get(ctx, llvm::APInt(32, getConstant(vd.value()), true));
     new llvm::StoreInst(value, alloca, &block);
 
     symbolTable_.add(vd.var()->name(), alloca);

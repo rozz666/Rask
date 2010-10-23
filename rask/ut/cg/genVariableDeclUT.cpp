@@ -11,10 +11,28 @@
 #include <boost/scoped_ptr.hpp>
 #include <rask/cg/CodeGenerator.hpp>
 #include <rask/test/TUTAssert.hpp>
+#include <rask/test/Mock.hpp>
 #include <llvm/LLVMContext.h>
 #include <llvm/BasicBlock.h>
 #include <llvm/DerivedTypes.h>
 #include <llvm/Instructions.h>
+
+namespace
+{
+    
+MOCK(CodeGeneratorMock, rask::cg::CodeGenerator)
+{
+public:
+
+    CodeGeneratorMock(rask::cg::SymbolTable& st) : rask::cg::CodeGenerator(st) { }
+
+    MOCK_METHOD(
+        llvm::Value *, genValue,
+        (const rask::ast::Expression&, expr)(const rask::cg::SymbolTable&, symbolTable)
+        (llvm::BasicBlock&, block));
+};
+    
+}
 
 namespace tut
 {
@@ -24,9 +42,10 @@ struct genVariableDecl_TestData
     llvm::LLVMContext ctx;
     boost::scoped_ptr<llvm::BasicBlock> block;
     rask::cg::SymbolTable st;
-    rask::cg::CodeGenerator cg;
+    CodeGeneratorMock cg;
     
-    genVariableDecl_TestData() : block(llvm::BasicBlock::Create(ctx)), cg(st)
+    genVariableDecl_TestData()
+        : block(llvm::BasicBlock::Create(ctx)), cg(st)
     {
     }
 };
@@ -53,6 +72,9 @@ void object::test<1>()
     name.value = "asia";
     ast::VariableDecl vd(name, 10);
 
+    llvm::Value *value = llvm::ConstantInt::get(ctx, llvm::APInt(32, getConstant(vd.value()), true));
+    MOCK_RETURN(cg, genValue, value);
+    
     llvm::AllocaInst *alloc = cg.genVariableDecl(vd, *block);
 
     ENSURE_EQUALS(block->size(), 2u);
@@ -64,11 +86,11 @@ void object::test<1>()
     ENSURE(st.get(name) == alloc);
     ++it;
 
+    ENSURE_CALL(cg, genValue(vd.value(), st, *block));
     ENSURE(llvm::isa<llvm::StoreInst>(*it));
     llvm::StoreInst *store = llvm::cast<llvm::StoreInst>(&*it);
-    ENSURE(store->getValueOperand() == llvm::ConstantInt::get(ctx, llvm::APInt(32, getConstant(vd.value()), true)));
+    ENSURE(store->getValueOperand() == value);
     ENSURE(store->getPointerOperand() == alloc);
 }
-
 
 }

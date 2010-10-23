@@ -30,7 +30,7 @@ public:
     MOCK_METHOD(
         llvm::Value *, genValue,
         (const rask::ast::Expression&, expr)(const rask::cg::SymbolTable&, symbolTable)
-        (llvm::BasicBlock&, block)(llvm::Module&, module));
+        (llvm::BasicBlock&, block));
 };
     
 }
@@ -53,8 +53,6 @@ struct genFunctionCall_TestData
         a1(new llvm::AllocaInst(llvm::IntegerType::get(ctx, 32))),
         a2(new llvm::AllocaInst(llvm::IntegerType::get(ctx, 32)))
     {
-        cg.declBuiltinFunctions(*module);
-        
         llvm::FunctionType *type = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), false);
         llvm::Function *func = llvm::Function::Create(type, llvm::Function::ExternalLinkage, "main", &*module);
         block = llvm::BasicBlock::Create(ctx, "entry", func);
@@ -97,8 +95,8 @@ void object::test<1>()
     
     llvm::CallInst *call = cg.genFunctionCall(fc, *block, *module);
 
-    ENSURE_CALL(cg, genValue(fc.args()[0], st, *block, *module));
-    ENSURE_CALL(cg, genValue(fc.args()[1], st, *block, *module));
+    ENSURE_CALL(cg, genValue(fc.args()[0], st, *block));
+    ENSURE_CALL(cg, genValue(fc.args()[1], st, *block));
     ENSURE_EQUALS(block->size(), 1u);
     ENSURE(call == &*block->begin());
     ENSURE(call->getCalledFunction() == module->getFunction(f));

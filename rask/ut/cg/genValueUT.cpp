@@ -21,19 +21,15 @@ namespace tut
 struct genValue_TestData
 {
     llvm::LLVMContext ctx;
-    boost::scoped_ptr<llvm::Module> module;
     llvm::BasicBlock *block;
     rask::cg::SymbolTable st;
     rask::cg::CodeGenerator cg;
     llvm::AllocaInst *a1;
     
     genValue_TestData()
-        : module(new llvm::Module("testModule", ctx)), cg(st),
+        : block(llvm::BasicBlock::Create(ctx)), cg(st),
         a1(new llvm::AllocaInst(llvm::IntegerType::get(ctx, 32)))
     {
-        llvm::FunctionType *type = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), false);
-        llvm::Function *func = llvm::Function::Create(type, llvm::Function::ExternalLinkage, "main", &*module);
-        block = llvm::BasicBlock::Create(ctx, "entry", func);
     }
 };
 
@@ -56,7 +52,7 @@ void object::test<1>()
     using namespace rask;
     
     ast::Constant c(10);
-    ENSURE(cg.genValue(c, st, *block, *module) == llvm::ConstantInt::get(ctx, llvm::APInt(32, c, true)));
+    ENSURE(cg.genValue(c, st, *block) == llvm::ConstantInt::get(ctx, llvm::APInt(32, c, true)));
 }
 
 template <>
@@ -68,7 +64,7 @@ void object::test<2>()
     ast::SharedVariable v(new ast::Variable(cst::Identifier::create(Position(), "x")));
     st.add(v->name(), a1);
     
-    llvm::Value *val = cg.genValue(v, st, *block, *module);
+    llvm::Value *val = cg.genValue(v, st, *block);
 
     ENSURE(llvm::isa<llvm::LoadInst>(val));
     ENSURE(llvm::cast<llvm::LoadInst>(val)->getPointerOperand() == st.get(v->name()));
