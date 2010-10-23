@@ -34,9 +34,6 @@ struct genFunctionCall_TestData
         a1(new llvm::AllocaInst(llvm::IntegerType::get(ctx, 32)))
     {
         cg.declBuiltinFunctions(*module);
-
-        llvm::FunctionType *dummyType = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), false);
-        llvm::Function::Create(dummyType, llvm::Function::ExternalLinkage, "dummy", &*module);
         
         llvm::FunctionType *type = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), false);
         llvm::Function *func = llvm::Function::Create(type, llvm::Function::ExternalLinkage, "main", &*module);
