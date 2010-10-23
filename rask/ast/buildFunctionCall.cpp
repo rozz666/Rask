@@ -25,17 +25,17 @@ boost::optional<FunctionCall> Builder::buildFunctionCall(const cst::FunctionCall
         return boost::none;
     }
 
-    if (call.args.size() != (*f)->argCount())
-    {
-        logger_.log(error::Message::functionNotFound(call.function.position, functionSignature((*f)->name().value, call.args)));
-        return boost::none;
-    }
-
     FunctionCall::Arguments args;
 
     BOOST_FOREACH(const cst::Expression& e, call.args)
     {
         args.push_back(*buildExpression(e, symbolTable_));
+    }
+
+    if (call.args.size() != (*f)->argCount())
+    {
+        logger_.log(error::Message::functionNotFound(call.function.position, functionSignature((*f)->name().value, call.args)));
+        return boost::none;
     }
 
     return FunctionCall(*f, args);
