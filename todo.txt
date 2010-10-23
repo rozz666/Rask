@@ -1,6 +1,6 @@
 Separate local symbol table from global.
 Remove "global" variables from ast::Builder and cg::CodeGenerator.
-Fake buildExpression calls in UTs
-The same applies to GetValue.
+Make GetValue a separate function (genValue).
+Fake genValue calls in UTs.
 Check if variable is already declared
 check if buildTreeUT::test<3> is correct
