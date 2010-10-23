@@ -113,17 +113,14 @@ void object::test<3>()
     
     cst.functions.resize(2);
 
+    MOCK_RETURN(builder, buildFunctionDecl, ast::FunctionDecl(cst::Identifier::create(Position(), "f")));
     MOCK_RETURN(builder, buildFunctionDecl, boost::none);
-    MOCK_RETURN(builder, buildFunction, false);
-    MOCK_RETURN(builder, buildFunction, true);
     
     ENSURE(!builder.buildTree(cst));
     ENSURE_EQUALS(logger.errors().size(), 0u);
     ENSURE_CALL(builder, buildFunctionDecl(cst.functions[0]));
     ENSURE_CALL(builder, buildFunctionDecl(cst.functions[1]));
     ENSURE_NO_CALLS(builder, buildFunctionDecl);
-    ENSURE_CALL(builder, buildFunction(cst.functions[0]));
-    ENSURE_CALL(builder, buildFunction(cst.functions[1]));
     ENSURE_NO_CALLS(builder, buildFunction);
 }
 

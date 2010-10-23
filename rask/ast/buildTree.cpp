@@ -30,7 +30,9 @@ boost::optional<Tree> Builder::buildTree(const cst::Tree& cst)
             failed = true;
         }
     }
-    
+
+    if (failed) return boost::none;
+
     BOOST_FOREACH(const cst::Function& f, cst.functions)
     {
         if (!buildFunction(f)) failed = true;
