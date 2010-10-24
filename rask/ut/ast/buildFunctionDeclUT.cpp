@@ -8,6 +8,7 @@
 //
 #include <tut/tut.hpp>
 #include <tut/../contrib/tut_macros.h>
+#include <rask/test/Mock.hpp>
 #include <rask/ast/Builder.hpp>
 
 namespace tut
@@ -15,6 +16,11 @@ namespace tut
 
 struct buildFunctionDecl_TestData
 {
+    rask::error::Logger logger;
+    rask::ast::SymbolTable st;
+    rask::ast::Builder builder;
+
+    buildFunctionDecl_TestData() : builder(logger, st) { } 
 };
 
 typedef test_group<buildFunctionDecl_TestData> factory;
@@ -35,22 +41,18 @@ void object::test<1>()
 {
     using namespace rask;
 
-    error::Logger logger;
-    ast::SymbolTable st;
-    ast::Builder builder(logger, st);
-
     cst::Function cf;
     cf.name = cst::Identifier::create(Position("xxx", 1, 2), "asia");
 
     boost::optional<ast::FunctionDecl> fd = builder.buildFunctionDecl(cf);
 
-    ensure("built", fd);
-    ensure_equals("no errors", logger.errors().size(), 0u);
+    ENSURE(fd);
+    ENSURE_EQUALS(logger.errors().size(), 0u);
     
     ast::SharedFunction f = fd->function();
-    ensure("st", st.getFunction(f->name().value) == f);
-    ensure_equals("name pos", f->name().position, cf.name.position);
-    ensure_equals("name value", f->name().value, cf.name.value);
+    ENSURE(st.getFunction(f->name().value) == f);
+    ENSURE_EQUALS(f->name().position, cf.name.position);
+    ENSURE_EQUALS(f->name().value, cf.name.value);
 }
 
 template <>
@@ -59,10 +61,6 @@ void object::test<2>()
 {
     using namespace rask;
     
-    error::Logger logger;
-    ast::SymbolTable st;
-    ast::Builder builder(logger, st);
-    
     cst::Function cf1;
     cf1.name = cst::Identifier::create(Position("xxx", 1, 2), "asia");
     cst::Function cf2;
@@ -70,12 +68,34 @@ void object::test<2>()
     
     builder.buildFunctionDecl(cf1);
     
-    boost::optional<ast::FunctionDecl> fd = builder.buildFunctionDecl(cf2);
+    ENSURE(!builder.buildFunctionDecl(cf2));
+    ENSURE_EQUALS(logger.errors().size(), 2u);
+    ENSURE_EQUALS(logger.errors()[0], error::Message::redefinition(cf2.name.position, "asia()"));
+    ENSURE_EQUALS(logger.errors()[1], error::Message::previousDefinition(cf1.name.position, "asia()"));
+}
+
+template <>
+template <>
+void object::test<3>()
+{
+    using namespace rask;
     
-    ensure_not("not built", fd);
-    ensure_equals("errors", logger.errors().size(), 2u);
-    ensure_equals("error 1", logger.errors()[0], error::Message::redefinition(cf2.name.position, "asia()"));
-    ensure_equals("error 2", logger.errors()[1], error::Message::previousDefinition(cf1.name.position, "asia()"));
+    cst::Function cf;
+    cf.name = cst::Identifier::create(Position(), "asia");
+    cf.args.push_back(cst::Identifier::create(Position(), "arg1"));
+    cf.args.push_back(cst::Identifier::create(Position(), "arg2"));
+    
+    boost::optional<ast::FunctionDecl> fd = builder.buildFunctionDecl(cf);
+    
+    ENSURE(fd);
+    ENSURE_EQUALS(logger.errors().size(), 0u);
+    
+    ast::SharedCustomFunction f = fd->function();
+    ENSURE_EQUALS(f->argCount(), 2u);
+    ENSURE_EQUALS(f->arg(0)->name().value, cf.args[0].value);
+    ENSURE_EQUALS(f->arg(1)->name().value, cf.args[1].value);
+    ENSURE(st.getVariable(cf.args[0].value) == f->arg(0));
+    ENSURE(st.getVariable(cf.args[1].value) == f->arg(1));
 }
 
 }

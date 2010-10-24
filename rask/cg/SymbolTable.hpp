@@ -1,4 +1,3 @@
-/*
 // Rask
 //
 // Copyright (c) 2010 Rafal Przywarski
@@ -7,7 +6,6 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-*/
 #ifndef RASK_CG_SYMBOLTABLE_HPP
 #define RASK_CG_SYMBOLTABLE_HPP
 

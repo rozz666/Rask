@@ -32,17 +32,7 @@ private:
     SharedVariable var_;
     ast::Expression value_;
 };
-/*
-inline bool operator==(const VariableDecl& left, const VariableDecl& right)
-{
-    return left.var() == right.var() && left.value() == right.value();
-}
-
-inline bool operator!=(const VariableDecl& left, const VariableDecl& right)
-{
-    return !(left == right);
-}
-*/
+    
 }
 }
 

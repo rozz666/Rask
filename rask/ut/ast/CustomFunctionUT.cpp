@@ -83,5 +83,27 @@ void object::test<2>()
     f.accept(v);
     ensure("ok", v.f == &cf);
 }
+
+template <>
+template <>
+void object::test<3>()
+{
+    using namespace rask;
+    
+    ast::CustomFunction cf(cst::Identifier::create(Position(), "xxx"));
+    cst::Identifier arg1 = cst::Identifier::create(Position("a", 1, 2), "arg1");
+    cst::Identifier arg2 = cst::Identifier::create(Position("b", 3, 4), "arg2");
+
+    cf.addArg(arg1);
+    ENSURE_EQUALS(cf.argCount(), 1u);
+    ast::SharedVariable v1 = cf.arg(0);
+    ENSURE_EQUALS(v1->name().value, arg1.value);
+    ENSURE_EQUALS(v1->name().position, arg1.position);
+    cf.addArg(arg2);
+    ENSURE_EQUALS(cf.argCount(), 2u);
+    ast::SharedVariable v2 = cf.arg(1);
+    ENSURE_EQUALS(v2->name().value, arg2.value);
+    ENSURE_EQUALS(v2->name().position, arg2.position);
+}
     
 }
