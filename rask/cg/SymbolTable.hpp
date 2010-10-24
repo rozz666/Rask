@@ -40,7 +40,7 @@ public:
         }
     }
 
-    llvm::Value *get(const cst::Identifier& id) const
+    llvm::AllocaInst *get(const cst::Identifier& id) const
     {
         Values::const_iterator it = values_.find(id.value);
 

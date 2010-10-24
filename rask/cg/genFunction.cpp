@@ -6,6 +6,7 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
+#include <boost/foreach.hpp>
 #include <llvm/LLVMContext.h>
 #include <llvm/Module.h>
 #include <llvm/Function.h>
@@ -41,6 +42,22 @@ void CodeGenerator::genFunction(const ast::CustomFunction& f, llvm::Module& modu
 {
     llvm::Function *func = module.getFunction(f.name().value);
     llvm::BasicBlock *entry = llvm::BasicBlock::Create(module.getContext(), "entry", func);
+
+    if (f.argCount() > 0)
+    {
+        llvm::BasicBlock *argsBlock = llvm::BasicBlock::Create(module.getContext(), "args", func, entry);
+        const llvm::IntegerType *type = llvm::IntegerType::get(module.getContext(), 32);
+        
+        BOOST_FOREACH(llvm::Argument& arg, func->getArgumentList())
+        {
+            const cst::Identifier& argName = f.arg(arg.getArgNo())->name();
+            llvm::AllocaInst *alloca = new llvm::AllocaInst(type, argName.value, argsBlock);
+            new llvm::StoreInst(&arg, alloca, argsBlock);
+            symbolTable_.add(argName, alloca);
+        }
+
+        llvm::BranchInst::Create(entry, argsBlock);
+    }
 
     StatementVisitor sv(*this, module, *entry);
     

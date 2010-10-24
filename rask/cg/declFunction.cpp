@@ -6,6 +6,7 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
+#include <boost/foreach.hpp>
 #include <llvm/LLVMContext.h>
 #include <llvm/Module.h>
 #include <llvm/Function.h>
@@ -18,10 +19,16 @@ namespace rask
 namespace cg
 {
 
-void CodeGenerator::declFunction(const ast::CustomFunction& f, llvm::Module& module)
+void CodeGenerator::declFunction(const ast::CustomFunction& cf, llvm::Module& module)
 {
-    llvm::FunctionType *fType = llvm::FunctionType::get(llvm::Type::getVoidTy(module.getContext()), false);
-    llvm::Function::Create(fType, llvm::Function::ExternalLinkage, f.name().value, &module);
+    std::vector<const llvm::Type *> fArgs(cf.argCount(), llvm::IntegerType::get(module.getContext(), 32));
+    llvm::FunctionType *fType = llvm::FunctionType::get(llvm::Type::getVoidTy(module.getContext()), fArgs, false);
+    llvm::Function *f = llvm::Function::Create(fType, llvm::Function::ExternalLinkage, cf.name().value, &module);
+
+    BOOST_FOREACH(llvm::Argument& arg, f->getArgumentList())
+    {
+        arg.setName("a_" + cf.arg(arg.getArgNo())->name().value);
+    }
 }
 
 }

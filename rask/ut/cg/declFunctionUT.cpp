@@ -47,17 +47,49 @@ void object::test<1>()
 
     cg.declFunction(f, *module);
 
-    ensure_size("decl", module->getFunctionList(), 1u);
+    ENSURE_EQUALS(module->getFunctionList().size(), 1u);
     llvm::Function& lf = module->getFunctionList().front();
-    ensure_equals(lf.getNameStr(), f.name().value);
+    ENSURE_EQUALS(lf.getNameStr(), f.name().value);
     llvm::FunctionType *fType = llvm::FunctionType::get(llvm::Type::getVoidTy(context), false);
-    ensure("pointer type", llvm::isa<llvm::PointerType>(lf.getType()));
-    ensure("type", lf.getType()->getElementType() == fType);
-    ensure("no body", lf.getBasicBlockList().empty());
-    ensure("C cc", lf.getCallingConv() == llvm::CallingConv::C);
-    ensure_equals("linkage", lf.getLinkage(), llvm::Function::ExternalLinkage);
-    ensure_equals("module", lf.getParent(), module.get());
-    ensure_equals("context", &lf.getContext(), &context);
+    ENSURE(llvm::isa<llvm::PointerType>(lf.getType()));
+    ENSURE(lf.getType()->getElementType() == fType);
+    ENSURE(lf.getBasicBlockList().empty());
+    ENSURE(lf.getCallingConv() == llvm::CallingConv::C);
+    ENSURE_EQUALS(lf.getLinkage(), llvm::Function::ExternalLinkage);
+    ENSURE(lf.getParent() == module.get());
+    ENSURE(&lf.getContext() == &context);
+}
+
+template <>
+template <>
+void object::test<2>()
+{
+    using namespace rask;
+    
+    llvm::LLVMContext context;
+    boost::scoped_ptr<llvm::Module> module(new llvm::Module("testModule", context));
+    rask::cg::SymbolTable st;
+    rask::cg::CodeGenerator cg(st);
+    ast::CustomFunction f(cst::Identifier::create(Position(), "f1"));
+    f.addArg(cst::Identifier::create(Position(), "arg1"));
+    f.addArg(cst::Identifier::create(Position(), "arg2"));
+    const std::string argPrefix = "a_";
+    
+    cg.declFunction(f, *module);
+    
+    ENSURE_EQUALS(module->getFunctionList().size(), 1u);
+    llvm::Function& lf = module->getFunctionList().front();
+    ENSURE_EQUALS(lf.getNameStr(), f.name().value);
+    std::vector<const llvm::Type *> fArgs(2, llvm::IntegerType::get(module->getContext(), 32));
+    llvm::FunctionType *fType = llvm::FunctionType::get(llvm::Type::getVoidTy(context), fArgs, false);
+    ENSURE(llvm::isa<llvm::PointerType>(lf.getType()));
+    ENSURE(lf.getType()->getElementType() == fType);
+    ENSURE_EQUALS(lf.arg_size(), 2u);
+    llvm::Function::arg_iterator arg = lf.arg_begin();
+    ENSURE_EQUALS(arg->getNameStr(), argPrefix + f.arg(0)->name().value);
+    ++arg;
+    ENSURE_EQUALS(arg->getNameStr(), argPrefix + f.arg(1)->name().value);
+    ENSURE(lf.getBasicBlockList().empty());
 }
 
 }

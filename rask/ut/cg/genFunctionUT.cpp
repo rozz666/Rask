@@ -74,8 +74,8 @@ void object::test<1>()
     cg.genFunction(f, *module);
     llvm::Function *gf = module->getFunction(f.name().value);
     
-    ENSURE_EQUALS(gf->getBasicBlockList().size(), 1u);
-    llvm::BasicBlock *entry = &gf->getBasicBlockList().front();
+    ENSURE_EQUALS(gf->size(), 1u);
+    llvm::BasicBlock *entry = &gf->front();
     ENSURE_EQUALS(entry->getNameStr(), "entry");
     ENSURE_EQUALS(entry->size(), 1u);
     ENSURE(llvm::isa<llvm::ReturnInst>(entry->front()));
@@ -93,8 +93,8 @@ void object::test<2>()
     cg.genFunction(f, *module);
     llvm::Function *gf = module->getFunction(f.name().value);
 
-    ENSURE_EQUALS(gf->getBasicBlockList().size(), 1u);
-    llvm::BasicBlock *entry = &gf->getBasicBlockList().front();
+    ENSURE_EQUALS(gf->size(), 1u);
+    llvm::BasicBlock *entry = &gf->front();
     ENSURE_EQUALS(entry->getNameStr(), "entry");
     ENSURE_EQUALS(entry->size(), 1u);
     ENSURE(llvm::isa<llvm::ReturnInst>(entry->front()));
@@ -114,13 +114,71 @@ void object::test<3>()
     cg.genFunction(f, *module);
     llvm::Function *gf = module->getFunction(f.name().value);
     
-    ENSURE_EQUALS(gf->getBasicBlockList().size(), 1u);
-    llvm::BasicBlock *entry = &gf->getBasicBlockList().front();
+    ENSURE_EQUALS(gf->size(), 1u);
+    llvm::BasicBlock *entry = &gf->front();
     ENSURE_EQUALS(entry->getNameStr(), "entry");
     ENSURE_EQUALS(entry->size(), 1u);
     ENSURE_CALL(cg, genVariableDecl(getVariableDecl(f.stmt(0)), *entry));
     ENSURE_CALL(cg, genVariableDecl(getVariableDecl(f.stmt(1)), *entry));
     ENSURE(llvm::isa<llvm::ReturnInst>(entry->front()));
+}
+
+template <>
+template <>
+void object::test<4>()
+{
+    using namespace rask;
+
+    ast::CustomFunction f(rask::cst::Identifier::create(rask::Position(), "xxx"));
+    f.addArg(cst::Identifier::create(Position(), "asia"));
+    f.addArg(cst::Identifier::create(Position(), "kasia"));
+    cg.declFunction(f, *module);
+
+    llvm::Function::arg_iterator it = module->getFunction(f.name().value)->arg_begin();
+    llvm::Argument *arg1 = &*it;
+    llvm::Argument *arg2 = &*++it;
+    
+    cg.genFunction(f, *module);
+    
+    llvm::Function *gf = module->getFunction(f.name().value);
+    
+    ENSURE_EQUALS(gf->size(), 2u);
+    llvm::Function::iterator block = gf->begin();
+    ENSURE_EQUALS(block->getNameStr(), "args");
+    ENSURE_EQUALS(block->size(), 5u);
+    llvm::BasicBlock::iterator inst = block->begin();
+
+    ENSURE(llvm::isa<llvm::AllocaInst>(*inst));
+    llvm::AllocaInst *alloc = llvm::cast<llvm::AllocaInst>(&*inst);
+    ENSURE_EQUALS(alloc->getNameStr(), f.arg(0)->name().value);
+    ENSURE(alloc->getAllocatedType() == llvm::IntegerType::get(ctx, 32));
+    ENSURE(cg.symbolTable.get(f.arg(0)->name()) == alloc);
+    ++inst;
+    ENSURE(llvm::isa<llvm::StoreInst>(*inst));
+    llvm::StoreInst *store = llvm::cast<llvm::StoreInst>(&*inst);
+    ENSURE(store->getValueOperand() == arg1);
+    ENSURE(store->getPointerOperand() == alloc);
+    ++inst;
+    ENSURE(llvm::isa<llvm::AllocaInst>(*inst));
+    alloc = llvm::cast<llvm::AllocaInst>(&*inst);
+    ENSURE_EQUALS(alloc->getNameStr(), f.arg(1)->name().value);
+    ENSURE(alloc->getAllocatedType() == llvm::IntegerType::get(ctx, 32));
+    ENSURE(cg.symbolTable.get(f.arg(1)->name()) == alloc);
+    ++inst;
+    ENSURE(llvm::isa<llvm::StoreInst>(*inst));
+    store = llvm::cast<llvm::StoreInst>(&*inst);
+    ENSURE(store->getValueOperand() == arg2);
+    ENSURE(store->getPointerOperand() == alloc);
+    ++inst;
+    ENSURE(llvm::isa<llvm::BranchInst>(*inst));
+    llvm::BranchInst *branch = llvm::cast<llvm::BranchInst>(&*inst);
+    ENSURE(branch->isUnconditional());
+    
+    ++block;
+    ENSURE(branch->getSuccessor(0) == &*block);
+    ENSURE_EQUALS(block->getNameStr(), "entry");
+    ENSURE_EQUALS(block->size(), 1u);
+    ENSURE(llvm::isa<llvm::ReturnInst>(block->front()));
 }
 
 }
