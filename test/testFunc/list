@@ -2,3 +2,6 @@ func1.rask:test:func1.out
 func2.rask:test:func2.out
 func3.rask:error:func3.out
 func4.rask:error:func4.out
+func5.rask:test:func5.out
+func6.rask:test:func6.out
+func7.rask:test:func7.out
