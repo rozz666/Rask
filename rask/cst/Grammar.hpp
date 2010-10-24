@@ -216,7 +216,7 @@ struct Grammar : qi::grammar<Iterator, cst::Tree(), ascii::space_type>
         variableDeclaration %= qi::lit("var") > identifier > -('=' > expression);
         statement %= (variableDeclaration | functionCall) > ';';
         function %=
-            identifier > '(' > ')' > "->" > (returnType | error(&error::Message::missingReturnType, &errorLogger)) >
+            identifier > '(' > -((qi::lit("int32") > identifier) % ',') > ')' > "->" > (returnType | error(&error::Message::missingReturnType, &errorLogger)) >
             '{' > *statement > '}';
         tree %= *function > inputPos > qi::eoi;
 

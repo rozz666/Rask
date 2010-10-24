@@ -379,4 +379,32 @@ void object::test<17>()
     ensure_equals("b name", getIdentifier(*getVariableDecl(tree->functions[0].stmts[0]).value).value, "b");
 }
 
+template <>
+template <>
+void object::test<18>()
+{
+    using namespace rask;
+    
+    ss << "f(int32 x, int32 y, int32 z) -> void\n{ }";
+    
+    InputStream source("test.rask", ss);
+    
+    boost::optional<cst::Tree> tree = cst::parseFile(source, errorLogger);
+    
+    ENSURE(tree);
+    ensureNoErrors();
+    ENSURE_EQUALS(tree->functions.size(), 1u);
+    
+    ENSURE_EQUALS(tree->functions[0].name.value, "f");
+    ENSURE_EQUALS(tree->functions[0].name.position, Position(source.file(), 1, 1));
+    ENSURE_EQUALS(tree->functions[0].args.size(), 3u);
+    ENSURE_EQUALS(tree->functions[0].args[0].value, "x");
+    ENSURE_EQUALS(tree->functions[0].args[0].position, Position(source.file(), 1, 9));
+    ENSURE_EQUALS(tree->functions[0].args[1].value, "y");
+    ENSURE_EQUALS(tree->functions[0].args[1].position, Position(source.file(), 1, 18));
+    ENSURE_EQUALS(tree->functions[0].args[2].value, "z");
+    ENSURE_EQUALS(tree->functions[0].args[2].position, Position(source.file(), 1, 27));
+    ENSURE(tree->functions[0].stmts.empty());
+}
+
 }

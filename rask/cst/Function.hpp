@@ -22,6 +22,7 @@ namespace cst
 struct Function
 {
     Identifier name;
+    std::vector<Identifier> args;
     std::vector<Statement> stmts;
 };
 
@@ -31,6 +32,7 @@ struct Function
 BOOST_FUSION_ADAPT_STRUCT(
     rask::cst::Function,
     (rask::cst::Identifier, name)
+    (std::vector<rask::cst::Identifier>, args)
     (std::vector<rask::cst::Statement>, stmts)
 )
 
