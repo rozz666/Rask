@@ -1,0 +1,30 @@
+constFunc() -> int32
+{
+    return 10;
+}
+
+localFunc() -> int32
+{
+    int x = 20;
+    return x;
+}
+
+leftFunc(int32 left, int32 right) -> int32
+{
+    return left;
+}
+
+rightFunc(int32 left, int32 right) -> int32
+{
+    return right;
+}
+
+main() -> void
+{
+    print(constFunc());
+    print(localFunc());
+    print(leftFunc(1, 2));
+    print(rightFunc(3, 4));
+    print(leftFunc(constFunc(), localFunc()));
+    print(rightFunc(constFunc(), localFunc()));
+}

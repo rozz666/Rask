@@ -1,0 +1,36 @@
+constFunc() -> int32
+{
+    return 10;
+}
+
+localFunc() -> int32
+{
+    int x = 20;
+    return x;
+}
+
+leftFunc(int32 left, int32 right) -> int32
+{
+    return left;
+}
+
+rightFunc(int32 left, int32 right) -> int32
+{
+    return right;
+}
+
+main() -> void
+{
+    var v1 = constFunc();
+    var v2 = localFunc();
+    var v3 = leftFunc(1, 2);
+    var v4 = rightFunc(3, 4);
+    var v5 = leftFunc(constFunc(), localFunc());
+    var v6 = rightFunc(constFunc(), localFunc());
+    print(v1);
+    print(v2);
+    print(v3);
+    print(v4);
+    print(v5);
+    print(v6);
+}
