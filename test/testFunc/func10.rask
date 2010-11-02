@@ -5,7 +5,7 @@ constFunc() -> int32
 
 localFunc() -> int32
 {
-    int x = 20;
+    var x = 20;
     return x;
 }
 
