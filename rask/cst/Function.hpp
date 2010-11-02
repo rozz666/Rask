@@ -23,6 +23,7 @@ struct Function
 {
     Identifier name;
     std::vector<Identifier> args;
+    Identifier type;
     std::vector<Statement> stmts;
 };
 
@@ -33,6 +34,7 @@ BOOST_FUSION_ADAPT_STRUCT(
     rask::cst::Function,
     (rask::cst::Identifier, name)
     (std::vector<rask::cst::Identifier>, args)
+    (rask::cst::Identifier, type)
     (std::vector<rask::cst::Statement>, stmts)
 )
 

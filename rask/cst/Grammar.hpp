@@ -209,14 +209,13 @@ struct Grammar : qi::grammar<Iterator, cst::Tree(), ascii::space_type>
         : Grammar::base_type(tree, "tree")
     {
         identifier %= inputPos >> qi::lexeme[qi::char_("a-zA-Z_") >> *qi::char_("a-zA-Z0-9_")];
-        returnType %= qi::lit("void");
         constant %= inputPos >> qi::int_;
         expression %= constant | identifier;
         functionCall %= identifier > '(' > -(expression % ',') > ')';
         variableDeclaration %= qi::lit("var") > identifier > -('=' > expression);
         statement %= (variableDeclaration | functionCall) > ';';
         function %=
-            identifier > '(' > -((qi::lit("int32") > identifier) % ',') > ')' > "->" > (returnType | error(&error::Message::missingReturnType, &errorLogger)) >
+            identifier > '(' > -((qi::lit("int32") > identifier) % ',') > ')' > "->" > (identifier | error(&error::Message::missingReturnType, &errorLogger)) >
             '{' > *statement > '}';
         tree %= *function > inputPos > qi::eoi;
 
@@ -229,7 +228,6 @@ struct Grammar : qi::grammar<Iterator, cst::Tree(), ascii::space_type>
 
     qi::rule<Iterator, cst::Tree(), ascii::space_type> tree;
     qi::rule<Iterator, cst::Identifier(), ascii::space_type> identifier;
-    qi::rule<Iterator, void(), ascii::space_type> returnType;
     qi::rule<Iterator, cst::Function(), ascii::space_type> function;
     qi::rule<Iterator, cst::FunctionCall(), ascii::space_type> functionCall;
     qi::rule<Iterator, cst::Statement(), ascii::space_type> statement;
