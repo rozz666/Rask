@@ -43,6 +43,11 @@ struct StatementVisitor : boost::static_visitor<bool>
 
         return true;
     }
+
+    bool operator()(const cst::Return& ret)
+    {
+        return false;
+    }
 };
 
 bool Builder::buildFunction(const cst::Function& cf)

@@ -213,7 +213,8 @@ struct Grammar : qi::grammar<Iterator, cst::Tree(), ascii::space_type>
         expression %= constant | identifier;
         functionCall %= identifier > '(' > -(expression % ',') > ')';
         variableDeclaration %= qi::lit("var") > identifier > -('=' > expression);
-        statement %= (variableDeclaration | functionCall) > ';';
+        returnStatement %= inputPos >> qi::lit("return") > expression;
+        statement %= (returnStatement | variableDeclaration | functionCall) > ';';
         function %=
             identifier > '(' > -((qi::lit("int32") > identifier) % ',') > ')' > "->" > (identifier | error(&error::Message::missingReturnType, &errorLogger)) >
             '{' > *statement > '}';
@@ -232,6 +233,7 @@ struct Grammar : qi::grammar<Iterator, cst::Tree(), ascii::space_type>
     qi::rule<Iterator, cst::FunctionCall(), ascii::space_type> functionCall;
     qi::rule<Iterator, cst::Statement(), ascii::space_type> statement;
     qi::rule<Iterator, cst::VariableDecl(), ascii::space_type> variableDeclaration;
+    qi::rule<Iterator, cst::Return(), ascii::space_type> returnStatement;
     qi::rule<Iterator, cst::Constant(), ascii::space_type> constant;
     qi::rule<Iterator, cst::Expression(), ascii::space_type> expression;
 };
