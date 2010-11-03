@@ -39,6 +39,11 @@ struct BuildExpression : boost::static_visitor<boost::optional<Expression> >
         
         return Expression(*var);
     }
+
+    boost::optional<Expression> operator()(const cst::FunctionCall& fc)
+    {
+        return boost::none;
+    }
 };
     
 boost::optional<Expression> Builder::buildExpression(const cst::Expression& expr, const SymbolTable& st)

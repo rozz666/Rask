@@ -454,4 +454,82 @@ void object::test<20>()
     ENSURE_EQUALS(getIdentifier(getReturn(tree->functions[0].stmts[1]).value).position, Position(source.file(), 4, 12));
 }
 
+template <>
+template <>
+void object::test<21>()
+{
+    using namespace rask;
+    
+    ss << "f() -> abcd123\n{\n    var a = g(10, x);\n}";
+
+    InputStream source("test.rask", ss);
+    
+    boost::optional<cst::Tree> tree = cst::parseFile(source, errorLogger);
+    
+    ENSURE(tree);
+    ensureNoErrors();
+    ENSURE_EQUALS(tree->functions.size(), 1u);
+    
+    ENSURE_EQUALS(tree->functions[0].stmts.size(), 1u);
+    const cst::FunctionCall& fc = getFunctionCall(*getVariableDecl(tree->functions[0].stmts[0]).value);
+    ENSURE_EQUALS(fc.function.position, Position(source.file(), 3, 13));
+    ENSURE_EQUALS(fc.function.value, "g");
+    ENSURE_EQUALS(fc.args.size(), 2u);
+    ENSURE_EQUALS(getConstant(fc.args[0]).position, Position(source.file(), 3, 15));
+    ENSURE_EQUALS(getConstant(fc.args[0]).value, 10);
+    ENSURE_EQUALS(getIdentifier(fc.args[1]).position, Position(source.file(), 3, 19));
+    ENSURE_EQUALS(getIdentifier(fc.args[1]).value, "x");
+}
+
+template <>
+template <>
+void object::test<22>()
+{
+    using namespace rask;
+    
+    ss << "f() -> abcd123\n{\n    h(g(5));\n}";
+    
+    InputStream source("test.rask", ss);
+    
+    boost::optional<cst::Tree> tree = cst::parseFile(source, errorLogger);
+    
+    ENSURE(tree);
+    ensureNoErrors();
+    ENSURE_EQUALS(tree->functions.size(), 1u);
+    
+    ENSURE_EQUALS(tree->functions[0].stmts.size(), 1u);
+    ENSURE_EQUALS(getFunctionCall(tree->functions[0].stmts[0]).args.size(), 1u);
+    const cst::FunctionCall& fc = getFunctionCall(getFunctionCall(tree->functions[0].stmts[0]).args[0]);
+    ENSURE_EQUALS(fc.function.position, Position(source.file(), 3, 7));
+    ENSURE_EQUALS(fc.function.value, "g");
+    ENSURE_EQUALS(fc.args.size(), 1u);
+    ENSURE_EQUALS(getConstant(fc.args[0]).position, Position(source.file(), 3, 9));
+    ENSURE_EQUALS(getConstant(fc.args[0]).value, 5);
+}
+
+template <>
+template <>
+void object::test<23>()
+{
+    using namespace rask;
+    
+    ss << "f() -> abcd123\n{\n    return g();\n}";
+    
+    InputStream source("test.rask", ss);
+    
+    boost::optional<cst::Tree> tree = cst::parseFile(source, errorLogger);
+    
+    ENSURE(tree);
+    ensureNoErrors();
+    ENSURE_EQUALS(tree->functions.size(), 1u);
+    
+    ENSURE_EQUALS(tree->functions[0].stmts.size(), 1u);
+    ENSURE_EQUALS(getReturn(tree->functions[0].stmts[0]).position, Position(source.file(), 3, 5));
+    const cst::FunctionCall& fc = getFunctionCall(getReturn(tree->functions[0].stmts[0]).value);
+    ENSURE_EQUALS(fc.function.position, Position(source.file(), 3, 12));
+    ENSURE_EQUALS(fc.function.value, "g");
+    ENSURE_EQUALS(fc.args.size(), 0u);
+}
+
+
 }
