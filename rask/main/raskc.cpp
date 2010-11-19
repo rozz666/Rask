@@ -61,45 +61,53 @@ int main(int argc, char **argv)
 {
     using namespace rask;
 
-    Parameters params = parseCommandLine(argc, argv);
-   
-    if (params.inputFiles.empty())
+    try
     {
-        std::cerr << "raskc: no input" << std::endl;
-        return 1;
-    } 
 
-    std::ifstream f(params.inputFiles[0].c_str());
-    InputStream is(params.inputFiles[0], f);
-    error::Logger logger;
+        Parameters params = parseCommandLine(argc, argv);
 
-    boost::optional<cst::Tree> cst = cst::parseFile(is, logger);
-
-    if (cst)
-    {
-        ast::SymbolTable symbolTable;
-        ast::BuiltinFunctions builtinFunctions;
-        builtinFunctions.declare(symbolTable);
-        
-        boost::optional<ast::Tree> ast = ast::Builder(logger, symbolTable).buildTree(*cst);
-
-        if (ast && !params.noOutput)
+        if (params.inputFiles.empty())
         {
-            llvm::LLVMContext context;
-            cg::SymbolTable symbolTable;
-            cg::CodeGenerator cg(symbolTable);
-
-            std::auto_ptr<llvm::Module> module = cg.genModule(*ast, context);
-
-            std::vector<unsigned char> buf;
-            llvm::BitstreamWriter bw(buf);
-            llvm::WriteBitcodeToStream(module.get(), bw);
-
-            std::ofstream of(params.outputFile.c_str(), std::ios::binary);
-
-            of.write(reinterpret_cast<const char *>(&buf.front()), buf.size());
+            std::cerr << "raskc: no input" << std::endl;
+            return 1;
         }
-    }
 
-    std::copy(logger.errors().begin(), logger.errors().end(), std::ostream_iterator<rask::error::Message>(std::cerr, "\n"));
+        std::ifstream f(params.inputFiles[0].c_str());
+        InputStream is(params.inputFiles[0], f);
+        error::Logger logger;
+
+        boost::optional<cst::Tree> cst = cst::parseFile(is, logger);
+
+        if (cst)
+        {
+            ast::SymbolTable symbolTable;
+            ast::BuiltinFunctions builtinFunctions;
+            builtinFunctions.declare(symbolTable);
+
+            boost::optional<ast::Tree> ast = ast::Builder(logger, symbolTable).buildTree(*cst);
+
+            if (ast && !params.noOutput)
+            {
+                llvm::LLVMContext context;
+                cg::SymbolTable symbolTable;
+                cg::CodeGenerator cg(symbolTable);
+
+                std::auto_ptr<llvm::Module> module = cg.genModule(*ast, context);
+
+                std::vector<unsigned char> buf;
+                llvm::BitstreamWriter bw(buf);
+                llvm::WriteBitcodeToStream(module.get(), bw);
+
+                std::ofstream of(params.outputFile.c_str(), std::ios::binary);
+
+                of.write(reinterpret_cast<const char *>(&buf.front()), buf.size());
+            }
+        }
+
+        std::copy(logger.errors().begin(), logger.errors().end(), std::ostream_iterator<rask::error::Message>(std::cerr, "\n"));
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << "raskc: error: " << e.what() << std::endl;
+    }
 }

@@ -42,7 +42,9 @@ struct BuildExpression : boost::static_visitor<boost::optional<Expression> >
 
     boost::optional<Expression> operator()(const cst::FunctionCall& fc)
     {
-        return boost::none;
+        throw std::runtime_error(
+            "boost::optional<Expression> rask::ast::BuildExpression::operator()(const cst::FunctionCall& )"
+            " not implemented");
     }
 };
     
