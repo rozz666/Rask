@@ -105,5 +105,20 @@ void object::test<3>()
     ENSURE_EQUALS(v2->name().value, arg2.value);
     ENSURE_EQUALS(v2->name().position, arg2.position);
 }
+
+template <>
+template <>
+void object::test<4>()
+{
+    using namespace rask;
+
+    ast::CustomFunction cf1(cst::Identifier::create(Position(), "abc"), ast::VOID);
+    ast::CustomFunction cf2(cst::Identifier::create(Position(), "abc"), ast::INT32);
+    ast::CustomFunction cf3(cst::Identifier::create(Position(), "abc"));
+
+    ENSURE(cf1.type() == ast::VOID);
+    ENSURE(cf2.type() == ast::INT32);
+    ENSURE(cf3.type() == ast::VOID);
+}
     
 }
