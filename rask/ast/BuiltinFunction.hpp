@@ -11,6 +11,7 @@
 
 #include <string>
 #include <rask/ast/Function.hpp>
+#include <rask/ast/BasicType.hpp>
 
 namespace rask
 {
@@ -21,15 +22,22 @@ class BuiltinFunction : public Function
 {
 public:
 
-    BuiltinFunction(const std::string name, unsigned short argCount) : name_(name), argCount_(argCount) { }
+    /// @deprecated
+    BuiltinFunction(const std::string name, unsigned short argCount)
+        : name_(name), type_(VOID), argCount_(argCount) { }
+
+    BuiltinFunction(const std::string name, BasicType type, unsigned short argCount)
+        : name_(name), type_(type), argCount_(argCount) { }
 
     virtual cst::Identifier name() const { return cst::Identifier::create(Position(), name_); }
     virtual unsigned short argCount() const { return argCount_; }
     virtual void accept(FunctionVisitor& visitor) { visitor.visit(*this); }
+    BasicType type() const { return type_; }
     
 private:
 
     std::string name_;
+    BasicType type_;
     unsigned short argCount_;
 };
 

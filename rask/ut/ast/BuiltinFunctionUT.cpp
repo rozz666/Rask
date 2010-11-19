@@ -8,6 +8,7 @@
 //
 #include <tut/tut.hpp>
 #include <tut/../contrib/tut_macros.h>
+#include <rask/test/TUTAssert.hpp>
 #include <rask/ast/BuiltinFunction.hpp>
 
 namespace
@@ -57,12 +58,12 @@ void object::test<1>()
     
     cst::Identifier name = f1.name();
     
-    ensure("pos", f1.name().position == Position());
-    ensure_equals("name", f1.name().value, "test1");
-    ensure_equals("arg count", f1.argCount(), 2u);
-    ensure("pos", f2.name().position == Position());
-    ensure_equals("name", f2.name().value, "test2");
-    ensure_equals("arg count", f2.argCount(), 0u);
+    ENSURE(f1.name().position == Position());
+    ENSURE_EQUALS(f1.name().value, "test1");
+    ENSURE_EQUALS(f1.argCount(), 2u);
+    ENSURE(f2.name().position == Position());
+    ENSURE_EQUALS(f2.name().value, "test2");
+    ENSURE_EQUALS(f2.argCount(), 0u);
 }
 
 template <>
@@ -76,6 +77,17 @@ void object::test<2>()
     FunctionTestVisitor v;
 
     f.accept(v);
-    ensure("ok", v.f == &bf);
+    ENSURE(v.f == &bf);
 }
+
+template <>
+template <>
+void object::test<3>()
+{
+    using namespace rask;
+
+    ENSURE(ast::BuiltinFunction("xxx", ast::VOID, 0).type() == ast::VOID);
+    ENSURE(ast::BuiltinFunction("xxx", ast::INT32, 0).type() == ast::INT32);
+}
+
 }
