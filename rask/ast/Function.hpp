@@ -13,6 +13,7 @@
 #include <boost/weak_ptr.hpp>
 #include <rask/cst/Identifier.hpp>
 #include <rask/ast/FunctionVisitor.hpp>
+#include <rask/ast/BasicType.hpp>
 
 namespace rask
 {
@@ -29,6 +30,7 @@ public:
     virtual cst::Identifier name() const = 0;
     virtual unsigned short argCount() const = 0;
     virtual void accept(FunctionVisitor& visitor) = 0;
+    virtual BasicType type() const = 0;
 
 protected:
 

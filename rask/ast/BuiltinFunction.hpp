@@ -11,7 +11,6 @@
 
 #include <string>
 #include <rask/ast/Function.hpp>
-#include <rask/ast/BasicType.hpp>
 
 namespace rask
 {
@@ -32,7 +31,7 @@ public:
     virtual cst::Identifier name() const { return cst::Identifier::create(Position(), name_); }
     virtual unsigned short argCount() const { return argCount_; }
     virtual void accept(FunctionVisitor& visitor) { visitor.visit(*this); }
-    BasicType type() const { return type_; }
+    virtual BasicType type() const { return type_; }
     
 private:
 

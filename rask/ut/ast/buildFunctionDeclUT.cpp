@@ -43,6 +43,7 @@ void object::test<1>()
 
     cst::Function cf;
     cf.name = cst::Identifier::create(Position("xxx", 1, 2), "asia");
+    cf.type = cst::Identifier::create(Position(), "void");
 
     boost::optional<ast::FunctionDecl> fd = builder.buildFunctionDecl(cf);
 
@@ -63,8 +64,10 @@ void object::test<2>()
     
     cst::Function cf1;
     cf1.name = cst::Identifier::create(Position("xxx", 1, 2), "asia");
+    cf1.type = cst::Identifier::create(Position(), "void");
     cst::Function cf2;
     cf2.name = cst::Identifier::create(Position("xxx", 10, 2), "asia");
+    cf2.type = cst::Identifier::create(Position(), "void");
     
     builder.buildFunctionDecl(cf1);
     
@@ -82,6 +85,7 @@ void object::test<3>()
     
     cst::Function cf;
     cf.name = cst::Identifier::create(Position(), "asia");
+    cf.type = cst::Identifier::create(Position(), "void");
     cf.args.push_back(cst::Identifier::create(Position(), "arg1"));
     cf.args.push_back(cst::Identifier::create(Position(), "arg2"));
     
@@ -96,6 +100,30 @@ void object::test<3>()
     ENSURE_EQUALS(f->arg(1)->name().value, cf.args[1].value);
     ENSURE(st.getVariable(cf.args[0].value) == f->arg(0));
     ENSURE(st.getVariable(cf.args[1].value) == f->arg(1));
+}
+
+template <>
+template <>
+void object::test<4>()
+{
+    using namespace rask;
+
+    cst::Function cf1;
+    cf1.name = cst::Identifier::create(Position(), "asia1");
+    cf1.type = cst::Identifier::create(Position(), "void");
+    cst::Function cf2;
+    cf2.name = cst::Identifier::create(Position(), "asia2");
+    cf2.type = cst::Identifier::create(Position(), "int32");
+
+    boost::optional<ast::FunctionDecl> fd1 = builder.buildFunctionDecl(cf1);
+    boost::optional<ast::FunctionDecl> fd2 = builder.buildFunctionDecl(cf2);
+
+    ENSURE(fd1);
+    ENSURE(fd2);
+    ENSURE_EQUALS(logger.errors().size(), 0u);
+
+    ENSURE(fd1->function()->type() == ast::VOID);
+    ENSURE(fd2->function()->type() == ast::INT32);
 }
 
 }

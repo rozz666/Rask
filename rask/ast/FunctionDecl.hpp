@@ -20,12 +20,17 @@ class FunctionDecl
 {
 public:
 
-    FunctionDecl(const cst::Identifier& name) : function_(new CustomFunction(name)) { }
-    
+    /// @deprecated
+    FunctionDecl(const cst::Identifier& name)
+        : function_(new CustomFunction(name, VOID)) { }
+        
+    FunctionDecl(const cst::Identifier& name, ast::BasicType type)
+        : function_(new CustomFunction(name, type)) { }
+
     SharedCustomFunction function() const { return function_; }
 
 private:
-    SharedCustomFunction function_;    
+    SharedCustomFunction function_;
 };
 
 }
