@@ -7,3 +7,4 @@ vs10/*
 .*
 !.git*
 build
+doxy
