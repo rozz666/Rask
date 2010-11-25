@@ -23,7 +23,7 @@ public:
 
     MOCK_METHOD(boost::optional<rask::ast::VariableDecl>, buildVariableDecl, (const rask::cst::VariableDecl&, vd));
     MOCK_METHOD(boost::optional<rask::ast::FunctionCall>, buildFunctionCall, (const rask::cst::FunctionCall&, fc));
-    MOCK_METHOD(boost::optional<rask::ast::Return>, buildReturn, (const rask::cst::Return&, ret));
+    MOCK_METHOD(boost::optional<rask::ast::Return>, buildReturn, (const rask::cst::Return&, ret)(const rask::ast::SymbolTable&, st));
 };
 
 }
@@ -177,8 +177,8 @@ void object::test<6>()
     ENSURE(builder.buildFunction(cf));
 
     ENSURE_EQUALS(logger.errors().size(), 0u);
-    ENSURE_CALL(builder, buildReturn(getReturn(cf.stmts[0])));
-    ENSURE_CALL(builder, buildReturn(getReturn(cf.stmts[1])));
+    ENSURE_CALL(builder, buildReturn(getReturn(cf.stmts[0]), st));
+    ENSURE_CALL(builder, buildReturn(getReturn(cf.stmts[1]), st));
 
     ENSURE_EQUALS(f->stmtCount(), 2u);
     ENSURE_EQUALS(getConstant(getReturn(f->stmt(0)).expr()), c1);
@@ -199,7 +199,7 @@ void object::test<7>()
     ENSURE(!builder.buildFunction(cf));
 
     ENSURE_EQUALS(logger.errors().size(), 0u);
-    ENSURE_CALL(builder, buildReturn(getReturn(cf.stmts[0])));
+    ENSURE_CALL(builder, buildReturn(getReturn(cf.stmts[0]), st));
     ENSURE_NO_CALLS(builder, buildReturn);
 }
 
