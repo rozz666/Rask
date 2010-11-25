@@ -23,8 +23,9 @@ public:
 
     MOCK_METHOD(boost::optional<rask::ast::VariableDecl>, buildVariableDecl, (const rask::cst::VariableDecl&, vd));
     MOCK_METHOD(boost::optional<rask::ast::FunctionCall>, buildFunctionCall, (const rask::cst::FunctionCall&, fc));
+    MOCK_METHOD(boost::optional<rask::ast::Return>, buildReturn, (const rask::cst::Return&, ret));
 };
-    
+
 }
 
 namespace tut
@@ -157,6 +158,49 @@ void object::test<5>()
     ENSURE_EQUALS(logger.errors().size(), 0u);
     ENSURE_CALL(builder, buildVariableDecl(boost::get<cst::VariableDecl>(cf.stmts[0])));
     ENSURE_NO_CALLS(builder, buildVariableDecl);
+}
+
+template <>
+template <>
+void object::test<6>()
+{
+    using namespace rask;
+
+    ast::Constant c1 = 1;
+    ast::Constant c2 = 2;
+    
+    cf.stmts.resize(2, cst::Return());
+
+    MOCK_RETURN(builder, buildReturn, ast::Return(c1));
+    MOCK_RETURN(builder, buildReturn, ast::Return(c2));
+
+    ENSURE(builder.buildFunction(cf));
+
+    ENSURE_EQUALS(logger.errors().size(), 0u);
+    ENSURE_CALL(builder, buildReturn(getReturn(cf.stmts[0])));
+    ENSURE_CALL(builder, buildReturn(getReturn(cf.stmts[1])));
+
+    ENSURE_EQUALS(f->stmtCount(), 2u);
+    ENSURE_EQUALS(getConstant(getReturn(f->stmt(0)).expr()), c1);
+    ENSURE_EQUALS(getConstant(getReturn(f->stmt(1)).expr()), c2);
+}
+
+template <>
+template <>
+void object::test<7>()
+{
+    using namespace rask;
+
+    cf.stmts.resize(2, cst::Return());
+
+    MOCK_RETURN(builder, buildReturn, boost::none);
+    MOCK_RETURN(builder, buildReturn, boost::none);
+
+    ENSURE(!builder.buildFunction(cf));
+
+    ENSURE_EQUALS(logger.errors().size(), 0u);
+    ENSURE_CALL(builder, buildReturn(getReturn(cf.stmts[0])));
+    ENSURE_NO_CALLS(builder, buildReturn);
 }
 
 }

@@ -32,6 +32,8 @@ public:
     virtual boost::optional<Tree> buildTree(const cst::Tree& cst);
     virtual boost::optional<VariableDecl> buildVariableDecl(const cst::VariableDecl& vd);
     virtual boost::optional<Expression> buildExpression(const cst::Expression& expr, const SymbolTable& st);
+    virtual boost::optional<Return> buildReturn(const cst::Return& ret);
+
 private:
 
     error::Logger& logger_;

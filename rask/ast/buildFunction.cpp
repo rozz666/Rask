@@ -46,9 +46,13 @@ struct StatementVisitor : boost::static_visitor<bool>
 
     bool operator()(const cst::Return& ret)
     {
-        throw std::runtime_error(
-            "bool rask::ast::StatementVisitor::operator()(const cst::Return& )"
-            " not implemented");
+        boost::optional<ast::Return> r = b.buildReturn(ret);
+
+        if (!r) return false;
+
+        f.addStmt(*r);
+        
+        return true;
     }
 };
 

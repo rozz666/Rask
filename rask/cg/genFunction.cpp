@@ -36,6 +36,13 @@ struct StatementVisitor : boost::static_visitor<void>
     {
         cg.genVariableDecl(vd, entry);
     }
+
+    void operator()(const ast::Return& )
+    {
+        throw std::runtime_error(
+            "void StatementVisitor::operator()(const ast::Return& )"
+            " not implemented");
+    }
 };
         
 void CodeGenerator::genFunction(const ast::CustomFunction& f, llvm::Module& module)
