@@ -23,7 +23,7 @@ public:
 
     BuilderMock(rask::error::Logger& logger)
         : rask::ast::Builder(logger, st),
-        main(new rask::ast::CustomFunction(rask::cst::Identifier::create(rask::Position(), "main")))
+        main(new rask::ast::CustomFunction(rask::cst::Identifier::create(rask::Position(), "main"), rask::ast::VOID))
     {
         st.add(main);
     }

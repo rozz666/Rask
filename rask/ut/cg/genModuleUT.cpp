@@ -54,8 +54,8 @@ void object::test<1>()
     using namespace rask;
     
     llvm::LLVMContext context;
-    ast::SharedCustomFunction f1(new ast::CustomFunction(cst::Identifier::create(Position(), "abc")));
-    ast::SharedCustomFunction f2(new ast::CustomFunction(cst::Identifier::create(Position(), "def")));
+    ast::SharedCustomFunction f1(new ast::CustomFunction(cst::Identifier::create(Position(), "abc"), ast::VOID));
+    ast::SharedCustomFunction f2(new ast::CustomFunction(cst::Identifier::create(Position(), "def"), ast::VOID));
     ast::Tree ast;
     ast.add(f1);
     ast.add(f2);

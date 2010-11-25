@@ -62,8 +62,8 @@ void object::test<3>()
 {
     using namespace rask;
     
-    ast::SharedFunction f1(new ast::CustomFunction(cst::Identifier::create(Position(), "asia")));
-    ast::SharedFunction f2(new ast::CustomFunction(cst::Identifier::create(Position(), "kasia")));
+    ast::SharedFunction f1(new ast::CustomFunction(cst::Identifier::create(Position(), "asia"), ast::VOID));
+    ast::SharedFunction f2(new ast::CustomFunction(cst::Identifier::create(Position(), "kasia"), ast::VOID));
     
     ENSURE(st.add(f1) == f1);
     ENSURE(st.add(f2) == f2);
@@ -102,8 +102,8 @@ void object::test<6>()
 {
     using namespace rask;
     
-    ast::SharedFunction f1(new ast::CustomFunction(cst::Identifier::create(Position("", 1, 2), "asia")));
-    ast::SharedFunction f2(new ast::CustomFunction(cst::Identifier::create(Position("", 3, 4), "asia")));
+    ast::SharedFunction f1(new ast::CustomFunction(cst::Identifier::create(Position("", 1, 2), "asia"), ast::VOID));
+    ast::SharedFunction f2(new ast::CustomFunction(cst::Identifier::create(Position("", 3, 4), "asia"), ast::VOID));
     
     ENSURE(st.add(f1) == f1);
     ENSURE(st.add(f2) == f1);

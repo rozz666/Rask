@@ -43,7 +43,7 @@ void object::test<1>()
     boost::scoped_ptr<llvm::Module> module(new llvm::Module("testModule", context));
     rask::cg::SymbolTable st;
     rask::cg::CodeGenerator cg(st);
-    ast::CustomFunction f(cst::Identifier::create(Position(), "f1"));
+    ast::CustomFunction f(cst::Identifier::create(Position(), "f1"), ast::VOID);
 
     cg.declFunction(f, *module);
 
@@ -70,7 +70,7 @@ void object::test<2>()
     boost::scoped_ptr<llvm::Module> module(new llvm::Module("testModule", context));
     rask::cg::SymbolTable st;
     rask::cg::CodeGenerator cg(st);
-    ast::CustomFunction f(cst::Identifier::create(Position(), "f1"));
+    ast::CustomFunction f(cst::Identifier::create(Position(), "f1"), ast::VOID);
     f.addArg(cst::Identifier::create(Position(), "arg1"));
     f.addArg(cst::Identifier::create(Position(), "arg2"));
     const std::string argPrefix = "a_";

@@ -23,8 +23,6 @@ class CustomFunction : public Function
 {
 public:
 
-    /// @deprecated
-    CustomFunction(const cst::Identifier& name) : name_(name), type_(VOID) { }
     CustomFunction(const cst::Identifier& name, BasicType type)
         : name_(name), type_(type) { }
 

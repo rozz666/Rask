@@ -44,7 +44,7 @@ struct genFunction_TestData
     
     genFunction_TestData()
         : module(new llvm::Module("testModule", ctx)),
-        f(rask::cst::Identifier::create(rask::Position(), "abc"))
+        f(rask::cst::Identifier::create(rask::Position(), "abc"), rask::ast::VOID)
     {
         cg.declBuiltinFunctions(*module);
         cg.declFunction(f, *module);
@@ -129,7 +129,7 @@ void object::test<4>()
 {
     using namespace rask;
 
-    ast::CustomFunction f(rask::cst::Identifier::create(rask::Position(), "xxx"));
+    ast::CustomFunction f(rask::cst::Identifier::create(rask::Position(), "xxx"), ast::VOID);
     f.addArg(cst::Identifier::create(Position(), "asia"));
     f.addArg(cst::Identifier::create(Position(), "kasia"));
     cg.declFunction(f, *module);

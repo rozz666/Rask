@@ -44,8 +44,8 @@ void object::test<2>()
     using namespace rask;
 
     ast::Tree tree;
-    ast::SharedCustomFunction f1(new ast::CustomFunction(cst::Identifier::create(Position(), "abc")));
-    ast::SharedCustomFunction f2(new ast::CustomFunction(cst::Identifier::create(Position(), "def")));
+    ast::SharedCustomFunction f1(new ast::CustomFunction(cst::Identifier::create(Position(), "abc"), ast::VOID));
+    ast::SharedCustomFunction f2(new ast::CustomFunction(cst::Identifier::create(Position(), "def"), ast::VOID));
     
     tree.add(f1);
     ensure("f1", tree.function(0) == f1);

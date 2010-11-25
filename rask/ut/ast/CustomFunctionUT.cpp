@@ -53,21 +53,21 @@ void object::test<1>()
     using namespace rask;
 
     cst::Identifier name = cst::Identifier::create(Position("abc", 10, 20), "kasia");
-    ast::CustomFunction cf(name);
+    ast::CustomFunction cf(name, ast::VOID);
     ast::Function& f = cf;
-    ast::SharedCustomFunction dummy(new ast::CustomFunction(cst::Identifier::create(Position(), "test")));
+    ast::SharedCustomFunction dummy(new ast::CustomFunction(cst::Identifier::create(Position(), "test"), ast::VOID));
     ast::FunctionCall fc(dummy, ast::FunctionCall::Arguments());
     ast::VariableDecl vd(cst::Identifier::create(Position("xx", 1, 2), "asia"), 0);
-    ensure_equals("no stmts", cf.stmtCount(), 0u);
+    ENSURE_EQUALS(cf.stmtCount(), 0u);
     cf.addStmt(fc);
     cf.addStmt(vd);
-    ensure_equals("name pos", f.name().position, name.position);
-    ensure_equals("name val", f.name().value, name.value);
-    ensure_equals("arg count", f.argCount(), 0u);
-    ensure_equals("count", cf.stmtCount(), 2u);
-    ensure("call", getFunctionCall(cf.stmt(0)).function().lock() == dummy);
-    ensure_equals("call args", getFunctionCall(cf.stmt(0)).args().size(), 0u);
-    ensure("var", getVariableDecl(cf.stmt(1)).var() == vd.var());
+    ENSURE_EQUALS(f.name().position, name.position);
+    ENSURE_EQUALS(f.name().value, name.value);
+    ENSURE_EQUALS(f.argCount(), 0u);
+    ENSURE_EQUALS(cf.stmtCount(), 2u);
+    ENSURE(getFunctionCall(cf.stmt(0)).function().lock() == dummy);
+    ENSURE_EQUALS(getFunctionCall(cf.stmt(0)).args().size(), 0u);
+    ENSURE(getVariableDecl(cf.stmt(1)).var() == vd.var());
 }
 
 template <>
@@ -76,12 +76,12 @@ void object::test<2>()
 {
     using namespace rask;
 
-    ast::CustomFunction cf(cst::Identifier::create(Position(), "xxx"));
+    ast::CustomFunction cf(cst::Identifier::create(Position(), "xxx"), ast::VOID);
     ast::Function& f = cf;
     FunctionTestVisitor v;
     
     f.accept(v);
-    ensure("ok", v.f == &cf);
+    ENSURE(v.f == &cf);
 }
 
 template <>
@@ -90,7 +90,7 @@ void object::test<3>()
 {
     using namespace rask;
     
-    ast::CustomFunction cf(cst::Identifier::create(Position(), "xxx"));
+    ast::CustomFunction cf(cst::Identifier::create(Position(), "xxx"), ast::VOID);
     cst::Identifier arg1 = cst::Identifier::create(Position("a", 1, 2), "arg1");
     cst::Identifier arg2 = cst::Identifier::create(Position("b", 3, 4), "arg2");
 
@@ -114,11 +114,9 @@ void object::test<4>()
 
     ast::CustomFunction cf1(cst::Identifier::create(Position(), "abc"), ast::VOID);
     ast::CustomFunction cf2(cst::Identifier::create(Position(), "abc"), ast::INT32);
-    ast::CustomFunction cf3(cst::Identifier::create(Position(), "abc"));
 
     ENSURE(cf1.type() == ast::VOID);
     ENSURE(cf2.type() == ast::INT32);
-    ENSURE(cf3.type() == ast::VOID);
 }
     
 }

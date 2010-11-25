@@ -44,7 +44,7 @@ struct buildFunctionAST_TestData
         cf.name = rask::cst::Identifier::create(rask::Position(file, 1, 2), "main");
         cf.type = rask::cst::Identifier::create(rask::Position(file, 1, 10), "void");
 
-        f.reset(new rask::ast::CustomFunction(cf.name));
+        f.reset(new rask::ast::CustomFunction(cf.name, rask::ast::VOID));
         
         st.add(f);
     }
