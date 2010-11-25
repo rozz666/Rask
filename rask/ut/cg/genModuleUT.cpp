@@ -13,12 +13,14 @@
 #include <rask/test/TUTAssert.hpp>
 #include <rask/cg/CodeGenerator.hpp>
 #include <rask/test/Mock.hpp>
+#include <rask/test/FunctionFactory.hpp>
 
 namespace tut
 {
 
 struct genModule_TestData
 {
+    rask::test::FunctionFactory functionFactory;
 };
 
 typedef test_group<genModule_TestData> factory;
@@ -54,8 +56,8 @@ void object::test<1>()
     using namespace rask;
     
     llvm::LLVMContext context;
-    ast::SharedCustomFunction f1(new ast::CustomFunction(cst::Identifier::create(Position(), "abc"), ast::VOID));
-    ast::SharedCustomFunction f2(new ast::CustomFunction(cst::Identifier::create(Position(), "def"), ast::VOID));
+    ast::SharedCustomFunction f1 = functionFactory.createShared("abc");
+    ast::SharedCustomFunction f2 = functionFactory.createShared("def");
     ast::Tree ast;
     ast.add(f1);
     ast.add(f2);

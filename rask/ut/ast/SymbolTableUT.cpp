@@ -10,6 +10,7 @@
 #include <tut/../contrib/tut_macros.h>
 #include <rask/test/TUTAssert.hpp>
 #include <rask/ast/SymbolTable.hpp>
+#include <rask/test/FunctionFactory.hpp>
 
 namespace tut
 {
@@ -17,6 +18,7 @@ namespace tut
 struct AstSymbolTable_TestData
 {
     rask::ast::SymbolTable st;
+    rask::test::FunctionFactory functionFactory;
 };
 
 typedef test_group<AstSymbolTable_TestData> factory;
@@ -61,9 +63,9 @@ template <>
 void object::test<3>()
 {
     using namespace rask;
-    
-    ast::SharedFunction f1(new ast::CustomFunction(cst::Identifier::create(Position(), "asia"), ast::VOID));
-    ast::SharedFunction f2(new ast::CustomFunction(cst::Identifier::create(Position(), "kasia"), ast::VOID));
+
+    ast::SharedFunction f1 = functionFactory.createShared("asia");
+    ast::SharedFunction f2 = functionFactory.createShared("kasia");
     
     ENSURE(st.add(f1) == f1);
     ENSURE(st.add(f2) == f2);
@@ -102,8 +104,8 @@ void object::test<6>()
 {
     using namespace rask;
     
-    ast::SharedFunction f1(new ast::CustomFunction(cst::Identifier::create(Position("", 1, 2), "asia"), ast::VOID));
-    ast::SharedFunction f2(new ast::CustomFunction(cst::Identifier::create(Position("", 3, 4), "asia"), ast::VOID));
+    ast::SharedFunction f1 = functionFactory.createShared(1, 2, "asia");
+    ast::SharedFunction f2 = functionFactory.createShared(3, 4, "asia");
     
     ENSURE(st.add(f1) == f1);
     ENSURE(st.add(f2) == f1);

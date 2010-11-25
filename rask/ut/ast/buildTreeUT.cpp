@@ -10,6 +10,7 @@
 #include <tut/../contrib/tut_macros.h>
 #include <rask/test/Mock.hpp>
 #include <rask/ast/Builder.hpp>
+#include <rask/test/FunctionFactory.hpp>
 
 namespace
 {
@@ -22,8 +23,7 @@ public:
     rask::ast::SharedCustomFunction main;
 
     BuilderMock(rask::error::Logger& logger)
-        : rask::ast::Builder(logger, st),
-        main(new rask::ast::CustomFunction(rask::cst::Identifier::create(rask::Position(), "main"), rask::ast::VOID))
+        : rask::ast::Builder(logger, st), main(rask::test::FunctionFactory().createShared("main"))
     {
         st.add(main);
     }

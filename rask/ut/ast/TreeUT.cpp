@@ -9,12 +9,14 @@
 #include <tut/tut.hpp>
 #include <tut/../contrib/tut_macros.h>
 #include <rask/ast/Tree.hpp>
+#include <rask/test/FunctionFactory.hpp>
 
 namespace tut
 {
 
 struct Tree_TestData
 {
+    rask::test::FunctionFactory functionFactory;
 };
 
 typedef test_group<Tree_TestData> factory;
@@ -44,8 +46,8 @@ void object::test<2>()
     using namespace rask;
 
     ast::Tree tree;
-    ast::SharedCustomFunction f1(new ast::CustomFunction(cst::Identifier::create(Position(), "abc"), ast::VOID));
-    ast::SharedCustomFunction f2(new ast::CustomFunction(cst::Identifier::create(Position(), "def"), ast::VOID));
+    ast::SharedCustomFunction f1 = functionFactory.createShared("abc");
+    ast::SharedCustomFunction f2 = functionFactory.createShared("def");
     
     tree.add(f1);
     ensure("f1", tree.function(0) == f1);
