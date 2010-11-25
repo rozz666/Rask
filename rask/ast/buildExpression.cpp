@@ -16,11 +16,12 @@ namespace ast
 
 struct BuildExpression : boost::static_visitor<boost::optional<Expression> >
 {
+    Builder& builder;
     error::Logger& logger;
     const SymbolTable& st;
 
-    BuildExpression(const SymbolTable& st, error::Logger& logger)
-        : logger(logger), st(st) { }
+    BuildExpression(Builder& builder, const SymbolTable& st, error::Logger& logger)
+        : builder(builder), logger(logger), st(st) { }
 
     Expression operator()(const cst::Constant& c)
     {
@@ -42,15 +43,17 @@ struct BuildExpression : boost::static_visitor<boost::optional<Expression> >
 
     boost::optional<Expression> operator()(const cst::FunctionCall& fc)
     {
-        throw std::runtime_error(
-            "boost::optional<Expression> rask::ast::BuildExpression::operator()(const cst::FunctionCall& )"
-            " not implemented");
+        boost::optional<FunctionCall> c = builder.buildFunctionCall(fc);
+
+        if (!c) return boost::none;
+
+        return ast::Expression(*c);
     }
 };
     
 boost::optional<Expression> Builder::buildExpression(const cst::Expression& expr, const SymbolTable& st)
 {
-    BuildExpression b(st, logger_);
+    BuildExpression b(*this, st, logger_);
     return expr.apply_visitor(b);
 }
 

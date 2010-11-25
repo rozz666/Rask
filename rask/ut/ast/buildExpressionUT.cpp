@@ -9,7 +9,23 @@
 #include <tut/tut.hpp>
 #include <tut/../contrib/tut_macros.h>
 #include <rask/test/TUTAssert.hpp>
+#include <rask/test/Mock.hpp>
 #include <rask/ast/Builder.hpp>
+
+namespace
+{
+
+MOCK(BuilderMock, rask::ast::Builder)
+{
+public:
+
+    BuilderMock(rask::error::Logger& logger, rask::ast::SymbolTable& st)
+        : rask::ast::Builder(logger, st) { }
+
+    MOCK_METHOD(boost::optional<rask::ast::FunctionCall>, buildFunctionCall, (const rask::cst::FunctionCall&, fc));
+};
+
+}
 
 namespace tut
 {
@@ -18,7 +34,7 @@ struct buildExpression_TestData
 {
     rask::error::Logger logger;
     rask::ast::SymbolTable dummySt, st;
-    rask::ast::Builder builder;
+    BuilderMock builder;
 
     buildExpression_TestData() : builder(logger, dummySt) { }
 };
@@ -77,6 +93,38 @@ void object::test<3>()
     ENSURE(!builder.buildExpression(id, st));
     ENSURE_EQUALS(logger.errors().size(), 1u);
     ENSURE_EQUALS(logger.errors()[0], error::Message::unknownIdentifier(id.position, id.value));
+}
+
+template <>
+template <>
+void object::test<4>()
+{
+    using namespace rask;
+
+    cst::FunctionCall fc;
+    unsigned n = 5;
+
+    MOCK_RETURN(builder, buildFunctionCall, ast::FunctionCall(ast::WeakFunction(), ast::FunctionCall::Arguments(n)));
+
+    boost::optional<ast::Expression> expr = builder.buildExpression(fc, st);
+
+    ENSURE(expr);
+    ENSURE(logger.errors().empty());
+    ENSURE(getFunctionCall(*expr).args().size() == n);
+}
+
+template <>
+template <>
+void object::test<5>()
+{
+    using namespace rask;
+
+    cst::FunctionCall fc;
+
+    MOCK_RETURN(builder, buildFunctionCall, boost::none);
+
+    ENSURE(!builder.buildExpression(fc, st));
+    ENSURE(logger.errors().empty());
 }
 
 }

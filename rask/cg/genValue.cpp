@@ -32,6 +32,12 @@ struct GetValue : boost::static_visitor<llvm::Value *>
     {
         return new llvm::LoadInst(symbolTable.get(var.lock()->name()), "", &block);
     }
+
+    llvm::Value *operator()(const ast::FunctionCall& )
+    {
+        throw std::runtime_error(
+            "llvm::Value GetValue::operator()(const ast::FunctionCall& ) not imlemented");
+    }
 };
 
 }
