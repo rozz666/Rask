@@ -20,10 +20,6 @@ class FunctionDecl
 {
 public:
 
-    /// @deprecated
-    FunctionDecl(const cst::Identifier& name)
-        : function_(new CustomFunction(name, VOID)) { }
-        
     FunctionDecl(const cst::Identifier& name, ast::BasicType type)
         : function_(new CustomFunction(name, type)) { }
 

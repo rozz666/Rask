@@ -84,8 +84,8 @@ void object::test<2>()
 
     cst.functions.resize(2);
 
-    ast::FunctionDecl fd1(cst::Identifier::create(Position(), "f1"));
-    ast::FunctionDecl fd2(cst::Identifier::create(Position(), "f2"));
+    ast::FunctionDecl fd1(cst::Identifier::create(Position(), "f1"), ast::VOID);
+    ast::FunctionDecl fd2(cst::Identifier::create(Position(), "f2"), ast::VOID);
     MOCK_RETURN(builder, buildFunctionDecl, fd1);
     MOCK_RETURN(builder, buildFunctionDecl, fd2);
     MOCK_RETURN(builder, buildFunction, true);
@@ -113,7 +113,7 @@ void object::test<3>()
     
     cst.functions.resize(2);
 
-    MOCK_RETURN(builder, buildFunctionDecl, ast::FunctionDecl(cst::Identifier::create(Position(), "f")));
+    MOCK_RETURN(builder, buildFunctionDecl, ast::FunctionDecl(cst::Identifier::create(Position(), "f"), ast::VOID));
     MOCK_RETURN(builder, buildFunctionDecl, boost::none);
     
     ENSURE(!builder.buildTree(cst));
@@ -132,7 +132,7 @@ void object::test<4>()
     
     cst.functions.resize(2);
 
-    MOCK_RETURN(builder, buildFunctionDecl, ast::FunctionDecl(cst::Identifier::create(Position(), "f")));
+    MOCK_RETURN(builder, buildFunctionDecl, ast::FunctionDecl(cst::Identifier::create(Position(), "f"), ast::VOID));
     MOCK_RETURN(builder, buildFunction, false);
     
     ENSURE(!builder.buildTree(cst));
