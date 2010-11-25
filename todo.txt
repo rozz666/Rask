@@ -2,3 +2,4 @@ Separate local symbol table from global.
 Remove "global" variables from ast::Builder and cg::CodeGenerator.
 Check if variable is already declared
 Add prefixes to local variable names (l_)
+Use factories in UTs
