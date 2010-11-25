@@ -15,7 +15,7 @@ namespace ast
 {
 
 BuiltinFunctions::BuiltinFunctions()
-    : print_(new BuiltinFunction("print", 1))
+    : print_(new BuiltinFunction("print", ast::VOID, 1))
 {
 }
     

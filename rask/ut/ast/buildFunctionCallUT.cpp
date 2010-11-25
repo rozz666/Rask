@@ -62,7 +62,7 @@ void object::test<1>()
 {
     using namespace rask;
 
-    rask::ast::SharedBuiltinFunction f(new rask::ast::BuiltinFunction("f", 0));
+    rask::ast::SharedBuiltinFunction f(new rask::ast::BuiltinFunction("f", ast::VOID, 0));
     st.add(f);
     ccall.function = cst::Identifier::create(Position(file, 2, 4), f->name().value);
     
@@ -80,7 +80,7 @@ void object::test<2>()
 {
     using namespace rask;
     
-    rask::ast::SharedBuiltinFunction f(new rask::ast::BuiltinFunction("f", 2));
+    rask::ast::SharedBuiltinFunction f(new rask::ast::BuiltinFunction("f", ast::VOID, 2));
     st.add(f);
     ccall.function = cst::Identifier::create(Position(file, 2, 4), f->name().value);
     ccall.args.push_back(cst::Constant::create(Position(file, 1, 10), 1));
@@ -121,7 +121,7 @@ void object::test<4>()
 {
     using namespace rask;
     
-    rask::ast::SharedBuiltinFunction f(new rask::ast::BuiltinFunction("abc", 1));
+    rask::ast::SharedBuiltinFunction f(new rask::ast::BuiltinFunction("abc", ast::VOID, 1));
     st.add(f);
     ccall.function = cst::Identifier::create(Position(file, 2, 4), f->name().value);
     
@@ -136,7 +136,7 @@ void object::test<5>()
 {
     using namespace rask;
 
-    rask::ast::SharedBuiltinFunction f(new rask::ast::BuiltinFunction("print", 1));
+    rask::ast::SharedBuiltinFunction f(new rask::ast::BuiltinFunction("print", ast::VOID, 1));
     st.add(f);
     ccall.function = cst::Identifier::create(Position(file, 2, 4), "print");
     ccall.args.push_back(cst::Constant::create(Position(file, 2, 10), 1));

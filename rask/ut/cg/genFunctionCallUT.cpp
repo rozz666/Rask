@@ -87,7 +87,7 @@ void object::test<1>()
     std::string f = "dummy";
     unsigned numArgs = 2;
     createFunction(f, numArgs);
-    ast::SharedBuiltinFunction dummy(new ast::BuiltinFunction(f, numArgs));
+    ast::SharedBuiltinFunction dummy(new ast::BuiltinFunction(f, ast::VOID, numArgs));
     ast::FunctionCall fc(dummy, ast::FunctionCall::Arguments(numArgs, ast::Constant(1)));
 
     MOCK_RETURN(cg, genValue, a1);
@@ -114,7 +114,7 @@ void object::test<2>()
     
     std::string f = "dummy";
     createFunction(f, 0);
-    ast::SharedBuiltinFunction dummy(new ast::BuiltinFunction(f, 0));
+    ast::SharedBuiltinFunction dummy(new ast::BuiltinFunction(f, ast::VOID, 0));
     ast::FunctionCall fc(dummy, ast::FunctionCall::Arguments());
     
     llvm::CallInst *call = cg.genFunctionCall(fc, *block, *module);

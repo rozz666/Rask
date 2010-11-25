@@ -51,8 +51,8 @@ void object::test<1>()
 {
     using namespace rask;
 
-    ast::BuiltinFunction bf1("test1", 2);
-    ast::BuiltinFunction bf2("test2", 0);
+    ast::BuiltinFunction bf1("test1", ast::VOID, 2);
+    ast::BuiltinFunction bf2("test2", ast::VOID, 0);
     ast::Function& f1 = bf1;
     ast::Function& f2 = bf2;
     
@@ -72,7 +72,7 @@ void object::test<2>()
 {
     using namespace rask;
 
-    ast::BuiltinFunction bf("xxx", 0);
+    ast::BuiltinFunction bf("xxx", ast::VOID, 0);
     ast::Function& f = bf;
     FunctionTestVisitor v;
 

@@ -8,6 +8,7 @@
 //
 #include <tut/tut.hpp>
 #include <tut/../contrib/tut_macros.h>
+#include <rask/test/TUTAssert.hpp>
 #include <rask/ast/BuiltinFunctions.hpp>
 #include <rask/ast/SymbolTable.hpp>
 
@@ -43,9 +44,10 @@ void object::test<1>()
 
     ast::SharedFunction print = *st.getFunction("print");
 
-    ensure("builtin", boost::dynamic_pointer_cast<ast::BuiltinFunction>(print));
-    ensure_equals("name", print->name().value, "print");
-    ensure_equals("arg count", print->argCount(), 1);
+    ENSURE(boost::dynamic_pointer_cast<ast::BuiltinFunction>(print));
+    ENSURE_EQUALS(print->name().value, "print");
+    ENSURE_EQUALS(print->argCount(), 1);
+    ENSURE(print->type() == ast::VOID);
 }
 
 }

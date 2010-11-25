@@ -21,10 +21,6 @@ class BuiltinFunction : public Function
 {
 public:
 
-    /// @deprecated
-    BuiltinFunction(const std::string name, unsigned short argCount)
-        : name_(name), type_(VOID), argCount_(argCount) { }
-
     BuiltinFunction(const std::string name, BasicType type, unsigned short argCount)
         : name_(name), type_(type), argCount_(argCount) { }
 
