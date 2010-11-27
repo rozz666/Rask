@@ -23,20 +23,23 @@ namespace ast
 class SymbolTable
 {
 public:
-    
+
+    SymbolTable() : vars_(1) { }
+
+
     SharedVariable add(SharedVariable var)
     {
-        return add(vars_, var);
+        return add(vars_.back(), var);
     }
 
     SharedFunction add(SharedFunction function)
     {
         return add(functions_, function);
     }
-    
+
     boost::optional<SharedVariable> getVariable(const std::string& name) const
     {
-        return get(vars_, name);
+        return get(vars_.back(), name);
     }
 
     boost::optional<SharedFunction> getFunction(const std::string& name) const
@@ -44,9 +47,21 @@ public:
         return get(functions_, name);
     }
 
+    void enterScope()
+    {
+        vars_.push_back(Vars::value_type());
+    }
+
+    void exitScope()
+    {
+        if (vars_.size() == 1) throw std::out_of_range("SymbolTable exit scope");
+
+        vars_.pop_back();
+    }
+
 private:
 
-    typedef std::map<std::string, SharedVariable> Vars;
+    typedef std::vector<std::map<std::string, SharedVariable> > Vars;
     typedef std::map<std::string, SharedFunction> Functions;
 
     Vars vars_;

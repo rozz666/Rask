@@ -1,4 +1,5 @@
 GET RID OF UNDEFINED BEHAVIOUR (symbol tables in mocks)!!!
+Add variable factory for UTs
 Separate local symbol table from global.
 Remove "global" variables from ast::Builder and cg::CodeGenerator.
 Check if variable is already declared

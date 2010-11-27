@@ -113,4 +113,69 @@ void object::test<6>()
     ENSURE(st.getFunction(f1->name().value) == f1);
 }
 
+template <>
+template <>
+void object::test<7>()
+{
+    using namespace rask;
+
+    std::string name = "asia";
+    ast::SharedVariable var1(new ast::Variable(cst::Identifier::create(Position("", 1, 2), name)));
+    ast::SharedVariable var2(new ast::Variable(cst::Identifier::create(Position("", 2, 3), name)));
+
+    st.add(var1);
+    st.enterScope();
+
+    ENSURE(st.add(var2) == var2);
+    ENSURE(*st.getVariable(name) == var2);
+}
+
+template <>
+template <>
+void object::test<8>()
+{
+    using namespace rask;
+
+    std::string name = "asia";
+    ast::SharedVariable var1(new ast::Variable(cst::Identifier::create(Position("", 1, 2), name)));
+    ast::SharedVariable var2(new ast::Variable(cst::Identifier::create(Position("", 2, 3), name)));
+
+    st.add(var1);
+    st.enterScope();
+    st.add(var2);
+    st.exitScope();
+
+    ENSURE(*st.getVariable(name) == var1);
+}
+
+template <>
+template <>
+void object::test<9>()
+{
+    using namespace rask;
+
+    std::string name = "asia";
+    ast::SharedVariable var1(new ast::Variable(cst::Identifier::create(Position("", 1, 2), name)));
+
+    st.enterScope();
+    st.add(var1);
+    st.exitScope();
+    st.enterScope();
+
+    ENSURE(!st.getVariable(name));
+}
+
+template <>
+template <>
+void object::test<10>()
+{
+    using namespace rask;
+
+    ENSURE_THROWS(st.exitScope(), std::out_of_range);
+    st.enterScope();
+    st.exitScope();
+    ENSURE_THROWS(st.exitScope(), std::out_of_range);
+}
+
+
 }
