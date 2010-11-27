@@ -10,6 +10,7 @@
 #include <tut/../contrib/tut_macros.h>
 #include <rask/test/Mock.hpp>
 #include <rask/ast/Builder.hpp>
+#include <rask/test/VariableDeclFactory.hpp>
 
 namespace
 {
@@ -33,6 +34,7 @@ namespace tut
 
 struct buildFunctionAST_TestData
 {
+    rask::test::VariableDeclFactory varDeclFactory;
     rask::error::Logger logger;
     const std::string file;
     rask::cst::Function cf;
@@ -128,8 +130,8 @@ void object::test<4>()
 
     cf.stmts.resize(2, cst::VariableDecl());
     
-    MOCK_RETURN(builder, buildVariableDecl, ast::VariableDecl(cst::Identifier::create(Position(), n1), ast::WeakVariable()));
-    MOCK_RETURN(builder, buildVariableDecl, ast::VariableDecl(cst::Identifier::create(Position(), n2), ast::WeakVariable()));
+    MOCK_RETURN(builder, buildVariableDecl, varDeclFactory.create(n1));
+    MOCK_RETURN(builder, buildVariableDecl, varDeclFactory.create(n2));
     
     ENSURE(builder.buildFunction(cf));
     

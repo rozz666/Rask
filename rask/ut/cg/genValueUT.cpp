@@ -15,6 +15,7 @@
 #include <llvm/LLVMContext.h>
 #include <llvm/Instructions.h>
 #include <llvm/DerivedTypes.h>
+#include <rask/test/VariableFactory.hpp>
 
 namespace
 {
@@ -36,6 +37,7 @@ namespace tut
 
 struct genValue_TestData
 {
+    rask::test::VariableFactory variableFactory;
     llvm::LLVMContext ctx;
     boost::scoped_ptr<llvm::Module> module;
     llvm::BasicBlock *block;
@@ -81,7 +83,7 @@ void object::test<2>()
 {
     using namespace rask;
     
-    ast::SharedVariable v(new ast::Variable(cst::Identifier::create(Position(), "x")));
+    ast::SharedVariable v = variableFactory.createShared("x");
     st.add(v->name(), a1);
     
     llvm::Value *val = cg.genValue(v, st, *block);
