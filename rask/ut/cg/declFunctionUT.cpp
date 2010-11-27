@@ -94,4 +94,31 @@ void object::test<2>()
     ENSURE(lf.getBasicBlockList().empty());
 }
 
+template <>
+template <>
+void object::test<3>()
+{
+    using namespace rask;
+
+    llvm::LLVMContext context;
+    boost::scoped_ptr<llvm::Module> module(new llvm::Module("testModule", context));
+    rask::cg::SymbolTable st;
+    rask::cg::CodeGenerator cg(st);
+    ast::CustomFunction f = functionFactory.create("f1", ast::INT32);
+
+    cg.declFunction(f, *module);
+
+    ENSURE_EQUALS(module->getFunctionList().size(), 1u);
+    llvm::Function& lf = module->getFunctionList().front();
+    ENSURE_EQUALS(lf.getNameStr(), f.name().value);
+    llvm::FunctionType *fType = llvm::FunctionType::get(llvm::IntegerType::get(context, 32), false);
+    ENSURE(llvm::isa<llvm::PointerType>(lf.getType()));
+    ENSURE(lf.getType()->getElementType() == fType);
+    ENSURE(lf.getBasicBlockList().empty());
+    ENSURE(lf.getCallingConv() == llvm::CallingConv::C);
+    ENSURE_EQUALS(lf.getLinkage(), llvm::Function::ExternalLinkage);
+    ENSURE(lf.getParent() == module.get());
+    ENSURE(&lf.getContext() == &context);
+}
+
 }

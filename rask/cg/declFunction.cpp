@@ -22,7 +22,11 @@ namespace cg
 void CodeGenerator::declFunction(const ast::CustomFunction& cf, llvm::Module& module)
 {
     std::vector<const llvm::Type *> fArgs(cf.argCount(), llvm::IntegerType::get(module.getContext(), 32));
-    llvm::FunctionType *fType = llvm::FunctionType::get(llvm::Type::getVoidTy(module.getContext()), fArgs, false);
+    const llvm::Type *returnType =
+        (cf.type() == ast::VOID) ?
+            llvm::Type::getVoidTy(module.getContext()) :
+            llvm::IntegerType::get(module.getContext(), 32);
+    llvm::FunctionType *fType = llvm::FunctionType::get(returnType, fArgs, false);
     llvm::Function *f = llvm::Function::Create(fType, llvm::Function::ExternalLinkage, cf.name().value, &module);
 
     BOOST_FOREACH(llvm::Argument& arg, f->getArgumentList())
