@@ -9,11 +9,27 @@
 #include <tut/tut.hpp>
 #include <tut/../contrib/tut_macros.h>
 #include <rask/test/TUTAssert.hpp>
+#include <rask/test/Mock.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <rask/cg/CodeGenerator.hpp>
 #include <llvm/LLVMContext.h>
 #include <llvm/Instructions.h>
 #include <llvm/DerivedTypes.h>
+
+namespace
+{
+
+MOCK(CodeGeneratorMock, rask::cg::CodeGenerator)
+{
+public:
+
+    CodeGeneratorMock(rask::cg::SymbolTable& symbolTable) : rask::cg::CodeGenerator(symbolTable) { }
+
+    MOCK_METHOD(llvm::CallInst *, genFunctionCall,
+        (const rask::ast::FunctionCall&, fc)(llvm::BasicBlock&, block)(llvm::Module&, module));
+};
+
+}
 
 namespace tut
 {
@@ -21,15 +37,19 @@ namespace tut
 struct genValue_TestData
 {
     llvm::LLVMContext ctx;
+    boost::scoped_ptr<llvm::Module> module;
     llvm::BasicBlock *block;
     rask::cg::SymbolTable st;
-    rask::cg::CodeGenerator cg;
+    CodeGeneratorMock cg;
     llvm::AllocaInst *a1;
     
     genValue_TestData()
-        : block(llvm::BasicBlock::Create(ctx)), cg(st),
+        : module(new llvm::Module("testModule", ctx)), cg(st),
         a1(new llvm::AllocaInst(llvm::IntegerType::get(ctx, 32)))
     {
+        llvm::FunctionType *type = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), false);
+        llvm::Function *func = llvm::Function::Create(type, llvm::Function::ExternalLinkage, "main", &*module);
+        block = llvm::BasicBlock::Create(ctx, "entry", func);
     }
 };
 
@@ -68,6 +88,22 @@ void object::test<2>()
 
     ENSURE(llvm::isa<llvm::LoadInst>(val));
     ENSURE(llvm::cast<llvm::LoadInst>(val)->getPointerOperand() == st.get(v->name()));
+}
+
+template <>
+template <>
+void object::test<3>()
+{
+    using namespace rask;
+
+    ast::Expression fc = ast::FunctionCall(ast::WeakFunction(), ast::FunctionCall::Arguments(0));
+
+    MOCK_RETURN(cg, genFunctionCall, 0);
+
+    llvm::Value *val = cg.genValue(fc, st, *block);
+
+    ENSURE(val == 0);
+    ENSURE_CALL(cg, genFunctionCall(getFunctionCall(fc), *block, *module));
 }
 
 }

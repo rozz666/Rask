@@ -17,11 +17,12 @@ namespace
 
 struct GetValue : boost::static_visitor<llvm::Value *>
 {
+    CodeGenerator& cg;
     llvm::BasicBlock& block;
     const SymbolTable& symbolTable;
 
-    GetValue(llvm::BasicBlock& block, const SymbolTable& symbolTable)
-        : block(block), symbolTable(symbolTable) { }
+    GetValue(CodeGenerator& cg, llvm::BasicBlock& block, const SymbolTable& symbolTable)
+        : cg(cg), block(block), symbolTable(symbolTable) { }
 
     llvm::Value *operator()(const ast::Constant& c)
     {
@@ -33,10 +34,9 @@ struct GetValue : boost::static_visitor<llvm::Value *>
         return new llvm::LoadInst(symbolTable.get(var.lock()->name()), "", &block);
     }
 
-    llvm::Value *operator()(const ast::FunctionCall& )
+    llvm::Value *operator()(const ast::FunctionCall& fc)
     {
-        throw std::runtime_error(
-            "llvm::Value GetValue::operator()(const ast::FunctionCall& ) not imlemented");
+        return cg.genFunctionCall(fc, block, *block.getParent()->getParent());
     }
 };
 
@@ -44,7 +44,7 @@ struct GetValue : boost::static_visitor<llvm::Value *>
     
 llvm::Value *CodeGenerator::genValue(const ast::Expression& expr, const SymbolTable& symbolTable, llvm::BasicBlock& block)
 {
-    GetValue getValue(block, symbolTable);
+    GetValue getValue(*this, block, symbolTable);
     return expr.apply_visitor(getValue);
 }
     
