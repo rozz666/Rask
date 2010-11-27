@@ -31,7 +31,7 @@ public:
     MOCK_METHOD(llvm::CallInst *, genFunctionCall,
         (const rask::ast::FunctionCall&, fc)(llvm::BasicBlock&, block)(llvm::Module&, module));
     MOCK_METHOD(llvm::AllocaInst *, genVariableDecl, (const rask::ast::VariableDecl&, vd)(llvm::BasicBlock&, block));
-    MOCK_METHOD(llvm::ReturnInst *, genReturn,
+    MOCK_METHOD(void, genReturn,
         (const rask::ast::Return&, vd)(llvm::BasicBlock&, block)(const rask::cg::SymbolTable&, st)(llvm::Module&, module));
 };
     
@@ -57,7 +57,6 @@ struct genFunction_TestData
         cg.declFunction(f, *module);
         MOCK_RETURN(cg, genFunctionCall, 0);
         MOCK_RETURN(cg, genVariableDecl, 0);
-        MOCK_RETURN(cg, genReturn, 0);
     }
 };
 

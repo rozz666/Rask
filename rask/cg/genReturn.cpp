@@ -13,10 +13,11 @@ namespace rask
 namespace cg
 {
 
-llvm::ReturnInst *CodeGenerator::genReturn(
+void CodeGenerator::genReturn(
     const ast::Return& ret, llvm::BasicBlock& block, const SymbolTable& symbolTable, llvm::Module& module)
 {
-    throw std::runtime_error("CodeGenerator::genReturn not implemented");
+    llvm::Value *val = genValue(ret.expr(), symbolTable, block);
+    llvm::ReturnInst::Create(module.getContext(), val, &block);
 }
 
 
