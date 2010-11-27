@@ -20,7 +20,13 @@ namespace tut
 
 struct declFunction_TestData
 {
+    llvm::LLVMContext context;
+    boost::scoped_ptr<llvm::Module> module;
+    rask::cg::SymbolTable st;
+    rask::cg::CodeGenerator cg;
     rask::test::FunctionFactory functionFactory;
+
+    declFunction_TestData() : module(new llvm::Module("testModule", context)), cg(st) { }
 };
 
 typedef test_group<declFunction_TestData> factory;
@@ -41,10 +47,6 @@ void object::test<1>()
 {
     using namespace rask;
 
-    llvm::LLVMContext context;
-    boost::scoped_ptr<llvm::Module> module(new llvm::Module("testModule", context));
-    rask::cg::SymbolTable st;
-    rask::cg::CodeGenerator cg(st);
     ast::CustomFunction f = functionFactory.create("f1");
 
     cg.declFunction(f, *module);
@@ -67,18 +69,14 @@ template <>
 void object::test<2>()
 {
     using namespace rask;
-    
-    llvm::LLVMContext context;
-    boost::scoped_ptr<llvm::Module> module(new llvm::Module("testModule", context));
-    rask::cg::SymbolTable st;
-    rask::cg::CodeGenerator cg(st);
+
     ast::CustomFunction f = functionFactory.create("f1");
     f.addArg(cst::Identifier::create(Position(), "arg1"));
     f.addArg(cst::Identifier::create(Position(), "arg2"));
     const std::string argPrefix = "a_";
-    
+
     cg.declFunction(f, *module);
-    
+
     ENSURE_EQUALS(module->getFunctionList().size(), 1u);
     llvm::Function& lf = module->getFunctionList().front();
     ENSURE_EQUALS(lf.getNameStr(), f.name().value);
@@ -100,10 +98,6 @@ void object::test<3>()
 {
     using namespace rask;
 
-    llvm::LLVMContext context;
-    boost::scoped_ptr<llvm::Module> module(new llvm::Module("testModule", context));
-    rask::cg::SymbolTable st;
-    rask::cg::CodeGenerator cg(st);
     ast::CustomFunction f = functionFactory.create("f1", ast::INT32);
 
     cg.declFunction(f, *module);
