@@ -15,6 +15,7 @@
 #include <llvm/Instructions.h>
 #include <llvm/DerivedTypes.h>
 #include <rask/test/FunctionFactory.hpp>
+#include <rask/test/VariableDeclFactory.hpp>
 
 namespace
 {
@@ -27,8 +28,11 @@ public:
     
     CodeGeneratorMock() : rask::cg::CodeGenerator(symbolTable) { }
 
-    MOCK_METHOD(llvm::CallInst *, genFunctionCall, (const rask::ast::FunctionCall&, fc)(llvm::BasicBlock&, block)(llvm::Module&, module));
+    MOCK_METHOD(llvm::CallInst *, genFunctionCall,
+        (const rask::ast::FunctionCall&, fc)(llvm::BasicBlock&, block)(llvm::Module&, module));
     MOCK_METHOD(llvm::AllocaInst *, genVariableDecl, (const rask::ast::VariableDecl&, vd)(llvm::BasicBlock&, block));
+    MOCK_METHOD(llvm::ReturnInst *, genReturn,
+        (const rask::ast::Return&, vd)(llvm::BasicBlock&, block)(const rask::cg::SymbolTable&, st)(llvm::Module&, module));
 };
     
 }
@@ -42,6 +46,7 @@ struct genFunction_TestData
     boost::scoped_ptr<llvm::Module> module;
     CodeGeneratorMock cg;
     rask::test::FunctionFactory functionFactory;
+    rask::test::VariableDeclFactory varDeclFactory;
     rask::ast::CustomFunction f;
     
     genFunction_TestData()
@@ -52,6 +57,7 @@ struct genFunction_TestData
         cg.declFunction(f, *module);
         MOCK_RETURN(cg, genFunctionCall, 0);
         MOCK_RETURN(cg, genVariableDecl, 0);
+        MOCK_RETURN(cg, genReturn, 0);
     }
 };
 
@@ -109,9 +115,9 @@ template <>
 void object::test<3>()
 {
     using namespace rask;
-    
-    f.addStmt(ast::VariableDecl(cst::Identifier::create(Position(), "asia"), 1));
-    f.addStmt(ast::VariableDecl(cst::Identifier::create(Position(), "kasia"), 2));
+
+    f.addStmt(varDeclFactory.create("asia", 1));
+    f.addStmt(varDeclFactory.create("kasia", 2));
     
     cg.genFunction(f, *module);
     llvm::Function *gf = module->getFunction(f.name().value);
@@ -181,6 +187,47 @@ void object::test<4>()
     ENSURE_EQUALS(block->getNameStr(), "entry");
     ENSURE_EQUALS(block->size(), 1u);
     ENSURE(llvm::isa<llvm::ReturnInst>(block->front()));
+}
+
+template <>
+template <>
+void object::test<5>()
+{
+    using namespace rask;
+
+    f = functionFactory.create("asia", ast::INT32);
+    cg.declFunction(f, *module);
+
+    cg.genFunction(f, *module);
+    llvm::Function *gf = module->getFunction(f.name().value);
+
+    ENSURE_EQUALS(gf->size(), 1u);
+    llvm::BasicBlock *entry = &gf->front();
+    ENSURE_EQUALS(entry->getNameStr(), "entry");
+    ENSURE_EQUALS(entry->size(), 0u);
+}
+
+template <>
+template <>
+void object::test<6>()
+{
+    using namespace rask;
+
+    f = functionFactory.create("asia", ast::INT32);
+    cg.declFunction(f, *module);
+
+    f.addStmt(ast::Return(ast::Constant(10)));
+    f.addStmt(ast::Return(ast::Constant(20)));
+
+    cg.genFunction(f, *module);
+    llvm::Function *gf = module->getFunction(f.name().value);
+
+    ENSURE_EQUALS(gf->size(), 1u);
+    llvm::BasicBlock *entry = &gf->front();
+    ENSURE_EQUALS(entry->getNameStr(), "entry");
+    ENSURE_EQUALS(entry->size(), 0u);
+    ENSURE_CALL(cg, genReturn(getReturn(f.stmt(0)), *entry, cg.symbolTable, *module));
+    ENSURE_CALL(cg, genReturn(getReturn(f.stmt(1)), *entry, cg.symbolTable, *module));
 }
 
 }

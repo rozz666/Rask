@@ -17,6 +17,11 @@ ast::CustomFunction FunctionFactory::create(const std::string& name)
     return ast::CustomFunction(cst::Identifier::create(Position(), name), ast::VOID);
 }
 
+ast::CustomFunction FunctionFactory::create(const std::string& name, ast::BasicType type)
+{
+    return ast::CustomFunction(cst::Identifier::create(Position(), name), type);
+}
+
 ast::SharedCustomFunction FunctionFactory::createShared(const std::string& name)
 {
     return ast::SharedCustomFunction(

@@ -35,6 +35,8 @@ public:
     virtual void declBuiltinFunctions(llvm::Module& module);
     virtual std::auto_ptr<llvm::Module> genModule(const ast::Tree& ast, llvm::LLVMContext& context);
     virtual llvm::Value *genValue(const ast::Expression& expr, const SymbolTable& symbolTable, llvm::BasicBlock& block);
+    virtual llvm::ReturnInst *genReturn(
+        const ast::Return& ret, llvm::BasicBlock& block, const SymbolTable& symbolTable, llvm::Module& module);
 
 private:
 

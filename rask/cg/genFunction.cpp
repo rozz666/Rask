@@ -24,8 +24,10 @@ struct StatementVisitor : boost::static_visitor<void>
     CodeGenerator& cg;
     llvm::Module& module;
     llvm::BasicBlock& entry;
-    
-    StatementVisitor(CodeGenerator& cg, llvm::Module& module, llvm::BasicBlock& entry) : cg(cg), module(module), entry(entry) { }
+    SymbolTable& st;
+
+    StatementVisitor(CodeGenerator& cg, llvm::Module& module, llvm::BasicBlock& entry, SymbolTable& st)
+        : cg(cg), module(module), entry(entry), st(st) { }
 
     void operator()(const ast::FunctionCall& fc)
     {
@@ -37,11 +39,9 @@ struct StatementVisitor : boost::static_visitor<void>
         cg.genVariableDecl(vd, entry);
     }
 
-    void operator()(const ast::Return& )
+    void operator()(const ast::Return& ret)
     {
-        throw std::runtime_error(
-            "void StatementVisitor::operator()(const ast::Return& )"
-            " not implemented");
+        cg.genReturn(ret, entry, st, module);
     }
 };
         
@@ -66,16 +66,19 @@ void CodeGenerator::genFunction(const ast::CustomFunction& f, llvm::Module& modu
         llvm::BranchInst::Create(entry, argsBlock);
     }
 
-    StatementVisitor sv(*this, module, *entry);
+    StatementVisitor sv(*this, module, *entry, symbolTable_);
     
     for (std::size_t i = 0; i != f.stmtCount(); ++i)
     {
         f.stmt(i).apply_visitor(sv);
     }
 
-    llvm::ReturnInst::Create(module.getContext(), entry);
+    if (f.type() == ast::VOID)
+    {
+        llvm::ReturnInst::Create(module.getContext(), entry);
+    }
 }
-    
+
 }
 }
 

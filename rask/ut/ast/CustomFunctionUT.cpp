@@ -11,6 +11,7 @@
 #include <boost/assign/list_of.hpp>
 #include <rask/test/TUTAssert.hpp>
 #include <rask/ast/CustomFunction.hpp>
+#include <rask/test/VariableDeclFactory.hpp>
 
 namespace
 {
@@ -32,6 +33,7 @@ namespace tut
 
 struct CustomFunction_TestData
 {
+    rask::test::VariableDeclFactory varDeclFactory;
 };
 
 typedef test_group<CustomFunction_TestData> factory;
@@ -57,7 +59,7 @@ void object::test<1>()
     ast::Function& f = cf;
     ast::SharedCustomFunction dummy(new ast::CustomFunction(cst::Identifier::create(Position(), "test"), ast::VOID));
     ast::FunctionCall fc(dummy, ast::FunctionCall::Arguments());
-    ast::VariableDecl vd(cst::Identifier::create(Position("xx", 1, 2), "asia"), 0);
+    ast::VariableDecl vd = varDeclFactory.create("asia", 0);
     ENSURE_EQUALS(cf.stmtCount(), 0u);
     cf.addStmt(fc);
     cf.addStmt(vd);
