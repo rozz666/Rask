@@ -11,6 +11,7 @@
 #include <rask/test/TUTAssert.hpp>
 #include <rask/ast/SymbolTable.hpp>
 #include <rask/test/FunctionFactory.hpp>
+#include <rask/test/VariableFactory.hpp>
 
 namespace tut
 {
@@ -19,6 +20,29 @@ struct AstSymbolTable_TestData
 {
     rask::ast::SymbolTable st;
     rask::test::FunctionFactory functionFactory;
+    rask::test::VariableFactory variableFactory;
+    std::string var1Name;
+    std::string var2Name;
+    rask::ast::SharedVariable var1a;
+    rask::ast::SharedVariable var1b;
+    rask::ast::SharedVariable var2;
+    std::string f1Name;
+    std::string f2Name;
+    rask::ast::SharedFunction f1a;
+    rask::ast::SharedFunction f1b;
+    rask::ast::SharedFunction f2;
+
+    AstSymbolTable_TestData()
+        : var1Name("asia"), var2Name("kasia"),
+        var1a(variableFactory.createShared(var1Name)),
+        var1b(variableFactory.createShared(var1Name)),
+        var2(variableFactory.createShared(var2Name)),
+        f1Name("asia"), f2Name("kasia"),
+        f1a(functionFactory.createShared(f1Name)),
+        f1b(functionFactory.createShared(f1Name)),
+        f2(functionFactory.createShared(f2Name))
+    {
+    }
 };
 
 typedef test_group<AstSymbolTable_TestData> factory;
@@ -37,24 +61,16 @@ template <>
 template <>
 void object::test<1>()
 {
-    using namespace rask;
-
-    ast::SharedVariable var1(new ast::Variable(cst::Identifier::create(Position(), "asia")));
-    ast::SharedVariable var2(new ast::Variable(cst::Identifier::create(Position(), "kasia")));
-
-    ENSURE(st.add(var1) == var1);
+    ENSURE(st.add(var1a) == var1a);
     ENSURE(st.add(var2) == var2);
-    
-    ENSURE(*st.getVariable(var1->name().value) == var1);
-    ENSURE(*st.getVariable(var2->name().value) == var2);
+    ENSURE(*st.getVariable(var1Name) == var1a);
+    ENSURE(*st.getVariable(var2Name) == var2);
 }
 
 template <>
 template <>
 void object::test<2>()
 {
-    using namespace rask;
-    
     ENSURE(!st.getVariable("x"));
 }
 
@@ -62,24 +78,16 @@ template <>
 template <>
 void object::test<3>()
 {
-    using namespace rask;
-
-    ast::SharedFunction f1 = functionFactory.createShared("asia");
-    ast::SharedFunction f2 = functionFactory.createShared("kasia");
-    
-    ENSURE(st.add(f1) == f1);
+    ENSURE(st.add(f1a) == f1a);
     ENSURE(st.add(f2) == f2);
-    
-    ENSURE(*st.getFunction(f1->name().value) == f1);
-    ENSURE(*st.getFunction(f2->name().value) == f2);
+    ENSURE(*st.getFunction(f1Name) == f1a);
+    ENSURE(*st.getFunction(f2Name) == f2);
 }
 
 template <>
 template <>
 void object::test<4>()
 {
-    using namespace rask;
-    
     ENSURE(!st.getFunction("x"));
 }
 
@@ -87,90 +95,59 @@ template <>
 template <>
 void object::test<5>()
 {
-    using namespace rask;
-    
-    ast::SharedVariable var1(new ast::Variable(cst::Identifier::create(Position("", 1, 2), "asia")));
-    ast::SharedVariable var2(new ast::Variable(cst::Identifier::create(Position("", 2, 3), "asia")));
-    
-    ENSURE(st.add(var1) == var1);
-    ENSURE(st.add(var2) == var1);
-    
-    ENSURE(*st.getVariable(var1->name().value) == var1);
+    ENSURE(st.add(var1a) == var1a);
+    ENSURE(st.add(var1b) == var1a);
+    ENSURE(*st.getVariable(var1Name) == var1a);
 }
 
 template <>
 template <>
 void object::test<6>()
 {
-    using namespace rask;
-    
-    ast::SharedFunction f1 = functionFactory.createShared(1, 2, "asia");
-    ast::SharedFunction f2 = functionFactory.createShared(3, 4, "asia");
-    
-    ENSURE(st.add(f1) == f1);
-    ENSURE(st.add(f2) == f1);
-    
-    ENSURE(st.getFunction(f1->name().value) == f1);
+    ENSURE(st.add(f1a) == f1a);
+    ENSURE(st.add(f1b) == f1a);
+    ENSURE(st.getFunction(f1Name) == f1a);
 }
 
 template <>
 template <>
 void object::test<7>()
 {
-    using namespace rask;
-
-    std::string name = "asia";
-    ast::SharedVariable var1(new ast::Variable(cst::Identifier::create(Position("", 1, 2), name)));
-    ast::SharedVariable var2(new ast::Variable(cst::Identifier::create(Position("", 2, 3), name)));
-
-    st.add(var1);
+    st.add(var1a);
     st.enterScope();
 
-    ENSURE(st.add(var2) == var2);
-    ENSURE(*st.getVariable(name) == var2);
+    ENSURE(st.add(var1b) == var1b);
+    ENSURE(*st.getVariable(var1Name) == var1b);
 }
 
 template <>
 template <>
 void object::test<8>()
 {
-    using namespace rask;
-
-    std::string name = "asia";
-    ast::SharedVariable var1(new ast::Variable(cst::Identifier::create(Position("", 1, 2), name)));
-    ast::SharedVariable var2(new ast::Variable(cst::Identifier::create(Position("", 2, 3), name)));
-
-    st.add(var1);
+    st.add(var1a);
     st.enterScope();
-    st.add(var2);
+    st.add(var1b);
     st.exitScope();
 
-    ENSURE(*st.getVariable(name) == var1);
+    ENSURE(*st.getVariable(var1Name) == var1a);
 }
 
 template <>
 template <>
 void object::test<9>()
 {
-    using namespace rask;
-
-    std::string name = "asia";
-    ast::SharedVariable var1(new ast::Variable(cst::Identifier::create(Position("", 1, 2), name)));
-
     st.enterScope();
-    st.add(var1);
+    st.add(var1a);
     st.exitScope();
     st.enterScope();
 
-    ENSURE(!st.getVariable(name));
+    ENSURE(!st.getVariable(var1Name));
 }
 
 template <>
 template <>
 void object::test<10>()
 {
-    using namespace rask;
-
     ENSURE_THROWS(st.exitScope(), std::out_of_range);
     st.enterScope();
     st.exitScope();
