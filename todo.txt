@@ -1,4 +1,5 @@
 GET RID OF UNDEFINED BEHAVIOUR (symbol tables in mocks)!!!
+Make cg::declBuiltinFunctions use ast::BuiltinFunctions
 Remove "global" variables from ast::Builder and cg::CodeGenerator.
 Check if variable is already declared
 Add prefixes to local variable names (l_)
