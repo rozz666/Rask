@@ -28,6 +28,13 @@ void rask_print_int(int32_t n)
     std::cout << n << std::endl;
 }
 
+int32_t rask_get_int_32()
+{
+    int32_t x;
+    if (std::cin >> x) return x;
+    else return 0;
+}
+
 }
 
 int main(int, char **argv)
@@ -62,6 +69,8 @@ int main(int, char **argv)
 
     llvm::Function *print = engine->FindFunctionNamed("print");
     engine->addGlobalMapping(print, (void *)(intptr_t)&builtin::rask_print_int);
+    llvm::Function *getInt32 = engine->FindFunctionNamed("getInt32");
+    engine->addGlobalMapping(getInt32, (void *)(intptr_t)&builtin::rask_get_int_32);
    
     llvm::Function *mainf = module->getFunction("main");
 
