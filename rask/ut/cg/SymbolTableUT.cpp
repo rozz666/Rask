@@ -51,8 +51,8 @@ void object::test<1>()
     st.add(id1, a1);
     st.add(id2, a2);
     
-    ensure(st.get(id1) == a1);
-    ensure(st.get(id2) == a2);
+    ENSURE(st.get(id1) == a1);
+    ENSURE(st.get(id2) == a2);
 }
 
 template <>
@@ -68,14 +68,14 @@ void object::test<2>()
     try
     {
         st.add(id1, a2);
-        fail("expected SymbolTableError");
+        FAIL("expected SymbolTableError");
     }
     catch (const cg::SymbolTableError& e)
     {
-        ensure_equals(e.what(), std::string("Duplicated identifier"));
+        ENSURE_EQUALS(e.what(), std::string("Duplicated identifier"));
     }
     
-    ensure(st.get(id1) == a1);
+    ENSURE(st.get(id1) == a1);
 }
 
 template <>
@@ -89,11 +89,11 @@ void object::test<3>()
     try
     {
         st.get(id1);
-        fail("expected SymbolTableError");
+        FAIL("expected SymbolTableError");
     }
     catch (const cg::SymbolTableError& e)
     {
-        ensure_equals(e.what(), std::string("Symbol \'x\' not found"));
+        ENSURE_EQUALS(e.what(), std::string("Symbol \'x\' not found"));
     }
 }
 
