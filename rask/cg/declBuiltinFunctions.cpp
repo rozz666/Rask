@@ -25,6 +25,9 @@ void CodeGenerator::declBuiltinFunctions(llvm::Module& module)
     printIntArgs.push_back(llvm::IntegerType::get(context, 32));
     llvm::FunctionType *printIntType = llvm::FunctionType::get(llvm::Type::getVoidTy(context), printIntArgs, false);
     llvm::Function::Create(printIntType, llvm::Function::ExternalLinkage, "print", &module);
+
+    llvm::FunctionType *getInt32Type = llvm::FunctionType::get(llvm::IntegerType::get(context, 32), false);
+    llvm::Function::Create(getInt32Type, llvm::Function::ExternalLinkage, "getInt32", &module);
 }
     
 }
