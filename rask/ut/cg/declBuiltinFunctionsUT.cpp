@@ -19,6 +19,14 @@ namespace tut
 
 struct declBuiltinFunctions_TestData
 {
+    llvm::LLVMContext context;
+    boost::scoped_ptr<llvm::Module> module;
+    rask::cg::SymbolTable st;
+
+    declBuiltinFunctions_TestData() : module(new llvm::Module("testModule", context))
+    {
+        rask::cg::CodeGenerator(st).declBuiltinFunctions(*module);
+    }
 };
 
 typedef test_group<declBuiltinFunctions_TestData> factory;
@@ -39,12 +47,6 @@ void object::test<1>()
 {
     using namespace rask;
     
-    llvm::LLVMContext context;
-    boost::scoped_ptr<llvm::Module> module(new llvm::Module("testModule", context));
-
-    cg::SymbolTable st;
-    cg::CodeGenerator(st).declBuiltinFunctions(*module);
-
     llvm::Function *printInt = module->getFunction("print");
 
     std::vector<const llvm::Type*> printIntArgs;
@@ -52,13 +54,11 @@ void object::test<1>()
     llvm::FunctionType *printIntType = llvm::FunctionType::get(llvm::Type::getVoidTy(context), printIntArgs, false);
 
     ENSURE(printInt);
-    ensure("pointer type", llvm::isa<llvm::PointerType>(printInt->getType()));
-    ensure("type", printInt->getType()->getElementType() == printIntType);
-    ensure("no body", printInt->getBasicBlockList().empty());
-    ensure("C cc", printInt->getCallingConv() == llvm::CallingConv::C);
-    ensure_equals("linkage", printInt->getLinkage(), llvm::Function::ExternalLinkage);
-    ensure_equals("module", printInt->getParent(), module.get());
-    ensure_equals("context", &printInt->getContext(), &context);
+    ENSURE(llvm::isa<llvm::PointerType>(printInt->getType()));
+    ENSURE(printInt->getType()->getElementType() == printIntType);
+    ENSURE(printInt->getBasicBlockList().empty());
+    ENSURE(printInt->getLinkage() == llvm::Function::ExternalLinkage);
+    ENSURE(printInt->getCallingConv() == llvm::CallingConv::C);
 }
 
 template <>
@@ -67,25 +67,16 @@ void object::test<2>()
 {
     using namespace rask;
     
-    llvm::LLVMContext context;
-    boost::scoped_ptr<llvm::Module> module(new llvm::Module("testModule", context));
-    
-    cg::SymbolTable st;
-    cg::CodeGenerator(st).declBuiltinFunctions(*module);
-    
     llvm::Function *getInt32 = module->getFunction("getInt32");
-    
-    std::vector<const llvm::Type*> printIntArgs;
+   
     llvm::FunctionType *getInt32Type = llvm::FunctionType::get(llvm::IntegerType::get(context, 32), false);
     
     ENSURE(getInt32);
-    ensure("pointer type", llvm::isa<llvm::PointerType>(getInt32->getType()));
-    ensure("type", getInt32->getType()->getElementType() == getInt32Type);
-    ensure("no body", getInt32->getBasicBlockList().empty());
-    ensure("C cc", getInt32->getCallingConv() == llvm::CallingConv::C);
-    ensure_equals("linkage", getInt32->getLinkage(), llvm::Function::ExternalLinkage);
-    ensure_equals("module", getInt32->getParent(), module.get());
-    ensure_equals("context", &getInt32->getContext(), &context);
+    ENSURE(llvm::isa<llvm::PointerType>(getInt32->getType()));
+    ENSURE(getInt32->getType()->getElementType() == getInt32Type);
+    ENSURE(getInt32->getBasicBlockList().empty());
+    ENSURE(getInt32->getLinkage() == llvm::Function::ExternalLinkage);
+    ENSURE(getInt32->getCallingConv() == llvm::CallingConv::C);
 }
 
 }
