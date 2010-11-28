@@ -28,13 +28,13 @@ public:
     
 class SymbolTable
 {
-    typedef std::map<std::string, llvm::AllocaInst *> Values;
+    typedef std::map<std::pair<std::string, Position>, llvm::AllocaInst *> Values;
     
 public:
 
     void add(const cst::Identifier& id, llvm::AllocaInst *value)
     {
-        if (!values_.insert(Values::value_type(id.value, value)).second)
+        if (!values_.insert(Values::value_type(std::make_pair(id.value, id.position), value)).second)
         {
             throw SymbolTableError("Duplicated identifier");
         }
@@ -42,7 +42,7 @@ public:
 
     llvm::AllocaInst *get(const cst::Identifier& id) const
     {
-        Values::const_iterator it = values_.find(id.value);
+        Values::const_iterator it = values_.find(std::make_pair(id.value, id.position));
 
         if (it == values_.end()) throw SymbolTableError("Symbol \'" + id.value + "\' not found");
         

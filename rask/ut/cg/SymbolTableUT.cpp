@@ -8,6 +8,7 @@
 //
 #include <tut/tut.hpp>
 #include <tut/../contrib/tut_macros.h>
+#include <rask/test/TUTAssert.hpp>
 #include <rask/cg/SymbolTable.hpp>
 #include <llvm/LLVMContext.h>
 #include <llvm/Instructions.h>
@@ -94,6 +95,22 @@ void object::test<3>()
     {
         ensure_equals(e.what(), std::string("Symbol \'x\' not found"));
     }
+}
+
+template <>
+template <>
+void object::test<4>()
+{
+    using namespace rask;
+
+    cst::Identifier id1 = cst::Identifier::create(Position("xxx", 1, 2), "x");
+    cst::Identifier id2 = cst::Identifier::create(Position("xxx", 3, 4), "x");
+
+    st.add(id1, a1);
+    st.add(id2, a2);
+
+    ENSURE(st.get(id1) == a1);
+    ENSURE(st.get(id2) == a2);
 }
 
 }
