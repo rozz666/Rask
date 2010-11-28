@@ -29,6 +29,7 @@ public:
 private:
 
     SharedBuiltinFunction print_;
+    SharedBuiltinFunction getInt32_;
 };
 
 }

@@ -15,13 +15,15 @@ namespace ast
 {
 
 BuiltinFunctions::BuiltinFunctions()
-    : print_(new BuiltinFunction("print", ast::VOID, 1))
+    : print_(new BuiltinFunction("print", ast::VOID, 1)),
+    getInt32_(new BuiltinFunction("getInt32", ast::INT32, 0))
 {
 }
     
 void BuiltinFunctions::declare(SymbolTable& st)
 {
     st.add(print_);
+    st.add(getInt32_);
 }
     
 }

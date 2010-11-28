@@ -17,6 +17,26 @@ namespace tut
 
 struct BuiltinFunctions_TestData
 {
+    rask::ast::BuiltinFunctions bfs;
+    rask::ast::SymbolTable st;
+
+    BuiltinFunctions_TestData()
+    {
+        bfs.declare(st);
+    }
+
+    void ensureBuiltinFunction(const std::string& name, rask::ast::BasicType type, unsigned argCount)
+    {
+        using namespace rask;
+        
+        boost::optional<ast::SharedFunction> f = st.getFunction(name);
+        ENSURE(f);
+        ENSURE(boost::dynamic_pointer_cast<ast::BuiltinFunction>(*f));
+        ENSURE_EQUALS((*f)->name().position, Position());
+        ENSURE_EQUALS((*f)->name().value, name);
+        ENSURE_EQUALS((*f)->argCount(), argCount);
+        ENSURE((*f)->type() == type);
+    }
 };
 
 typedef test_group<BuiltinFunctions_TestData> factory;
@@ -35,19 +55,14 @@ template <>
 template <>
 void object::test<1>()
 {
-    using namespace rask;
-    
-    ast::BuiltinFunctions bfs;
-    ast::SymbolTable st;
+    ensureBuiltinFunction("print", rask::ast::VOID, 1);
+}
 
-    bfs.declare(st);
-
-    ast::SharedFunction print = *st.getFunction("print");
-
-    ENSURE(boost::dynamic_pointer_cast<ast::BuiltinFunction>(print));
-    ENSURE_EQUALS(print->name().value, "print");
-    ENSURE_EQUALS(print->argCount(), 1);
-    ENSURE(print->type() == ast::VOID);
+template <>
+template <>
+void object::test<2>()
+{
+    ensureBuiltinFunction("getInt32", rask::ast::INT32, 0);;
 }
 
 }
