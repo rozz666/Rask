@@ -1,0 +1,9 @@
+main() -> void
+{
+    var a = getInt32();
+    var b = getInt32();
+    var c = getInt32();
+    print(a);
+    print(b);
+    print(c);
+}
