@@ -35,7 +35,9 @@ boost::optional<Tree> Builder::buildTree(const cst::Tree& cst)
 
     BOOST_FOREACH(const cst::Function& f, cst.functions)
     {
+        symbolTable_.enterScope();
         if (!buildFunction(f)) failed = true;
+        //symbolTable_.exitScope();
     }
 
     if (failed) return boost::none;

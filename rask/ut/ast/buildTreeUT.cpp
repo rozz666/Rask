@@ -11,6 +11,7 @@
 #include <rask/test/Mock.hpp>
 #include <rask/ast/Builder.hpp>
 #include <rask/test/FunctionFactory.hpp>
+#include <boost/concept_check.hpp>
 
 namespace
 {
@@ -30,6 +31,32 @@ public:
 
     MOCK_METHOD(boost::optional<rask::ast::FunctionDecl>, buildFunctionDecl, (const rask::cst::Function&, f));
     MOCK_METHOD(bool, buildFunction, (const rask::cst::Function&, f));
+};
+
+MOCK(BuilderMockBuildFunction, rask::ast::Builder)
+{
+public:
+
+    rask::ast::SymbolTable st;
+    rask::ast::SharedCustomFunction main;
+    bool allParamsOk;
+
+    BuilderMockBuildFunction(rask::error::Logger& logger)
+        : rask::ast::Builder(logger, st), allParamsOk(true)
+    {
+    }
+
+    MOCK_METHOD(boost::optional<rask::ast::FunctionDecl>, buildFunctionDecl, (const rask::cst::Function&, f));
+
+    virtual bool buildFunction(const rask::cst::Function& cf)
+    {
+        rask::ast::SharedCustomFunction f =
+            boost::dynamic_pointer_cast<rask::ast::CustomFunction>(*st.getFunction(cf.name.value));
+
+        if (st.getVariable(f->arg(0)->name().value)) allParamsOk = false;
+
+        return true;
+    }
 };
 
 }
@@ -157,6 +184,36 @@ void object::test<5>()
     ENSURE(!builder.buildTree(cst));
     ENSURE_EQUALS(logger.errors().size(), 1u);
     ENSURE_EQUALS(logger.errors()[0], error::Message::missingMainFunction(Position(cst.end.file)));
+}
+
+template <>
+template <>
+void object::test<6>()
+{
+    using namespace rask;
+
+    BuilderMockBuildFunction builder(logger);
+
+    cst.functions.resize(2);
+    cst.functions[0].name.value = "f1";
+    cst.functions[0].args.push_back(cst::Identifier::create(Position(), "testArg"));
+    cst.functions[1].name.value = "f2";
+    cst.functions[1].args.push_back(cst::Identifier::create(Position(), "testArg"));
+
+    ast::FunctionDecl fd1(cst::Identifier::create(Position(), cst.functions[0].name.value), ast::VOID);
+    ast::FunctionDecl fd2(cst::Identifier::create(Position(), cst.functions[1].name.value), ast::VOID);
+    ast::SharedCustomFunction f1 = test::FunctionFactory().createShared("f1");
+    f1->addArg(cst.functions[0].args[0]);
+    ast::SharedCustomFunction f2 = test::FunctionFactory().createShared("f2");
+    f2->addArg(cst.functions[1].args[0]);
+    builder.st.add(f1);
+    builder.st.add(f2);
+    MOCK_RETURN(builder, buildFunctionDecl, fd1);
+    MOCK_RETURN(builder, buildFunctionDecl, fd2);
+
+    builder.buildTree(cst);
+
+    ENSURE(builder.allParamsOk);
 }
 
 }
