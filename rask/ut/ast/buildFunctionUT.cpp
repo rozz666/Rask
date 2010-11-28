@@ -205,4 +205,22 @@ void object::test<7>()
     ENSURE_NO_CALLS(builder, buildReturn);
 }
 
+template <>
+template <>
+void object::test<8>()
+{
+    using namespace rask;
+
+    cf.args.push_back(cst::Identifier::create(Position(), "arg1"));
+    cf.args.push_back(cst::Identifier::create(Position(), "arg2"));
+
+    f->addArg(cf.args[0]);
+    f->addArg(cf.args[1]);
+
+    ENSURE(builder.buildFunction(cf));
+
+    ENSURE(st.getVariable(cf.args[0].value) == f->arg(0));
+    ENSURE(st.getVariable(cf.args[1].value) == f->arg(1));
+}
+
 }

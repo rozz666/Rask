@@ -98,8 +98,6 @@ void object::test<3>()
     ENSURE_EQUALS(f->argCount(), 2u);
     ENSURE_EQUALS(f->arg(0)->name().value, cf.args[0].value);
     ENSURE_EQUALS(f->arg(1)->name().value, cf.args[1].value);
-    ENSURE(st.getVariable(cf.args[0].value) == f->arg(0));
-    ENSURE(st.getVariable(cf.args[1].value) == f->arg(1));
 }
 
 template <>

@@ -32,7 +32,6 @@ boost::optional<FunctionDecl> Builder::buildFunctionDecl(const cst::Function& f)
     BOOST_FOREACH(const cst::Identifier& arg, f.args)
     {
         cf->addArg(arg);
-        symbolTable_.add(cf->arg(cf->argCount() - 1));
     }
     
     return fd;
