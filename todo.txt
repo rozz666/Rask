@@ -1,5 +1,4 @@
 GET RID OF UNDEFINED BEHAVIOUR (symbol tables in mocks)!!!
-Separate local symbol table from global.
 Remove "global" variables from ast::Builder and cg::CodeGenerator.
 Check if variable is already declared
 Add prefixes to local variable names (l_)
