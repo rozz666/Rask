@@ -1,4 +1,4 @@
-var1.rask:test:var1.out
-var2.rask:error:var2.out
-var3.rask:test:var3.out
-var4.rask:error:var4.out
+var1:test:var1.rask
+var2:error:var2.rask
+var3:test:var3.rask
+var4:error:var4.rask

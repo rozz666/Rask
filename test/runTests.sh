@@ -39,14 +39,21 @@ do
 
     for TEST in $LIST
     do
-        SOURCE="${TEST%%:*}"
-        EXPECTED_OUTPUT_PATH="${TEST##*:}"
+        SOURCE="${TEST##*:}"
+        TEST_NAME="${TEST%%:*}"
+        EXPECTED_OUTPUT_PATH="${TEST_NAME}.out"
+        EXPECTED_INPUT_PATH="${TEST_NAME}.in"
 
         if [ ! -e "$EXPECTED_OUTPUT_PATH" ]
         then
             echo "Missing $SUITE/$EXPECTED_OUTPUT_PATH"
             ((ERROR_COUNT+=1))
             continue;
+        fi
+
+        if [ ! -e "$EXPECTED_INPUT_PATH" ]
+        then
+            EXPECTED_INPUT_PATH="/dev/null"
         fi
 
         EXPECTED_OUTPUT=`cat $EXPECTED_OUTPUT_PATH`
@@ -60,7 +67,7 @@ do
 
                 if [ "$COUTPUT" == "" ]
                 then
-                    OUTPUT=`$RASK prog.out 2>/dev/null`;
+                    OUTPUT=`$RASK prog.out < $EXPECTED_INPUT_PATH 2>/dev/null`;
                     rm -f prog.out;
                 else
                     OUTPUT="$COUTPUT";
