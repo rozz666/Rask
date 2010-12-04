@@ -58,7 +58,7 @@ void CodeGenerator::genFunction(const ast::CustomFunction& f, llvm::Module& modu
         BOOST_FOREACH(llvm::Argument& arg, func->getArgumentList())
         {
             const cst::Identifier& argName = f.arg(arg.getArgNo())->name();
-            llvm::AllocaInst *alloca = new llvm::AllocaInst(type, argName.value, argsBlock);
+            llvm::AllocaInst *alloca = new llvm::AllocaInst(type, "la_" + argName.value, argsBlock);
             new llvm::StoreInst(&arg, alloca, argsBlock);
             symbolTable_.add(argName, alloca);
         }
