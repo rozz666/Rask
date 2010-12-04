@@ -71,7 +71,8 @@ void object::test<1>()
     cst::Identifier name;
     name.value = "asia";
     ast::VariableDecl vd(name, 10);
-
+    const std::string varPrefix = "l_";
+    
     llvm::Value *value = llvm::ConstantInt::get(ctx, llvm::APInt(32, getConstant(vd.value()), true));
     MOCK_RETURN(cg, genValue, value);
     
@@ -81,7 +82,7 @@ void object::test<1>()
     llvm::BasicBlock::iterator it = block->begin();
 
     ENSURE(&*it == alloc);
-    ENSURE_EQUALS(alloc->getNameStr(), name.value);
+    ENSURE_EQUALS(alloc->getNameStr(), varPrefix + name.value);
     ENSURE(alloc->getAllocatedType() == llvm::IntegerType::get(ctx, 32));
     ENSURE(st.get(name) == alloc);
     ++it;
