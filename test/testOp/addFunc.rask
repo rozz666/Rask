@@ -1,0 +1,9 @@
+getConst() -> int32
+{
+    return 10;
+}
+
+main() -> void
+{
+    print(getConst() + getInt32());
+}
