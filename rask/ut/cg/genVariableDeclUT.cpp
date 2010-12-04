@@ -27,10 +27,7 @@ public:
 
     CodeGeneratorMock(rask::cg::SymbolTable& st) : rask::cg::CodeGenerator(st) { }
 
-    MOCK_METHOD(
-        llvm::Value *, genValue,
-        (const rask::ast::Expression&, expr)(const rask::cg::SymbolTable&, symbolTable)
-        (llvm::BasicBlock&, block));
+    MOCK_METHOD(llvm::Value *, genValue, (const rask::ast::Expression&, expr)(llvm::BasicBlock&, block));
 };
     
 }
@@ -87,7 +84,7 @@ void object::test<1>()
     ENSURE(st.get(name) == alloc);
     ++it;
 
-    ENSURE_CALL(cg, genValue(vd.value(), st, *block));
+    ENSURE_CALL(cg, genValue(vd.value(), *block));
     ENSURE(llvm::isa<llvm::StoreInst>(*it));
     llvm::StoreInst *store = llvm::cast<llvm::StoreInst>(&*it);
     ENSURE(store->getValueOperand() == value);

@@ -42,9 +42,9 @@ struct GetValue : boost::static_visitor<llvm::Value *>
 
 }
     
-llvm::Value *CodeGenerator::genValue(const ast::Expression& expr, const SymbolTable& symbolTable, llvm::BasicBlock& block)
+llvm::Value *CodeGenerator::genValue(const ast::Expression& expr, llvm::BasicBlock& block)
 {
-    GetValue getValue(*this, block, symbolTable);
+    GetValue getValue(*this, block, symbolTable_);
     return expr.apply_visitor(getValue);
 }
     

@@ -25,7 +25,7 @@ llvm::CallInst *CodeGenerator::genFunctionCall(const ast::FunctionCall& fc, llvm
     
     BOOST_FOREACH(const ast::Expression& e, fc.args())
     {
-        args.push_back(genValue(e, symbolTable_, block));
+        args.push_back(genValue(e, block));
     }
     
     return llvm::CallInst::Create(module.getFunction(f->name().value), args.begin(), args.end(), "", &block);

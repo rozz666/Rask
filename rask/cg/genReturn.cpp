@@ -13,10 +13,9 @@ namespace rask
 namespace cg
 {
 
-void CodeGenerator::genReturn(
-    const ast::Return& ret, llvm::BasicBlock& block, const SymbolTable& symbolTable, llvm::Module& module)
+void CodeGenerator::genReturn(const ast::Return& ret, llvm::BasicBlock& block, llvm::Module& module)
 {
-    llvm::Value *val = genValue(ret.expr(), symbolTable, block);
+    llvm::Value *val = genValue(ret.expr(), block);
     llvm::ReturnInst::Create(module.getContext(), val, &block);
 }
 

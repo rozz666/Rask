@@ -31,7 +31,7 @@ public:
         (const rask::ast::FunctionCall&, fc)(llvm::BasicBlock&, block)(llvm::Module&, module));
     MOCK_METHOD(llvm::AllocaInst *, genVariableDecl, (const rask::ast::VariableDecl&, vd)(llvm::BasicBlock&, block));
     MOCK_METHOD(void, genReturn,
-        (const rask::ast::Return&, vd)(llvm::BasicBlock&, block)(const rask::cg::SymbolTable&, st)(llvm::Module&, module));
+        (const rask::ast::Return&, vd)(llvm::BasicBlock&, block)(llvm::Module&, module));
 };
     
 }
@@ -225,8 +225,8 @@ void object::test<6>()
     llvm::BasicBlock *entry = &gf->front();
     ENSURE_EQUALS(entry->getNameStr(), "entry");
     ENSURE_EQUALS(entry->size(), 0u);
-    ENSURE_CALL(cg, genReturn(getReturn(f.stmt(0)), *entry, symbolTable, *module));
-    ENSURE_CALL(cg, genReturn(getReturn(f.stmt(1)), *entry, symbolTable, *module));
+    ENSURE_CALL(cg, genReturn(getReturn(f.stmt(0)), *entry, *module));
+    ENSURE_CALL(cg, genReturn(getReturn(f.stmt(1)), *entry, *module));
 }
 
 }

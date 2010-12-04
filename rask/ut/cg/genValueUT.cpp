@@ -74,7 +74,7 @@ void object::test<1>()
     using namespace rask;
     
     ast::Constant c(10);
-    ENSURE(cg.genValue(c, st, *block) == llvm::ConstantInt::get(ctx, llvm::APInt(32, c, true)));
+    ENSURE(cg.genValue(c, *block) == llvm::ConstantInt::get(ctx, llvm::APInt(32, c, true)));
 }
 
 template <>
@@ -86,7 +86,7 @@ void object::test<2>()
     ast::SharedVariable v = variableFactory.createShared("x");
     st.add(v->name(), a1);
     
-    llvm::Value *val = cg.genValue(v, st, *block);
+    llvm::Value *val = cg.genValue(v, *block);
 
     ENSURE(llvm::isa<llvm::LoadInst>(val));
     ENSURE(llvm::cast<llvm::LoadInst>(val)->getPointerOperand() == st.get(v->name()));
@@ -102,7 +102,7 @@ void object::test<3>()
 
     MOCK_RETURN(cg, genFunctionCall, 0);
 
-    llvm::Value *val = cg.genValue(fc, st, *block);
+    llvm::Value *val = cg.genValue(fc, *block);
 
     ENSURE(val == 0);
     ENSURE_CALL(cg, genFunctionCall(getFunctionCall(fc), *block, *module));

@@ -25,10 +25,9 @@ struct StatementVisitor : boost::static_visitor<void>
     CodeGenerator& cg;
     llvm::Module& module;
     llvm::BasicBlock& entry;
-    SymbolTable& st;
 
-    StatementVisitor(CodeGenerator& cg, llvm::Module& module, llvm::BasicBlock& entry, SymbolTable& st)
-        : cg(cg), module(module), entry(entry), st(st) { }
+    StatementVisitor(CodeGenerator& cg, llvm::Module& module, llvm::BasicBlock& entry)
+        : cg(cg), module(module), entry(entry) { }
 
     void operator()(const ast::FunctionCall& fc)
     {
@@ -42,7 +41,7 @@ struct StatementVisitor : boost::static_visitor<void>
 
     void operator()(const ast::Return& ret)
     {
-        cg.genReturn(ret, entry, st, module);
+        cg.genReturn(ret, entry, module);
     }
 };
         
@@ -67,7 +66,7 @@ void CodeGenerator::genFunction(const ast::CustomFunction& f, llvm::Module& modu
         llvm::BranchInst::Create(entry, argsBlock);
     }
 
-    StatementVisitor sv(*this, module, *entry, symbolTable_);
+    StatementVisitor sv(*this, module, *entry);
     
     for (std::size_t i = 0; i != f.stmtCount(); ++i)
     {
