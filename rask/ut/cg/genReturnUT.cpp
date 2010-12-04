@@ -73,7 +73,7 @@ void object::test<1>()
 
     MOCK_RETURN(cg, genValue, a1);
 
-    cg.genReturn(ret, *block, *module);
+    cg.genReturn(ret, *block);
 
     ENSURE_CALL(cg, genValue(ret.expr(), *block));
     ENSURE_EQUALS(block->size(), 1u);

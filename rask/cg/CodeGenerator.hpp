@@ -28,14 +28,14 @@ public:
 
     CodeGenerator(SymbolTable& symbolTable) : symbolTable_(symbolTable) { }
     
-    virtual llvm::CallInst *genFunctionCall(const ast::FunctionCall& fc, llvm::BasicBlock& block, llvm::Module& module);
+    virtual llvm::CallInst *genFunctionCall(const ast::FunctionCall& fc, llvm::BasicBlock& block);
     virtual llvm::AllocaInst *genVariableDecl(const ast::VariableDecl& vd, llvm::BasicBlock& block);
     virtual void genFunction(const ast::CustomFunction& f, llvm::Module& module);
     virtual void declFunction(const ast::CustomFunction& f, llvm::Module& module);
     virtual void declBuiltinFunctions(llvm::Module& module);
     virtual std::auto_ptr<llvm::Module> genModule(const ast::Tree& ast, llvm::LLVMContext& context);
     virtual llvm::Value *genValue(const ast::Expression& expr, llvm::BasicBlock& block);
-    virtual void genReturn(const ast::Return& ret, llvm::BasicBlock& block, llvm::Module& module);
+    virtual void genReturn(const ast::Return& ret, llvm::BasicBlock& block);
 
 private:
 

@@ -17,7 +17,7 @@ namespace rask
 namespace cg
 {
     
-llvm::CallInst *CodeGenerator::genFunctionCall(const ast::FunctionCall& fc, llvm::BasicBlock& block, llvm::Module& module)
+llvm::CallInst *CodeGenerator::genFunctionCall(const ast::FunctionCall& fc, llvm::BasicBlock& block)
 {
     ast::SharedFunction f = fc.function().lock();
 
@@ -27,6 +27,8 @@ llvm::CallInst *CodeGenerator::genFunctionCall(const ast::FunctionCall& fc, llvm
     {
         args.push_back(genValue(e, block));
     }
+
+    const llvm::Module& module = *block.getParent()->getParent();
     
     return llvm::CallInst::Create(module.getFunction(f->name().value), args.begin(), args.end(), "", &block);
 }

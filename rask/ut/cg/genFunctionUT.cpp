@@ -27,11 +27,9 @@ public:
 
     CodeGeneratorMock(rask::cg::SymbolTable& symbolTable) : rask::cg::CodeGenerator(symbolTable) { }
 
-    MOCK_METHOD(llvm::CallInst *, genFunctionCall,
-        (const rask::ast::FunctionCall&, fc)(llvm::BasicBlock&, block)(llvm::Module&, module));
+    MOCK_METHOD(llvm::CallInst *, genFunctionCall, (const rask::ast::FunctionCall&, fc)(llvm::BasicBlock&, block));
     MOCK_METHOD(llvm::AllocaInst *, genVariableDecl, (const rask::ast::VariableDecl&, vd)(llvm::BasicBlock&, block));
-    MOCK_METHOD(void, genReturn,
-        (const rask::ast::Return&, vd)(llvm::BasicBlock&, block)(llvm::Module&, module));
+    MOCK_METHOD(void, genReturn, (const rask::ast::Return&, vd)(llvm::BasicBlock&, block));
 };
     
 }
@@ -105,8 +103,8 @@ void object::test<2>()
     ENSURE_EQUALS(entry->getNameStr(), "entry");
     ENSURE_EQUALS(entry->size(), 1u);
     ENSURE(llvm::isa<llvm::ReturnInst>(entry->front()));
-    ENSURE_CALL(cg, genFunctionCall(getFunctionCall(f.stmt(0)), *entry, *module));
-    ENSURE_CALL(cg, genFunctionCall(getFunctionCall(f.stmt(1)), *entry, *module));
+    ENSURE_CALL(cg, genFunctionCall(getFunctionCall(f.stmt(0)), *entry));
+    ENSURE_CALL(cg, genFunctionCall(getFunctionCall(f.stmt(1)), *entry));
 }
 
 template <>
@@ -225,8 +223,8 @@ void object::test<6>()
     llvm::BasicBlock *entry = &gf->front();
     ENSURE_EQUALS(entry->getNameStr(), "entry");
     ENSURE_EQUALS(entry->size(), 0u);
-    ENSURE_CALL(cg, genReturn(getReturn(f.stmt(0)), *entry, *module));
-    ENSURE_CALL(cg, genReturn(getReturn(f.stmt(1)), *entry, *module));
+    ENSURE_CALL(cg, genReturn(getReturn(f.stmt(0)), *entry));
+    ENSURE_CALL(cg, genReturn(getReturn(f.stmt(1)), *entry));
 }
 
 }

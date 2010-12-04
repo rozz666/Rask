@@ -90,7 +90,7 @@ void object::test<1>()
     MOCK_RETURN(cg, genValue, a1);
     MOCK_RETURN(cg, genValue, a2);
     
-    llvm::CallInst *call = cg.genFunctionCall(fc, *block, *module);
+    llvm::CallInst *call = cg.genFunctionCall(fc, *block);
 
     ENSURE_CALL(cg, genValue(fc.args()[0], *block));
     ENSURE_CALL(cg, genValue(fc.args()[1], *block));
@@ -114,7 +114,7 @@ void object::test<2>()
     ast::SharedBuiltinFunction dummy(new ast::BuiltinFunction(f, ast::VOID, 0));
     ast::FunctionCall fc(dummy, ast::FunctionCall::Arguments());
     
-    llvm::CallInst *call = cg.genFunctionCall(fc, *block, *module);
+    llvm::CallInst *call = cg.genFunctionCall(fc, *block);
     
     ENSURE_EQUALS(block->size(), 1u);
     ENSURE(call == &*block->begin());

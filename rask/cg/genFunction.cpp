@@ -23,15 +23,14 @@ namespace cg
 struct StatementVisitor : boost::static_visitor<void>
 {
     CodeGenerator& cg;
-    llvm::Module& module;
     llvm::BasicBlock& entry;
 
-    StatementVisitor(CodeGenerator& cg, llvm::Module& module, llvm::BasicBlock& entry)
-        : cg(cg), module(module), entry(entry) { }
+    StatementVisitor(CodeGenerator& cg, llvm::BasicBlock& entry)
+        : cg(cg), entry(entry) { }
 
     void operator()(const ast::FunctionCall& fc)
     {
-        cg.genFunctionCall(fc, entry, module);
+        cg.genFunctionCall(fc, entry);
     }
 
     void operator()(const ast::VariableDecl& vd)
@@ -41,7 +40,7 @@ struct StatementVisitor : boost::static_visitor<void>
 
     void operator()(const ast::Return& ret)
     {
-        cg.genReturn(ret, entry, module);
+        cg.genReturn(ret, entry);
     }
 };
         
@@ -66,7 +65,7 @@ void CodeGenerator::genFunction(const ast::CustomFunction& f, llvm::Module& modu
         llvm::BranchInst::Create(entry, argsBlock);
     }
 
-    StatementVisitor sv(*this, module, *entry);
+    StatementVisitor sv(*this,  *entry);
     
     for (std::size_t i = 0; i != f.stmtCount(); ++i)
     {

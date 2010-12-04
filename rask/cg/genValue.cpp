@@ -36,7 +36,7 @@ struct GetValue : boost::static_visitor<llvm::Value *>
 
     llvm::Value *operator()(const ast::FunctionCall& fc)
     {
-        return cg.genFunctionCall(fc, block, *block.getParent()->getParent());
+        return cg.genFunctionCall(fc, block);
     }
 };
 

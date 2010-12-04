@@ -26,8 +26,7 @@ public:
 
     CodeGeneratorMock(rask::cg::SymbolTable& symbolTable) : rask::cg::CodeGenerator(symbolTable) { }
 
-    MOCK_METHOD(llvm::CallInst *, genFunctionCall,
-        (const rask::ast::FunctionCall&, fc)(llvm::BasicBlock&, block)(llvm::Module&, module));
+    MOCK_METHOD(llvm::CallInst *, genFunctionCall, (const rask::ast::FunctionCall&, fc)(llvm::BasicBlock&, block));
 };
 
 }
@@ -105,7 +104,7 @@ void object::test<3>()
     llvm::Value *val = cg.genValue(fc, *block);
 
     ENSURE(val == 0);
-    ENSURE_CALL(cg, genFunctionCall(getFunctionCall(fc), *block, *module));
+    ENSURE_CALL(cg, genFunctionCall(getFunctionCall(fc), *block));
 }
 
 }
