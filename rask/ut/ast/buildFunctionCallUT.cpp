@@ -23,7 +23,7 @@ public:
     BuilderMock(rask::error::Logger& logger, rask::ast::SymbolTable& st)
     : rask::ast::Builder(logger, st) { }
 
-    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildExpression, (const rask::cst::Expression&, expr)(const rask::ast::SymbolTable&, st));
+    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildExpression, (const rask::cst::Expression&, expr));
 };
     
 }
@@ -95,9 +95,9 @@ void object::test<2>()
     ENSURE_EQUALS(logger.errors().size(), 0u);
     ENSURE(call->function().lock() == f);
     ENSURE_EQUALS(call->args().size(), 2u);
-    ENSURE_CALL(builder, buildExpression(ccall.args[0], st));
+    ENSURE_CALL(builder, buildExpression(ccall.args[0]));
     ENSURE_EQUALS(getConstant(call->args()[0]), dummy1);
-    ENSURE_CALL(builder, buildExpression(ccall.args[1], st));
+    ENSURE_CALL(builder, buildExpression(ccall.args[1]));
     ENSURE_EQUALS(getConstant(call->args()[1]), dummy2);
 }
 
@@ -148,8 +148,8 @@ void object::test<5>()
     ENSURE(!builder.buildFunctionCall(ccall));
     ENSURE_EQUALS(logger.errors().size(), 1u);
     ENSURE_EQUALS(logger.errors()[0], error::Message::functionNotFound(ccall.function.position, "print(int, int)"));
-    ENSURE_CALL(builder, buildExpression(ccall.args[0], st));
-    ENSURE_CALL(builder, buildExpression(ccall.args[1], st));
+    ENSURE_CALL(builder, buildExpression(ccall.args[0]));
+    ENSURE_CALL(builder, buildExpression(ccall.args[1]));
 }
 
 }

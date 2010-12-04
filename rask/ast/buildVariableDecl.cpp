@@ -22,7 +22,7 @@ boost::optional<VariableDecl> Builder::buildVariableDecl(const cst::VariableDecl
         return boost::none;
     }
 
-    boost::optional<Expression> expr = buildExpression(*vd.value, symbolTable_);
+    boost::optional<Expression> expr = buildExpression(*vd.value);
 
     if (!expr) return boost::none;
     

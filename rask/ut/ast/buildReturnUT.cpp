@@ -22,7 +22,7 @@ public:
     BuilderMock(rask::error::Logger& logger, rask::ast::SymbolTable& st)
     : rask::ast::Builder(logger, st) { }
 
-    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildExpression, (const rask::cst::Expression&, expr)(const rask::ast::SymbolTable&, st));
+    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildExpression, (const rask::cst::Expression&, expr));
 };
 
 }
@@ -62,11 +62,11 @@ void object::test<1>()
 
     MOCK_RETURN(builder, buildExpression, ast::Expression(value));
 
-    boost::optional<ast::Return> r = builder.buildReturn(ret, st);
+    boost::optional<ast::Return> r = builder.buildReturn(ret);
 
     ENSURE(r);
     ENSURE_EQUALS(logger.errors().size(), 0u);
-    ENSURE_CALL(builder, buildExpression(ret.value, st));
+    ENSURE_CALL(builder, buildExpression(ret.value));
     ENSURE(getConstant(r->expr()) == value);
 }
 
@@ -78,9 +78,9 @@ void object::test<2>()
 
     MOCK_RETURN(builder, buildExpression, boost::none);
 
-    ENSURE(!builder.buildReturn(ret, st));
+    ENSURE(!builder.buildReturn(ret));
     ENSURE_EQUALS(logger.errors().size(), 0u);
-    ENSURE_CALL(builder, buildExpression(ret.value, st));
+    ENSURE_CALL(builder, buildExpression(ret.value));
 }
 
 }

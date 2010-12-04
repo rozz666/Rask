@@ -22,7 +22,7 @@ public:
     BuilderMock(rask::error::Logger& logger, rask::ast::SymbolTable& st)
         : rask::ast::Builder(logger, st) { }
 
-    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildExpression, (const rask::cst::Expression&, expr)(const rask::ast::SymbolTable&, st));
+    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildExpression, (const rask::cst::Expression&, expr));
 };
     
 }
@@ -68,7 +68,7 @@ void object::test<1>()
 
     ENSURE(vd);
     ENSURE(logger.errors().empty());
-    ENSURE_CALL(builder, buildExpression(*cvd.value, st));
+    ENSURE_CALL(builder, buildExpression(*cvd.value));
     ENSURE_EQUALS(vd->var()->name().position, cvd.name.position);
     ENSURE_EQUALS(vd->var()->name().value, cvd.name.value);
     ENSURE_EQUALS(getConstant(vd->value()), dummy);
@@ -103,7 +103,7 @@ void object::test<3>()
     
     ENSURE(!builder.buildVariableDecl(cvd));
     ENSURE(logger.errors().empty());
-    ENSURE_CALL(builder, buildExpression(*cvd.value, st));
+    ENSURE_CALL(builder, buildExpression(*cvd.value));
 }
 
 }

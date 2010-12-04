@@ -51,9 +51,9 @@ struct BuildExpression : boost::static_visitor<boost::optional<Expression> >
     }
 };
     
-boost::optional<Expression> Builder::buildExpression(const cst::Expression& expr, const SymbolTable& st)
+boost::optional<Expression> Builder::buildExpression(const cst::Expression& expr)
 {
-    BuildExpression b(*this, st, logger_);
+    BuildExpression b(*this, symbolTable_, logger_);
     return expr.apply_visitor(b);
 }
 

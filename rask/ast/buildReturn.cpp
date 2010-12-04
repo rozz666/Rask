@@ -14,9 +14,9 @@ namespace rask
 namespace ast
 {
 
-boost::optional<Return> Builder::buildReturn(const cst::Return& ret, const SymbolTable& st)
+boost::optional<Return> Builder::buildReturn(const cst::Return& ret)
 {
-    boost::optional<Expression> expr = buildExpression(ret.value, st);
+    boost::optional<Expression> expr = buildExpression(ret.value);
 
     if (!expr) return boost::none;
 

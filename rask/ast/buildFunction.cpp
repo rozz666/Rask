@@ -19,10 +19,9 @@ struct StatementVisitor : boost::static_visitor<bool>
 {
     Builder& b;
     CustomFunction& f;
-    SymbolTable& st;
 
-    StatementVisitor(Builder& b, CustomFunction& f, SymbolTable& st)
-        : b(b), f(f), st(st) { }
+    StatementVisitor(Builder& b, CustomFunction& f)
+        : b(b), f(f) { }
 
     bool operator()(const cst::FunctionCall& call)
     {
@@ -48,7 +47,7 @@ struct StatementVisitor : boost::static_visitor<bool>
 
     bool operator()(const cst::Return& ret)
     {
-        boost::optional<ast::Return> r = b.buildReturn(ret, st);
+        boost::optional<ast::Return> r = b.buildReturn(ret);
 
         if (!r) return false;
 
@@ -69,7 +68,7 @@ bool Builder::buildFunction(const cst::Function& cf)
 
     BOOST_FOREACH(const cst::Statement& stmt, cf.stmts)
     {
-        StatementVisitor sv(*this, *f, symbolTable_);
+        StatementVisitor sv(*this, *f);
         if (!stmt.apply_visitor(sv)) return false;
     }
 

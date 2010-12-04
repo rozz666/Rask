@@ -29,7 +29,7 @@ boost::optional<FunctionCall> Builder::buildFunctionCall(const cst::FunctionCall
 
     BOOST_FOREACH(const cst::Expression& e, call.args)
     {
-        args.push_back(*buildExpression(e, symbolTable_));
+        args.push_back(*buildExpression(e));
     }
 
     if (call.args.size() != (*f)->argCount())
