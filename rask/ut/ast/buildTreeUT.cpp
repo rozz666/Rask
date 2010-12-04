@@ -20,10 +20,9 @@ MOCK(BuilderMock, rask::ast::Builder)
 {
 public:
 
-    rask::ast::SymbolTable st;
     rask::ast::SharedCustomFunction main;
 
-    BuilderMock(rask::error::Logger& logger)
+    BuilderMock(rask::error::Logger& logger, rask::ast::SymbolTable& st)
         : rask::ast::Builder(logger, st), main(rask::test::FunctionFactory().createShared("main"))
     {
         st.add(main);
@@ -37,12 +36,11 @@ MOCK(BuilderMockBuildFunction, rask::ast::Builder)
 {
 public:
 
-    rask::ast::SymbolTable st;
-    rask::ast::SharedCustomFunction main;
+    rask::ast::SymbolTable& st;
     bool allParamsOk;
 
-    BuilderMockBuildFunction(rask::error::Logger& logger)
-        : rask::ast::Builder(logger, st), allParamsOk(true)
+    BuilderMockBuildFunction(rask::error::Logger& logger, rask::ast::SymbolTable& st)
+        : rask::ast::Builder(logger, st), st(st), allParamsOk(true)
     {
     }
 
@@ -67,10 +65,11 @@ namespace tut
 struct buildAST_TestData
 {
     rask::error::Logger logger;
+    rask::ast::SymbolTable st;
     BuilderMock builder;
     rask::cst::Tree cst;
 
-    buildAST_TestData() : builder(logger)
+    buildAST_TestData() : builder(logger, st)
     {
     }
 };
@@ -179,7 +178,7 @@ void object::test<5>()
     using namespace rask;
 
     cst.end = Position("xxx", 1, 2);
-    builder.st = ast::SymbolTable();
+    st = ast::SymbolTable();
     
     ENSURE(!builder.buildTree(cst));
     ENSURE_EQUALS(logger.errors().size(), 1u);
@@ -192,7 +191,8 @@ void object::test<6>()
 {
     using namespace rask;
 
-    BuilderMockBuildFunction builder(logger);
+    rask::ast::SymbolTable st;
+    BuilderMockBuildFunction builder(logger, st);
 
     cst.functions.resize(2);
     cst.functions[0].name.value = "f1";
@@ -206,8 +206,8 @@ void object::test<6>()
     f1->addArg(cst.functions[0].args[0]);
     ast::SharedCustomFunction f2 = test::FunctionFactory().createShared("f2");
     f2->addArg(cst.functions[1].args[0]);
-    builder.st.add(f1);
-    builder.st.add(f2);
+    st.add(f1);
+    st.add(f2);
     MOCK_RETURN(builder, buildFunctionDecl, fd1);
     MOCK_RETURN(builder, buildFunctionDecl, fd2);
 
