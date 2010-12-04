@@ -35,9 +35,8 @@ struct buildVariableDecl_TestData
     rask::error::Logger logger;
     rask::ast::SymbolTable st;
     BuilderMock builder;
-    rask::ast::Constant dummy;
     
-    buildVariableDecl_TestData() : builder(logger, st), dummy(123) { }
+    buildVariableDecl_TestData() : builder(logger, st) { }
 };
 
 typedef test_group<buildVariableDecl_TestData> factory;
@@ -62,6 +61,7 @@ void object::test<1>()
     cvd.name = cst::Identifier::create(Position("a", 1, 2), "x");
     cvd.value = cst::Constant::create(Position(), 1);
 
+    rask::ast::Constant dummy(123);
     MOCK_RETURN(builder, buildExpression, ast::Expression(dummy));
     
     boost::optional<ast::VariableDecl> vd = builder.buildVariableDecl(cvd);
