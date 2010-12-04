@@ -35,9 +35,7 @@ MOCK(CodeGeneratorMock, rask::cg::CodeGenerator)
 {
 public:
 
-    rask::cg::SymbolTable dummyST_;
-    
-    CodeGeneratorMock() : rask::cg::CodeGenerator(dummyST_) { }
+    CodeGeneratorMock(rask::cg::SymbolTable& st) : rask::cg::CodeGenerator(st) { }
     
     MOCK_METHOD(void, genFunction, (const rask::ast::CustomFunction&, f)(llvm::Module&, module));
     MOCK_METHOD(void, declFunction, (const rask::ast::CustomFunction&, f)(llvm::Module&, module));
@@ -62,7 +60,8 @@ void object::test<1>()
     ast.add(f1);
     ast.add(f2);
     
-    CodeGeneratorMock cg;
+    rask::cg::SymbolTable dummyST;
+    CodeGeneratorMock cg(dummyST);
     
     std::auto_ptr<llvm::Module> module = cg.genModule(ast, context);
 
