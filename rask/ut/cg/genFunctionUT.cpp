@@ -24,9 +24,7 @@ MOCK(CodeGeneratorMock, rask::cg::CodeGenerator)
 {
 public:
 
-    rask::cg::SymbolTable symbolTable;
-    
-    CodeGeneratorMock() : rask::cg::CodeGenerator(symbolTable) { }
+    CodeGeneratorMock(rask::cg::SymbolTable& symbolTable) : rask::cg::CodeGenerator(symbolTable) { }
 
     MOCK_METHOD(llvm::CallInst *, genFunctionCall,
         (const rask::ast::FunctionCall&, fc)(llvm::BasicBlock&, block)(llvm::Module&, module));
@@ -44,13 +42,14 @@ struct genFunction_TestData
 {
     llvm::LLVMContext ctx;
     boost::scoped_ptr<llvm::Module> module;
+    rask::cg::SymbolTable symbolTable;
     CodeGeneratorMock cg;
     rask::test::FunctionFactory functionFactory;
     rask::test::VariableDeclFactory varDeclFactory;
     rask::ast::CustomFunction f;
     
     genFunction_TestData()
-        : module(new llvm::Module("testModule", ctx)),
+        : module(new llvm::Module("testModule", ctx)), cg(symbolTable),
         f(functionFactory.create("abc"))
     {
         cg.declBuiltinFunctions(*module);
@@ -159,7 +158,7 @@ void object::test<4>()
     llvm::AllocaInst *alloc = llvm::cast<llvm::AllocaInst>(&*inst);
     ENSURE_EQUALS(alloc->getNameStr(), f.arg(0)->name().value);
     ENSURE(alloc->getAllocatedType() == llvm::IntegerType::get(ctx, 32));
-    ENSURE(cg.symbolTable.get(f.arg(0)->name()) == alloc);
+    ENSURE(symbolTable.get(f.arg(0)->name()) == alloc);
     ++inst;
     ENSURE(llvm::isa<llvm::StoreInst>(*inst));
     llvm::StoreInst *store = llvm::cast<llvm::StoreInst>(&*inst);
@@ -170,7 +169,7 @@ void object::test<4>()
     alloc = llvm::cast<llvm::AllocaInst>(&*inst);
     ENSURE_EQUALS(alloc->getNameStr(), f.arg(1)->name().value);
     ENSURE(alloc->getAllocatedType() == llvm::IntegerType::get(ctx, 32));
-    ENSURE(cg.symbolTable.get(f.arg(1)->name()) == alloc);
+    ENSURE(symbolTable.get(f.arg(1)->name()) == alloc);
     ++inst;
     ENSURE(llvm::isa<llvm::StoreInst>(*inst));
     store = llvm::cast<llvm::StoreInst>(&*inst);
@@ -225,8 +224,8 @@ void object::test<6>()
     llvm::BasicBlock *entry = &gf->front();
     ENSURE_EQUALS(entry->getNameStr(), "entry");
     ENSURE_EQUALS(entry->size(), 0u);
-    ENSURE_CALL(cg, genReturn(getReturn(f.stmt(0)), *entry, cg.symbolTable, *module));
-    ENSURE_CALL(cg, genReturn(getReturn(f.stmt(1)), *entry, cg.symbolTable, *module));
+    ENSURE_CALL(cg, genReturn(getReturn(f.stmt(0)), *entry, symbolTable, *module));
+    ENSURE_CALL(cg, genReturn(getReturn(f.stmt(1)), *entry, symbolTable, *module));
 }
 
 }
