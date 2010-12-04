@@ -10,6 +10,7 @@
 #include <tut/../contrib/tut_macros.h> 
 #include <boost/scoped_ptr.hpp>
 #include <rask/cg/CodeGenerator.hpp>
+#include <rask/cg/Prefixes.hpp>
 #include <rask/test/Mock.hpp>
 #include <llvm/LLVMContext.h>
 #include <llvm/Instructions.h>
@@ -138,7 +139,6 @@ void object::test<4>()
     ast::CustomFunction f = functionFactory.create("xxx");
     f.addArg(cst::Identifier::create(Position(), "asia"));
     f.addArg(cst::Identifier::create(Position(), "kasia"));
-    const std::string localArgPrefix = "la_";
     cg.declFunction(f, *module);
 
     llvm::Function::arg_iterator it = module->getFunction(f.name().value)->arg_begin();
@@ -157,7 +157,7 @@ void object::test<4>()
 
     ENSURE(llvm::isa<llvm::AllocaInst>(*inst));
     llvm::AllocaInst *alloc = llvm::cast<llvm::AllocaInst>(&*inst);
-    ENSURE_EQUALS(alloc->getNameStr(), localArgPrefix + f.arg(0)->name().value);
+    ENSURE_EQUALS(alloc->getNameStr(), cg::LOCAL_ARG_PREFIX + f.arg(0)->name().value);
     ENSURE(alloc->getAllocatedType() == llvm::IntegerType::get(ctx, 32));
     ENSURE(symbolTable.get(f.arg(0)->name()) == alloc);
     ++inst;
@@ -168,7 +168,7 @@ void object::test<4>()
     ++inst;
     ENSURE(llvm::isa<llvm::AllocaInst>(*inst));
     alloc = llvm::cast<llvm::AllocaInst>(&*inst);
-    ENSURE_EQUALS(alloc->getNameStr(), localArgPrefix + f.arg(1)->name().value);
+    ENSURE_EQUALS(alloc->getNameStr(), cg::LOCAL_ARG_PREFIX + f.arg(1)->name().value);
     ENSURE(alloc->getAllocatedType() == llvm::IntegerType::get(ctx, 32));
     ENSURE(symbolTable.get(f.arg(1)->name()) == alloc);
     ++inst;

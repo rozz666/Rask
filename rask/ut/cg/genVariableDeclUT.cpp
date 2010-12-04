@@ -10,6 +10,7 @@
 #include <tut/../contrib/tut_macros.h>
 #include <boost/scoped_ptr.hpp>
 #include <rask/cg/CodeGenerator.hpp>
+#include <rask/cg/Prefixes.hpp>
 #include <rask/test/TUTAssert.hpp>
 #include <rask/test/Mock.hpp>
 #include <llvm/LLVMContext.h>
@@ -71,7 +72,6 @@ void object::test<1>()
     cst::Identifier name;
     name.value = "asia";
     ast::VariableDecl vd(name, 10);
-    const std::string varPrefix = "l_";
     
     llvm::Value *value = llvm::ConstantInt::get(ctx, llvm::APInt(32, getConstant(vd.value()), true));
     MOCK_RETURN(cg, genValue, value);
@@ -82,7 +82,7 @@ void object::test<1>()
     llvm::BasicBlock::iterator it = block->begin();
 
     ENSURE(&*it == alloc);
-    ENSURE_EQUALS(alloc->getNameStr(), varPrefix + name.value);
+    ENSURE_EQUALS(alloc->getNameStr(), cg::LOCAL_VAR_PREFIX + name.value);
     ENSURE(alloc->getAllocatedType() == llvm::IntegerType::get(ctx, 32));
     ENSURE(st.get(name) == alloc);
     ++it;

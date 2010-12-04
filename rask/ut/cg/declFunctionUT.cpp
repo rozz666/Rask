@@ -12,6 +12,7 @@
 #include <llvm/LLVMContext.h>
 #include <llvm/DerivedTypes.h>
 #include <rask/cg/CodeGenerator.hpp>
+#include <rask/cg/Prefixes.hpp>
 #include <rask/test/TUTAssert.hpp>
 #include <rask/test/FunctionFactory.hpp>
 
@@ -73,7 +74,6 @@ void object::test<2>()
     ast::CustomFunction f = functionFactory.create("f1");
     f.addArg(cst::Identifier::create(Position(), "arg1"));
     f.addArg(cst::Identifier::create(Position(), "arg2"));
-    const std::string argPrefix = "a_";
 
     cg.declFunction(f, *module);
 
@@ -86,9 +86,9 @@ void object::test<2>()
     ENSURE(lf.getType()->getElementType() == fType);
     ENSURE_EQUALS(lf.arg_size(), 2u);
     llvm::Function::arg_iterator arg = lf.arg_begin();
-    ENSURE_EQUALS(arg->getNameStr(), argPrefix + f.arg(0)->name().value);
+    ENSURE_EQUALS(arg->getNameStr(), cg::ARG_PREFIX + f.arg(0)->name().value);
     ++arg;
-    ENSURE_EQUALS(arg->getNameStr(), argPrefix + f.arg(1)->name().value);
+    ENSURE_EQUALS(arg->getNameStr(), cg::ARG_PREFIX + f.arg(1)->name().value);
     ENSURE(lf.getBasicBlockList().empty());
 }
 

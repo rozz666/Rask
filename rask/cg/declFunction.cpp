@@ -13,6 +13,7 @@
 #include <llvm/DerivedTypes.h>
 #include <llvm/Instructions.h>
 #include <rask/cg/CodeGenerator.hpp>
+#include <rask/cg/Prefixes.hpp>
 
 namespace rask
 {
@@ -31,7 +32,7 @@ void CodeGenerator::declFunction(const ast::CustomFunction& cf, llvm::Module& mo
 
     BOOST_FOREACH(llvm::Argument& arg, f->getArgumentList())
     {
-        arg.setName("a_" + cf.arg(arg.getArgNo())->name().value);
+        arg.setName(ARG_PREFIX + cf.arg(arg.getArgNo())->name().value);
     }
 }
 

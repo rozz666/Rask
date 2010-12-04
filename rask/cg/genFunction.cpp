@@ -13,6 +13,7 @@
 #include <llvm/DerivedTypes.h>
 #include <llvm/Instructions.h>
 #include <rask/cg/CodeGenerator.hpp>
+#include <rask/cg/Prefixes.hpp>
 
 namespace rask
 {
@@ -58,7 +59,7 @@ void CodeGenerator::genFunction(const ast::CustomFunction& f, llvm::Module& modu
         BOOST_FOREACH(llvm::Argument& arg, func->getArgumentList())
         {
             const cst::Identifier& argName = f.arg(arg.getArgNo())->name();
-            llvm::AllocaInst *alloca = new llvm::AllocaInst(type, "la_" + argName.value, argsBlock);
+            llvm::AllocaInst *alloca = new llvm::AllocaInst(type, LOCAL_ARG_PREFIX + argName.value, argsBlock);
             new llvm::StoreInst(&arg, alloca, argsBlock);
             symbolTable_.add(argName, alloca);
         }

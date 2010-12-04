@@ -8,6 +8,7 @@
 //
 #include <llvm/DerivedTypes.h>
 #include <rask/cg/CodeGenerator.hpp>
+#include <rask/cg/Prefixes.hpp>
 
 namespace rask
 {
@@ -18,7 +19,7 @@ llvm::AllocaInst *CodeGenerator::genVariableDecl(const ast::VariableDecl& vd, ll
 {
     llvm::LLVMContext& ctx = block.getContext();
     llvm::Value *value = genValue(vd.value(), symbolTable_, block);
-    llvm::AllocaInst *alloca = new llvm::AllocaInst(llvm::IntegerType::get(ctx, 32), "l_" + vd.var()->name().value, &block);
+    llvm::AllocaInst *alloca = new llvm::AllocaInst(llvm::IntegerType::get(ctx, 32), LOCAL_VAR_PREFIX + vd.var()->name().value, &block);
     new llvm::StoreInst(value, alloca, &block);
 
     symbolTable_.add(vd.var()->name(), alloca);
