@@ -15,6 +15,8 @@ OK_COUNT=0
 FAILED_COUNT=0
 ERROR_COUNT=0
 
+OLD_IFS="$IFS"
+
 for SUITE in $SUITE_LIST
 do
     SUITE_DIR="$CURRENT_DIR/$SUITE"
@@ -37,8 +39,19 @@ do
 
     echo -n "$SUITE:"
 
+    IFS=$'\n'
+
     for TEST in $LIST
     do
+        IFS="$OLD_IFS"
+
+        TEST="${TEST%%#*}"
+
+        if [ "$TEST" == "" ]
+        then
+            continue;
+        fi
+
         SOURCE="${TEST##*:}"
         TEST_NAME="${TEST%%:*}"
         EXPECTED_OUTPUT_PATH="${TEST_NAME}.out"
@@ -46,7 +59,7 @@ do
 
         if [ ! -e "$EXPECTED_OUTPUT_PATH" ]
         then
-            echo "Missing $SUITE/$EXPECTED_OUTPUT_PATH"
+            ERROR_LOG="${ERROR_LOG}ERROR: Missing $SUITE/$EXPECTED_OUTPUT_PATH\n"
             ((ERROR_COUNT+=1))
             continue;
         fi
