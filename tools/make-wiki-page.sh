@@ -59,6 +59,8 @@ prettyBlock()
     echo "[[/cell]][[/row]][[/table]]"
 }
 
+LAST_SOURCE=""
+
 for TEST in $LIST
 do
     IFS="$OLD_IFS"
@@ -93,14 +95,17 @@ do
             echo
             ;;
         "test")
-            echo -e "The compiler should generate code for:"
-            for S in $SOURCE
-            do
-                echo "//$S//"
-                echo
-                prettyCode $S
-                echo
-            done
+            if [ "$SOURCE" != "$LAST_SOURCE" ]
+            then
+                echo -e "The compiler should generate code for:"
+                for S in $SOURCE
+                do
+                    echo "//$S//"
+                    echo
+                    prettyCode $S
+                    echo
+                done
+            fi
             echo "The program should output:"
             echo
             prettyBlock $EXPECTED_OUTPUT_PATH
@@ -114,6 +119,8 @@ do
             fi
             ;;
     esac
+
+    LAST_SOURCE=$SOURCE
 
 done
 
