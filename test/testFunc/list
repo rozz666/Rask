@@ -1,9 +1,10 @@
-func1:test:func1.rask
-func2:test:func2.rask
-func3:error:func3.rask
-func4:error:func4.rask
-func5:test:func5.rask
-func6:test:func6.rask
-func7:test:func7.rask
-func9:test:func9.rask
-func10:test:func10.rask
+func1:test:func1.rask #Feature8.1
+func2:test:func2.rask #Feature8.1
+func3:error:func3.rask #Feature8.1
+func4:error:func4.rask #Feature8.1
+func5:test:func5.rask #Feature8.2
+func6:test:func6.rask #Feature8.2
+func7:test:func7.rask #Feature8.2
+#func8:error:func8.rask #Feature8.6
+func9:test:func9.rask #Feature8.3
+func10:test:func10.rask #Feature8.3

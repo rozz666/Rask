@@ -1,8 +1,8 @@
-#addImm:test:addImm.rask # Feature 4
-#addVar1:test:addVar.rask # Feature 4
-#addVar2:test:addVar.rask # Feature 4
-#addFunc1:test:addFunc.rask # Feature 4
-#addFunc2:test:addFunc.rask # Feature 4
-#addMisc1:test:addMisc.rask # Feature 4
-#addMisc2:test:addMisc.rask # Feature 4
+#addImm:test:addImm.rask #Feature4
+#addVar1:test:addVar.rask #Feature4
+#addVar2:test:addVar.rask #Feature4
+#addFunc1:test:addFunc.rask #Feature4
+#addFunc2:test:addFunc.rask #Feature4
+#addMisc1:test:addMisc.rask #Feature4
+#addMisc2:test:addMisc.rask #Feature4
 

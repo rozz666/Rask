@@ -1,4 +1,4 @@
-var1:test:var1.rask
-var2:error:var2.rask
-var3:test:var3.rask
-var4:error:var4.rask
+var1:test:var1.rask #Feature2.1
+var2:error:var2.rask #Feature2.1
+var3:test:var3.rask #Feature2.2
+var4:error:var4.rask #Feature2.2

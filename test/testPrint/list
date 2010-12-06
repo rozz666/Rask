@@ -1,8 +1,8 @@
-print1:test:print1.rask
-print2:error:print2.rask
-print3:error:print3.rask
-print4:error:print4.rask
-print5:error:print5.rask
-print6:error:print6.rask
-print7:error:print7.rask
+print1:test:print1.rask #Feature1.2
+print2:error:print2.rask #Feature1.2
+print3:error:print3.rask #Feature1.2
+print4:error:print4.rask #Feature1.2
+print5:error:print5.rask #Feature1.2
+print6:error:print6.rask #Feature1.2
+print7:error:print7.rask #Feature1.2
 
