@@ -1,0 +1,40 @@
+++ SimpleTest2
+
+The compiler should generate code for:
+//simple2.rask//
+
+[[table style="width: 80%;"]][[row]][[cell style="border: 1px solid silver; padding: 10px; background-color: #f7f7ff"]]
+[[html]]
+<code>
+<span style="font-size: 10pt; color:#000000;">main()&#xA0;->&#xA0;<span style="color:#000080; font-weight:bold">void</span><br/>
+{<br/>
+&#xA0;&#xA0;&#xA0;&#xA0;<span style="color:#000080; font-weight:bold">var</span>&#xA0;a&#xA0;=&#xA0;getInt32();<br/>
+&#xA0;&#xA0;&#xA0;&#xA0;<span style="color:#000080; font-weight:bold">var</span>&#xA0;b&#xA0;=&#xA0;getInt32();<br/>
+&#xA0;&#xA0;&#xA0;&#xA0;print(a);<br/>
+&#xA0;&#xA0;&#xA0;&#xA0;print(b);<br/>
+}<br/></span></code>
+[[/html]]
+[[/cell]][[/row]][[/table]]
+
+The program should output:
+
+[[table style="width: 80%;"]][[row]][[cell style="border: 1px solid silver; padding: 10px; background-color: #f7f7ff"]]
+[[html]]
+<code>
+1<br/>
+2<br/>
+</code>
+[[/html]]
+[[/cell]][[/row]][[/table]]
+
+with input:
+
+[[table style="width: 80%;"]][[row]][[cell style="border: 1px solid silver; padding: 10px; background-color: #f7f7ff"]]
+[[html]]
+<code>
+1<br/>
+2<br/>
+</code>
+[[/html]]
+[[/cell]][[/row]][[/table]]
+

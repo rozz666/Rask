@@ -1,0 +1,25 @@
+++ SimpleTest1
+
+The compiler should generate code for:
+//simple1.rask//
+
+[[table style="width: 80%;"]][[row]][[cell style="border: 1px solid silver; padding: 10px; background-color: #f7f7ff"]]
+[[html]]
+<code>
+<span style="font-size: 10pt; color:#000000;">f(<span style="color:#000080; font-weight:bold">int32</span>&#xA0;x)&#xA0;->&#xA0;<span style="color:#000080; font-weight:bold">void</span><br/>
+{<br/>
+&#xA0;&#xA0;&#xA0;&#xA0;print(5);<br/>
+}<br/></span></code>
+[[/html]]
+[[/cell]][[/row]][[/table]]
+
+The program should output:
+
+[[table style="width: 80%;"]][[row]][[cell style="border: 1px solid silver; padding: 10px; background-color: #f7f7ff"]]
+[[html]]
+<code>
+5<br/>
+</code>
+[[/html]]
+[[/cell]][[/row]][[/table]]
+

@@ -1,0 +1,26 @@
+++ SimpleTest3
+
+The following code:
+//simple3.rask//
+
+[[table style="width: 80%;"]][[row]][[cell style="border: 1px solid silver; padding: 10px; background-color: #f7f7ff"]]
+[[html]]
+<code>
+<span style="font-size: 10pt; color:#000000;">main()&#xA0;->&#xA0;<span style="color:#000080; font-weight:bold">void</span><br/>
+{<br/>
+&#xA0;&#xA0;&#xA0;&#xA0;<span style="color:#000080; font-weight:bold">var</span>&#xA0;a;<br/>
+&#xA0;&#xA0;&#xA0;&#xA0;print(a);<br/>
+}<br/></span></code>
+[[/html]]
+[[/cell]][[/row]][[/table]]
+
+should cause:
+
+[[table style="width: 80%;"]][[row]][[cell style="border: 1px solid silver; padding: 10px; background-color: #f7f7ff"]]
+[[html]]
+<code>
+var2.rask:3:9: error: uninitialized variable 'a'<br/>
+</code>
+[[/html]]
+[[/cell]][[/row]][[/table]]
+

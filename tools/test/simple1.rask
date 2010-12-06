@@ -1,0 +1,4 @@
+f(int32 x) -> void
+{
+    print(5);
+}
