@@ -6,3 +6,10 @@
 #addMisc1:test:addMisc.rask #Feature4
 #addMisc2:test:addMisc.rask #Feature4
 
+#subImm:test:subImm.rask #Feature4
+#subVar1:test:subVar.rask #Feature4
+#subVar2:test:subVar.rask #Feature4
+#subFunc1:test:subFunc.rask #Feature4
+#subFunc2:test:subFunc.rask #Feature4
+#subMisc1:test:subMisc.rask #Feature4
+#subMisc2:test:subMisc.rask #Feature4
