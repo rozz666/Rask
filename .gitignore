@@ -1,8 +1,4 @@
 bin
-vs10/*
-!vs10/*.sln
-!vs10/*.vcxproj
-!vs10/*.vcxproj.filters
 *~
 .*
 !.git*
