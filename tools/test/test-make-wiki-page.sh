@@ -4,8 +4,7 @@ OUTPUT=""
 
 testPage()
 {
-    local EXPECTECED=`cat $3`
-    local ACTUAL=`../make-wiki-page.sh $2 $1 $4 > actual.tmp`
+    ../make-wiki-page.sh $2 $1 $4 > actual.tmp
     local DIFF=`diff $3 actual.tmp`
     if [ "$DIFF" == "" ]
     then
