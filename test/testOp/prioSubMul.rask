@@ -1,0 +1,8 @@
+main() -> void
+{
+    var a = getInt32();
+    var b = getInt32();
+    var c = getInt32();
+    print(a - b * c);
+    print(a * b - c);
+}
