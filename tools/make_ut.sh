@@ -8,12 +8,12 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 #
 
-if [ ! "$#" = "2" ]; then
-    echo "usage: make_ut.sh <name> <desc>"
+if [ ! "$#" = "1" ]; then
+    echo "usage: make_ut.sh <desc>"
     exit 1
 fi
-NAME="$1"
-DESC="$2"
+DESC="$1"
+NAME=${DESC##*.}
 HEADER=${DESC//"."/"/"}
 CODE="// Rask
 //
@@ -24,7 +24,6 @@ CODE="// Rask
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <tut/tut.hpp>
-#include <tut/../contrib/tut_macros.h>
 #include <rask/test/TUTAssert.hpp>
 #include <${HEADER}.hpp>
 
@@ -50,18 +49,6 @@ namespace tut
 template <>
 template <>
 void object::test<1>()
-{
-}
-
-template <>
-template <>
-void object::test<2>()
-{
-}
-
-template <>
-template <>
-void object::test<3>()
 {
 }
 
