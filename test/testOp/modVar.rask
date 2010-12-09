@@ -1,0 +1,10 @@
+count(int32 x) -> int32
+{
+    var y = getInt32();
+    return x % y;
+}
+
+main() -> void
+{
+    print(count(getInt32()));
+}

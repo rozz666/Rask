@@ -1,0 +1,10 @@
+main() -> void
+{
+    var x = getInt32();
+    print(x % getInt32() % 5);
+    print(x % 5 % getInt32());
+    print(5 % x % getInt32());
+    print(5 % getInt32() % x);
+    print(getInt32() % x % 5);
+    print(getInt32() % 5 % x);
+}

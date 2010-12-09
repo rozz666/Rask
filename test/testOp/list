@@ -29,3 +29,10 @@
 #divFunc2:test:subFunc.rask #Feature4
 #divMisc1:test:subMisc.rask #Feature4
 #divMisc2:test:subMisc.rask #Feature4
+
+#modImm:test:subImm.rask #Feature4
+#modVar1:test:subVar.rask #Feature4
+#modVar2:test:subVar.rask #Feature4
+#modFunc1:test:subFunc.rask #Feature4
+#modFunc2:test:subFunc.rask #Feature4
+#modMisc:test:subMisc.rask #Feature4
