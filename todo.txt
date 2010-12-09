@@ -1,2 +1,3 @@
+Add parentheses and unary minus to Feature 4
 Make cg::declBuiltinFunctions use ast::BuiltinFunctions
 Check if variable is already declared
