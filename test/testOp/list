@@ -21,3 +21,11 @@
 #mulFunc2:test:subFunc.rask #Feature4
 #mulMisc1:test:subMisc.rask #Feature4
 #mulMisc2:test:subMisc.rask #Feature4
+
+#divImm:test:subImm.rask #Feature4
+#divVar1:test:subVar.rask #Feature4
+#divVar2:test:subVar.rask #Feature4
+#divFunc1:test:subFunc.rask #Feature4
+#divFunc2:test:subFunc.rask #Feature4
+#divMisc1:test:subMisc.rask #Feature4
+#divMisc2:test:subMisc.rask #Feature4
