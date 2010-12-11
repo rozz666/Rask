@@ -1,0 +1,11 @@
+main() -> void
+{
+    var a = getInt32();
+    var b = getInt32();
+    print(((a) + (b)));
+    print(((a) - (b)));
+    print(((a) * (b)));
+    print(((a) / (b)));
+    print(((a) % (b)));
+    print((a + b) * (a - b));
+}
