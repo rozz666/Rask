@@ -11,6 +11,7 @@
 
 #include <map>
 #include <stdexcept>
+#include <boost/optional.hpp>
 #include <rask/cst/Identifier.hpp>
 #include <rask/ast/Variable.hpp>
 #include <rask/ast/CustomFunction.hpp>

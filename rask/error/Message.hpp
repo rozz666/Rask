@@ -12,6 +12,7 @@
 #include <iosfwd>
 #include <string>
 #include <sstream>
+#include <boost/preprocessor/seq/enum.hpp>
 #include <rask/Position.hpp>
 
 #define RASK_ERROR_MESSAGE(name, args, message) \
