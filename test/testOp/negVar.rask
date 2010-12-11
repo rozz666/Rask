@@ -1,0 +1,5 @@
+main() -> void
+{
+    var x = getInt32();
+    print(-x);
+}
