@@ -65,4 +65,11 @@ void object::test<2>()
     ensureBuiltinFunction("getInt32", rask::ast::INT32, 0);;
 }
 
+template <>
+template <>
+void object::test<3>()
+{
+    ensureBuiltinFunction("operator-", rask::ast::INT32, 1);
+}
+
 }
