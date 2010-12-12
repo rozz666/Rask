@@ -210,11 +210,13 @@ struct Grammar : qi::grammar<Iterator, cst::Tree(), ascii::space_type>
     {
         identifier %= inputPos >> qi::lexeme[qi::char_("a-zA-Z_") >> *qi::char_("a-zA-Z0-9_")];
         constant %= inputPos >> qi::int_;
-        expression %= constant | functionCall | identifier;
-        functionCall %= identifier >> '(' > -(expression % ',') > ')';
-        functionCallStatement %= identifier > '(' > -(expression % ',') > ')';
-        variableDeclaration %= qi::lit("var") > identifier > -('=' > expression);
-        returnStatement %= inputPos >> qi::lit("return") > expression;
+        unaryOperator %= inputPos >> '-' >> qi::attr(UnaryOperator::MINUS);
+        unaryOperatorCall %= unaryOperator >> unaryExpression;
+        unaryExpression %= constant | functionCall | identifier | unaryOperatorCall;
+        functionCall %= identifier >> '(' > -(unaryExpression % ',') > ')';
+        functionCallStatement %= identifier > '(' > -(unaryExpression % ',') > ')';
+        variableDeclaration %= qi::lit("var") > identifier > -('=' > unaryExpression);
+        returnStatement %= inputPos >> qi::lit("return") > unaryExpression;
         statement %= (returnStatement | variableDeclaration | functionCallStatement) > ';';
         function %=
             identifier > '(' > -((qi::lit("int32") > identifier) % ',') > ')' > "->" > (identifier | error(&error::Message::missingReturnType, &errorLogger)) >
@@ -237,7 +239,10 @@ struct Grammar : qi::grammar<Iterator, cst::Tree(), ascii::space_type>
     qi::rule<Iterator, cst::VariableDecl(), ascii::space_type> variableDeclaration;
     qi::rule<Iterator, cst::Return(), ascii::space_type> returnStatement;
     qi::rule<Iterator, cst::Constant(), ascii::space_type> constant;
-    qi::rule<Iterator, cst::UnaryExpression(), ascii::space_type> expression;
+    qi::rule<Iterator, cst::UnaryExpression(), ascii::space_type> unaryExpression;
+    qi::rule<Iterator, cst::UnaryOperatorCall(), ascii::space_type> unaryOperatorCall;
+    qi::rule<Iterator, cst::UnaryOperator(), ascii::space_type> unaryOperator;
+    
 };
 
 }

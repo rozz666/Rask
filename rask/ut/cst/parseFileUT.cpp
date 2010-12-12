@@ -498,5 +498,26 @@ void object::test<23>()
     ENSURE_EQUALS(fc.args.size(), 0u);
 }
 
+template <>
+template <>
+void object::test<24>()
+{
+    using namespace rask;
+    
+    source << "f() -> abcd123\n{\n    return -x;\n}";
+    
+    boost::optional<cst::Tree> tree = parseFile();
+    
+    ENSURE(tree);
+    ensureNoErrors();
+    ENSURE_EQUALS(tree->functions.size(), 1u);
+    ENSURE_EQUALS(tree->functions[0].stmts.size(), 1u);
+    const cst::UnaryOperatorCall& e = getUnaryOperatorCall(getReturn(tree->functions[0].stmts[0]).value);
+    ENSURE(e.op.tag == cst::UnaryOperator::MINUS);
+    ENSURE_EQUALS(e.op.position, at(3, 12));
+    const cst::Identifier& v = getIdentifier(e.expr);
+    ENSURE_EQUALS(v.position, at(3, 13));
+    ENSURE_EQUALS(v.value, "x");
+}
 
 }
