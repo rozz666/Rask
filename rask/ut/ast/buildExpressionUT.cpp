@@ -11,6 +11,7 @@
 #include <rask/test/TUTAssert.hpp>
 #include <rask/test/Mock.hpp>
 #include <rask/ast/Builder.hpp>
+#include <rask/ast/BuiltinFunction.hpp>
 
 namespace
 {
@@ -23,6 +24,7 @@ public:
         : rask::ast::Builder(logger, st) { }
 
     MOCK_METHOD(boost::optional<rask::ast::FunctionCall>, buildFunctionCall, (const rask::cst::FunctionCall&, fc));
+    MOCK_METHOD(boost::optional<rask::ast::FunctionCall>, buildUnaryOperatorCall, (const rask::cst::UnaryOperatorCall&, oc));
 };
 
 }
@@ -124,6 +126,38 @@ void object::test<5>()
     MOCK_RETURN(builder, buildFunctionCall, boost::none);
 
     ENSURE(!builder.buildExpression(fc));
+    ENSURE(logger.errors().empty());
+}
+
+template <>
+template <>
+void object::test<6>()
+{
+    using namespace rask;
+
+    cst::UnaryOperatorCall c;
+    unsigned n = 5;
+    
+    MOCK_RETURN(builder, buildUnaryOperatorCall, ast::FunctionCall(ast::WeakFunction(), ast::FunctionCall::Arguments(n)));
+
+    boost::optional<ast::Expression> expr = builder.buildExpression(c);
+
+    ENSURE(expr);
+    ENSURE(logger.errors().empty());
+    ENSURE(getFunctionCall(*expr).args().size() == n);
+}
+
+template <>
+template <>
+void object::test<7>()
+{
+    using namespace rask;
+    
+    cst::UnaryOperatorCall c;
+    
+    MOCK_RETURN(builder, buildUnaryOperatorCall, boost::none);
+    
+    ENSURE(!builder.buildExpression(c));
     ENSURE(logger.errors().empty());
 }
 

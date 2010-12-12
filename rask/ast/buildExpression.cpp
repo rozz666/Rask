@@ -50,10 +50,13 @@ struct BuildExpression : boost::static_visitor<boost::optional<Expression> >
         return ast::Expression(*c);
     }
 
-    boost::optional<Expression> operator()(const cst::UnaryOperatorCall& )
+    boost::optional<Expression> operator()(const cst::UnaryOperatorCall& oc)
     {
-        throw std::runtime_error("boost::optional<Expression> operator()(const cst::UnaryOperatorCall& )"
-                                 " not implemented");
+        boost::optional<FunctionCall> c = builder.buildUnaryOperatorCall(oc);
+
+        if (!c) return boost::none;
+        
+        return ast::Expression(*c);
     }
 };
     
