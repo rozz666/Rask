@@ -237,7 +237,7 @@ struct Grammar : qi::grammar<Iterator, cst::Tree(), ascii::space_type>
     qi::rule<Iterator, cst::VariableDecl(), ascii::space_type> variableDeclaration;
     qi::rule<Iterator, cst::Return(), ascii::space_type> returnStatement;
     qi::rule<Iterator, cst::Constant(), ascii::space_type> constant;
-    qi::rule<Iterator, cst::Expression(), ascii::space_type> expression;
+    qi::rule<Iterator, cst::UnaryExpression(), ascii::space_type> expression;
 };
 
 }

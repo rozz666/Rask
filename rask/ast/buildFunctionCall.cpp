@@ -27,7 +27,7 @@ boost::optional<FunctionCall> Builder::buildFunctionCall(const cst::FunctionCall
 
     FunctionCall::Arguments args;
 
-    BOOST_FOREACH(const cst::Expression& e, call.args)
+    BOOST_FOREACH(const cst::UnaryExpression& e, call.args)
     {
         args.push_back(*buildExpression(e));
     }

@@ -22,22 +22,22 @@ namespace cst
 
 struct FunctionCall;
     
-typedef boost::variant<Constant, Identifier, boost::recursive_wrapper<FunctionCall> > Expression;
+typedef boost::variant<Constant, Identifier, boost::recursive_wrapper<FunctionCall> > UnaryExpression;
 
 struct FunctionCall
 {
     Identifier function;
-    std::vector<Expression> args;
+    std::vector<UnaryExpression> args;
 };
 
-inline Constant& getConstant(Expression& e) { return boost::get<Constant>(e); }
-inline const Constant& getConstant(const Expression& e) { return boost::get<Constant>(e); }
+inline Constant& getConstant(UnaryExpression& e) { return boost::get<Constant>(e); }
+inline const Constant& getConstant(const UnaryExpression& e) { return boost::get<Constant>(e); }
 
-inline Identifier& getIdentifier(Expression& e) { return boost::get<Identifier>(e); }
-inline const Identifier& getIdentifier(const Expression& e) { return boost::get<Identifier>(e); }
+inline Identifier& getIdentifier(UnaryExpression& e) { return boost::get<Identifier>(e); }
+inline const Identifier& getIdentifier(const UnaryExpression& e) { return boost::get<Identifier>(e); }
 
-inline FunctionCall& getFunctionCall(Expression& e) { return boost::get<FunctionCall>(e); }
-inline const FunctionCall& getFunctionCall(const Expression& e) { return boost::get<FunctionCall>(e); }
+inline FunctionCall& getFunctionCall(UnaryExpression& e) { return boost::get<FunctionCall>(e); }
+inline const FunctionCall& getFunctionCall(const UnaryExpression& e) { return boost::get<FunctionCall>(e); }
 
 }
 }
@@ -45,7 +45,7 @@ inline const FunctionCall& getFunctionCall(const Expression& e) { return boost::
 BOOST_FUSION_ADAPT_STRUCT(
     rask::cst::FunctionCall,
     (rask::cst::Identifier, function)
-    (std::vector<rask::cst::Expression>, args)
+    (std::vector<rask::cst::UnaryExpression>, args)
 )
 
 #endif // RASK_CST_EXPRESSION_HPP
