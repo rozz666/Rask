@@ -33,10 +33,7 @@ public:
     virtual boost::optional<VariableDecl> buildVariableDecl(const cst::VariableDecl& vd);
     virtual boost::optional<Expression> buildExpression(const cst::UnaryExpression& expr);
     virtual boost::optional<Return> buildReturn(const cst::Return& ret);
-    virtual boost::optional<FunctionCall> buildUnaryOperatorCall(const cst::UnaryOperatorCall& oc)
-    {
-        throw std::runtime_error("virtual boost::optional<FunctionCall> buildUnaryOperatorCall(const cst::UnaryOperatorCall& oc) not implemented");
-    }
+    virtual boost::optional<FunctionCall> buildUnaryOperatorCall(const cst::UnaryOperatorCall& oc);
 
 private:
 

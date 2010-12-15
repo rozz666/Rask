@@ -7,6 +7,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <rask/test/FunctionFactory.hpp>
+#include <boost/lexical_cast.hpp>
 
 namespace rask {
 
@@ -33,6 +34,20 @@ ast::SharedCustomFunction FunctionFactory::createShared(unsigned x, unsigned y, 
     return ast::SharedCustomFunction(
         new ast::CustomFunction(cst::Identifier::create(Position("", x, y), name), ast::VOID));
 }
+
+ast::SharedCustomFunction FunctionFactory::createShared(const std::string& name, ast::BasicType type, short unsigned int numArgs)
+{
+    ast::SharedCustomFunction f(
+        new ast::CustomFunction(cst::Identifier::create(Position(), name), type));
+    
+    for (unsigned short i = 0; i != numArgs; ++i)
+    {
+        f->addArg(cst::Identifier::create(Position(), "arg" + boost::lexical_cast<std::string>(i)));
+    }
+    
+    return f;
+}
+
 
 }
 }
