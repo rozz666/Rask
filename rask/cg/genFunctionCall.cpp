@@ -17,9 +17,15 @@ namespace rask
 namespace cg
 {
     
-llvm::CallInst *CodeGenerator::genFunctionCall(const ast::FunctionCall& fc, llvm::BasicBlock& block)
+llvm::Value *CodeGenerator::genFunctionCall(const ast::FunctionCall& fc, llvm::BasicBlock& block)
 {
     ast::SharedFunction f = fc.function().lock();
+
+    if (f->name().value == "operator-")
+    {
+        return llvm::BinaryOperator::CreateNeg(genValue(fc.args()[0], block), "", &block);
+    }
+
     const llvm::Module& module = *block.getParent()->getParent();
 
     if (!module.getFunction(f->name().value))

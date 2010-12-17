@@ -28,7 +28,7 @@ public:
 
     CodeGenerator(SymbolTable& symbolTable) : symbolTable_(symbolTable) { }
     
-    virtual llvm::CallInst *genFunctionCall(const ast::FunctionCall& fc, llvm::BasicBlock& block);
+    virtual llvm::Value *genFunctionCall(const ast::FunctionCall& fc, llvm::BasicBlock& block);
     virtual llvm::AllocaInst *genVariableDecl(const ast::VariableDecl& vd, llvm::BasicBlock& block);
     virtual void genFunction(const ast::CustomFunction& f, llvm::Module& module);
     virtual void declFunction(const ast::CustomFunction& f, llvm::Module& module);

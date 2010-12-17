@@ -89,9 +89,11 @@ void object::test<1>()
 
     MOCK_RETURN(cg, genValue, a1);
     MOCK_RETURN(cg, genValue, a2);
-    
-    llvm::CallInst *call = cg.genFunctionCall(fc, *block);
 
+    llvm::Value *value = cg.genFunctionCall(fc, *block);
+
+    ENSURE(llvm::isa<llvm::CallInst>(value));
+    llvm::CallInst *call = llvm::cast<llvm::CallInst>(value);
     ENSURE_CALL(cg, genValue(fc.args()[0], *block));
     ENSURE_CALL(cg, genValue(fc.args()[1], *block));
     ENSURE_EQUALS(block->size(), 1u);
@@ -114,8 +116,10 @@ void object::test<2>()
     ast::SharedBuiltinFunction dummy(new ast::BuiltinFunction(f, ast::VOID, 0));
     ast::FunctionCall fc(dummy, ast::FunctionCall::Arguments());
     
-    llvm::CallInst *call = cg.genFunctionCall(fc, *block);
-    
+    llvm::Value *value = cg.genFunctionCall(fc, *block);
+
+    ENSURE(llvm::isa<llvm::CallInst>(value));
+    llvm::CallInst *call = llvm::cast<llvm::CallInst>(value);
     ENSURE_EQUALS(block->size(), 1u);
     ENSURE(call == &*block->begin());
     ENSURE(call->getCalledFunction() == module->getFunction(f));
@@ -145,6 +149,29 @@ void object::test<3>()
 
     ENSURE_NO_CALLS(cg, genValue);
     ENSURE_EQUALS(block->size(), 0u);
+}
+
+template <>
+template <>
+void object::test<4>()
+{
+    using namespace rask;
+
+    std::string f = "operator-";
+    unsigned numArgs = 1;
+    createFunction(f, numArgs);
+    ast::SharedBuiltinFunction dummy(new ast::BuiltinFunction(f, ast::INT32, numArgs));
+    ast::FunctionCall fc(dummy, ast::FunctionCall::Arguments(numArgs, ast::Constant(1)));
+
+    MOCK_RETURN(cg, genValue, a1);
+
+    llvm::Value *op = cg.genFunctionCall(fc, *block);
+
+    ENSURE_CALL(cg, genValue(fc.args()[0], *block));
+    ENSURE_EQUALS(block->size(), 1u);
+    ENSURE(op == &*block->begin());
+    ENSURE(llvm::BinaryOperator::isNeg(op));
+    ENSURE(llvm::BinaryOperator::getNegArgument(op) == a1);
 }
 
 }
