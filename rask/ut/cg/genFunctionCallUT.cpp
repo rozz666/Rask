@@ -123,4 +123,28 @@ void object::test<2>()
     ENSURE(call->getCallingConv() == llvm::CallingConv::C);
 }
 
+template <>
+template <>
+void object::test<3>()
+{
+    using namespace rask;
+    std::string f = "missing";
+    unsigned numArgs = 2;
+    ast::SharedBuiltinFunction dummy(new ast::BuiltinFunction(f, ast::VOID, numArgs));
+    ast::FunctionCall fc(dummy, ast::FunctionCall::Arguments(numArgs, ast::Constant(1)));
+
+    try
+    {
+        cg.genFunctionCall(fc, *block);
+        FAIL("exprected invalid_argument");
+    }
+    catch (const std::invalid_argument& e)
+    {
+        ENSURE_EQUALS(e.what(), std::string("Function \'") + f + "\' not declared");
+    }
+
+    ENSURE_NO_CALLS(cg, genValue);
+    ENSURE_EQUALS(block->size(), 0u);
+}
+
 }
