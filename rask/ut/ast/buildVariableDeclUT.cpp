@@ -22,7 +22,7 @@ public:
     BuilderMock(rask::error::Logger& logger, rask::ast::SymbolTable& st)
         : rask::ast::Builder(logger, st) { }
 
-    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildExpression, (const rask::cst::UnaryExpression&, expr));
+    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildExpression, (const rask::cst::Expression&, expr));
 };
     
 }
@@ -59,7 +59,7 @@ void object::test<1>()
 
     cst::VariableDecl cvd;
     cvd.name = cst::Identifier::create(Position("a", 1, 2), "x");
-    cvd.value = cst::Constant::create(Position(), 1);
+    cvd.value = cst::Expression();
 
     rask::ast::Constant dummy(123);
     MOCK_RETURN(builder, buildExpression, ast::Expression(dummy));
@@ -97,7 +97,7 @@ void object::test<3>()
     
     cst::VariableDecl cvd;
     cvd.name = cst::Identifier::create(Position("abc", 1, 3), "x");
-    cvd.value = cst::Identifier::create(Position(), "y");
+    cvd.value = cst::Expression();
 
     MOCK_RETURN(builder, buildExpression, boost::none);
     
