@@ -44,7 +44,7 @@ private:
     error::Logger& logger_;
     SymbolTable& symbolTable_;
     
-    std::string functionSignature(const std::string& name, const std::vector<cst::UnaryExpression>& args);
+    std::string functionSignature(const std::string& name, const std::vector<cst::Expression>& args);
 };
 
 }

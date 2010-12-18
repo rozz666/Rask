@@ -53,7 +53,7 @@ struct Expression
 struct FunctionCall
 {
     Identifier function;
-    std::vector<UnaryExpression> args;
+    std::vector<Expression> args;
 };
 
 struct UnaryOperator
@@ -106,7 +106,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 BOOST_FUSION_ADAPT_STRUCT(
     rask::cst::FunctionCall,
     (rask::cst::Identifier, function)
-    (std::vector<rask::cst::UnaryExpression>, args)
+    (std::vector<rask::cst::Expression>, args)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(

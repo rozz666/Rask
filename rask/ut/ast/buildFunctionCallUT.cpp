@@ -23,7 +23,7 @@ public:
     BuilderMock(rask::error::Logger& logger, rask::ast::SymbolTable& st)
     : rask::ast::Builder(logger, st) { }
 
-    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildExpression, (const rask::cst::UnaryExpression&, expr));
+    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildExpression, (const rask::cst::Expression&, expr));
 };
     
 }
@@ -83,8 +83,7 @@ void object::test<2>()
     rask::ast::SharedBuiltinFunction f(new rask::ast::BuiltinFunction("f", ast::VOID, 2));
     st.add(f);
     ccall.function = cst::Identifier::create(Position(file, 2, 4), f->name().value);
-    ccall.args.push_back(cst::Constant::create(Position(file, 1, 10), 1));
-    ccall.args.push_back(cst::Constant::create(Position(file, 2, 20), 2));
+    ccall.args.resize(2);
 
     MOCK_RETURN(builder, buildExpression, ast::Expression(dummy1));
     MOCK_RETURN(builder, buildExpression, ast::Expression(dummy2));
@@ -108,7 +107,7 @@ void object::test<3>()
     using namespace rask;
     
     ccall.function = cst::Identifier::create(Position(file, 2, 4), "xxx");
-    ccall.args.push_back(cst::Constant::create(Position(file, 2, 10), 1));
+    ccall.args.resize(1);
     
     ENSURE(!builder.buildFunctionCall(ccall));
     ENSURE_EQUALS(logger.errors().size(), 1u);
@@ -139,8 +138,7 @@ void object::test<5>()
     rask::ast::SharedBuiltinFunction f(new rask::ast::BuiltinFunction("print", ast::VOID, 1));
     st.add(f);
     ccall.function = cst::Identifier::create(Position(file, 2, 4), "print");
-    ccall.args.push_back(cst::Constant::create(Position(file, 2, 10), 1));
-    ccall.args.push_back(cst::Constant::create(Position(file, 2, 20), 2));
+    ccall.args.resize(2);
 
     MOCK_RETURN(builder, buildExpression, ast::Expression(dummy1));
     MOCK_RETURN(builder, buildExpression, ast::Expression(dummy2));

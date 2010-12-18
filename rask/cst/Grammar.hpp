@@ -225,8 +225,8 @@ struct Grammar : qi::grammar<Iterator, cst::Tree(), ascii::space_type>
         unaryExpression %= constant | functionCall | identifier | unaryOperatorCall;
         binaryOperator %= inputPos >> binaryOperatorMap;
         expression %= unaryExpression >> *(binaryOperator > unaryExpression);
-        functionCall %= identifier >> '(' > -(unaryExpression % ',') > ')';
-        functionCallStatement %= identifier > '(' > -(unaryExpression % ',') > ')';
+        functionCall %= identifier >> '(' > -(expression % ',') > ')';
+        functionCallStatement %= identifier > '(' > -(expression % ',') > ')';
         variableDeclaration %= qi::lit("var") > identifier > -('=' > expression);
         returnStatement %= inputPos >> qi::lit("return") > expression;
         statement %= (returnStatement | variableDeclaration | functionCallStatement) > ';';

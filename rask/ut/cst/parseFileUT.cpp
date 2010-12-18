@@ -208,16 +208,16 @@ void object::test<10>()
     ensure_equals("function 2", getFunctionCall(tree->functions[0].stmts[1]).function.value, "efgh");
     ensure_equals("function pos 2", getFunctionCall(tree->functions[0].stmts[1]).function.position, at(4, 5));
     ensure_equals("count 2", getFunctionCall(tree->functions[0].stmts[1]).args.size(), 1u);
-    ensure_equals("value 2", getConstant(getFunctionCall(tree->functions[0].stmts[1]).args[0]).value, -2);
-    ensure_equals("value 2 pos", getConstant(getFunctionCall(tree->functions[0].stmts[1]).args[0]).position, at(4, 10));
+    ensure_equals("value 2", getConstant(getFunctionCall(tree->functions[0].stmts[1]).args[0].first).value, -2);
+    ensure_equals("value 2 pos", getConstant(getFunctionCall(tree->functions[0].stmts[1]).args[0].first).position, at(4, 10));
 
     ensure_equals("function 3", getFunctionCall(tree->functions[0].stmts[2]).function.value, "ijkl");
     ensure_equals("function pos 3", getFunctionCall(tree->functions[0].stmts[2]).function.position, at(5, 5));
     ensure_equals("count 3", getFunctionCall(tree->functions[0].stmts[2]).args.size(), 2u);
-    ensure_equals("value 3", getConstant(getFunctionCall(tree->functions[0].stmts[2]).args[0]).value, 2);
-    ensure_equals("value 3 pos", getConstant(getFunctionCall(tree->functions[0].stmts[2]).args[0]).position, at(5, 10));
-    ensure_equals("value 4", getConstant(getFunctionCall(tree->functions[0].stmts[2]).args[1]).value, 3);
-    ensure_equals("value 4 pos", getConstant(getFunctionCall(tree->functions[0].stmts[2]).args[1]).position, at(5, 13));
+    ensure_equals("value 3", getConstant(getFunctionCall(tree->functions[0].stmts[2]).args[0].first).value, 2);
+    ensure_equals("value 3 pos", getConstant(getFunctionCall(tree->functions[0].stmts[2]).args[0].first).position, at(5, 10));
+    ensure_equals("value 4", getConstant(getFunctionCall(tree->functions[0].stmts[2]).args[1].first).value, 3);
+    ensure_equals("value 4 pos", getConstant(getFunctionCall(tree->functions[0].stmts[2]).args[1].first).position, at(5, 13));
 }
 
 template <>
@@ -304,12 +304,12 @@ void object::test<15>()
     ensure_equals("name", getFunctionCall(tree->functions[0].stmts[0]).function.value, "f");
     ensure_equals("func pos", getFunctionCall(tree->functions[0].stmts[0]).function.position, at(3, 5));
     ensure_size("args", getFunctionCall(tree->functions[0].stmts[0]).args, 3u);
-    ensure_equals(getIdentifier(getFunctionCall(tree->functions[0].stmts[0]).args[0]).value, "x");
-    ensure_equals(getIdentifier(getFunctionCall(tree->functions[0].stmts[0]).args[0]).position, at(3, 7));
-    ensure_equals(getConstant(getFunctionCall(tree->functions[0].stmts[0]).args[1]).value, 1);
-    ensure_equals(getConstant(getFunctionCall(tree->functions[0].stmts[0]).args[1]).position, at(3, 10));
-    ensure_equals(getIdentifier(getFunctionCall(tree->functions[0].stmts[0]).args[2]).value, "y");
-    ensure_equals(getIdentifier(getFunctionCall(tree->functions[0].stmts[0]).args[2]).position, at(3, 13));
+    ensure_equals(getIdentifier(getFunctionCall(tree->functions[0].stmts[0]).args[0].first).value, "x");
+    ensure_equals(getIdentifier(getFunctionCall(tree->functions[0].stmts[0]).args[0].first).position, at(3, 7));
+    ensure_equals(getConstant(getFunctionCall(tree->functions[0].stmts[0]).args[1].first).value, 1);
+    ensure_equals(getConstant(getFunctionCall(tree->functions[0].stmts[0]).args[1].first).position, at(3, 10));
+    ensure_equals(getIdentifier(getFunctionCall(tree->functions[0].stmts[0]).args[2].first).value, "y");
+    ensure_equals(getIdentifier(getFunctionCall(tree->functions[0].stmts[0]).args[2].first).position, at(3, 13));
 }
 
 template <>
@@ -446,10 +446,10 @@ void object::test<21>()
     ENSURE_EQUALS(fc.function.position, at(3, 13));
     ENSURE_EQUALS(fc.function.value, "g");
     ENSURE_EQUALS(fc.args.size(), 2u);
-    ENSURE_EQUALS(getConstant(fc.args[0]).position, at(3, 15));
-    ENSURE_EQUALS(getConstant(fc.args[0]).value, 10);
-    ENSURE_EQUALS(getIdentifier(fc.args[1]).position, at(3, 19));
-    ENSURE_EQUALS(getIdentifier(fc.args[1]).value, "x");
+    ENSURE_EQUALS(getConstant(fc.args[0].first).position, at(3, 15));
+    ENSURE_EQUALS(getConstant(fc.args[0].first).value, 10);
+    ENSURE_EQUALS(getIdentifier(fc.args[1].first).position, at(3, 19));
+    ENSURE_EQUALS(getIdentifier(fc.args[1].first).value, "x");
 }
 
 template <>
@@ -468,12 +468,12 @@ void object::test<22>()
     
     ENSURE_EQUALS(tree->functions[0].stmts.size(), 1u);
     ENSURE_EQUALS(getFunctionCall(tree->functions[0].stmts[0]).args.size(), 1u);
-    const cst::FunctionCall& fc = getFunctionCall(getFunctionCall(tree->functions[0].stmts[0]).args[0]);
+    const cst::FunctionCall& fc = getFunctionCall(getFunctionCall(tree->functions[0].stmts[0]).args[0].first);
     ENSURE_EQUALS(fc.function.position, at(3, 7));
     ENSURE_EQUALS(fc.function.value, "g");
     ENSURE_EQUALS(fc.args.size(), 1u);
-    ENSURE_EQUALS(getConstant(fc.args[0]).position, at(3, 9));
-    ENSURE_EQUALS(getConstant(fc.args[0]).value, 5);
+    ENSURE_EQUALS(getConstant(fc.args[0].first).position, at(3, 9));
+    ENSURE_EQUALS(getConstant(fc.args[0].first).value, 5);
 }
 
 template <>
@@ -582,6 +582,37 @@ void object::test<26>()
     ENSURE_EQUALS(e.next[1].op.position, at(3, 19));
     const cst::Constant& five = getConstant(e.next[1].expr);
     ENSURE_EQUALS(five.position, at(3, 21));
+    ENSURE_EQUALS(five.value, 5);
+}
+
+template <>
+template <>
+void object::test<27>()
+{
+    using namespace rask;
+
+    source << "f() -> abcd123\n{\n    f(x + y - 5);\n}";
+
+    boost::optional<cst::Tree> tree = parseFile();
+
+    ENSURE(tree);
+    ensureNoErrors();
+    ENSURE_EQUALS(tree->functions.size(), 1u);
+    ENSURE_EQUALS(tree->functions[0].stmts.size(), 1u);
+    const cst::Expression& e = getFunctionCall(tree->functions[0].stmts[0]).args[0];
+    const cst::Identifier& x = getIdentifier(e.first);
+    ENSURE_EQUALS(x.position, at(3, 7));
+    ENSURE_EQUALS(x.value, "x");
+    ENSURE_EQUALS(e.next.size(), 2u);
+    ENSURE(e.next[0].op.tag == cst::BinaryOperator::PLUS);
+    ENSURE_EQUALS(e.next[0].op.position, at(3, 9));
+    const cst::Identifier& y = getIdentifier(e.next[0].expr);
+    ENSURE_EQUALS(y.position, at(3, 11));
+    ENSURE_EQUALS(y.value, "y");
+    ENSURE(e.next[1].op.tag == cst::BinaryOperator::MINUS);
+    ENSURE_EQUALS(e.next[1].op.position, at(3, 13));
+    const cst::Constant& five = getConstant(e.next[1].expr);
+    ENSURE_EQUALS(five.position, at(3, 15));
     ENSURE_EQUALS(five.value, 5);
 }
 
