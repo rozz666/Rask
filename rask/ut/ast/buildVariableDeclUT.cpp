@@ -32,11 +32,16 @@ namespace tut
 
 struct buildVariableDecl_TestData
 {
+    rask::cst::VariableDecl cvd;
     rask::error::Logger logger;
     rask::ast::SymbolTable st;
     BuilderMock builder;
     
-    buildVariableDecl_TestData() : builder(logger, st) { }
+    buildVariableDecl_TestData() : builder(logger, st)
+    {
+        cvd.name = rask::cst::Identifier::create(rask::Position("abc", 1, 3), "x");
+        cvd.value = rask::cst::Expression();
+    }
 };
 
 typedef test_group<buildVariableDecl_TestData> factory;
@@ -57,13 +62,11 @@ void object::test<1>()
 {
     using namespace rask;
 
-    cst::VariableDecl cvd;
-    cvd.name = cst::Identifier::create(Position("a", 1, 2), "x");
     cvd.value = cst::Expression();
 
     rask::ast::Constant dummy(123);
     MOCK_RETURN(builder, buildExpression, ast::Expression(dummy));
-    
+
     boost::optional<ast::VariableDecl> vd = builder.buildVariableDecl(cvd);
 
     ENSURE(vd);
@@ -81,9 +84,8 @@ void object::test<2>()
 {
     using namespace rask;
 
-    cst::VariableDecl cvd;
-    cvd.name = cst::Identifier::create(Position("abc", 1, 3), "x");
-    
+    cvd.value = boost::none;
+
     ENSURE(!builder.buildVariableDecl(cvd));
     ENSURE_EQUALS(logger.errors().size(), 1u);
     ENSURE_EQUALS(logger.errors()[0], error::Message::uninitializedVariable(cvd.name.position, cvd.name.value));
@@ -94,13 +96,9 @@ template <>
 void object::test<3>()
 {
     using namespace rask;
-    
-    cst::VariableDecl cvd;
-    cvd.name = cst::Identifier::create(Position("abc", 1, 3), "x");
-    cvd.value = cst::Expression();
 
     MOCK_RETURN(builder, buildExpression, boost::none);
-    
+
     ENSURE(!builder.buildVariableDecl(cvd));
     ENSURE(logger.errors().empty());
     ENSURE_CALL(builder, buildExpression(*cvd.value));
