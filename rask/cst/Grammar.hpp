@@ -202,6 +202,16 @@ boost::phoenix::function<errorMessageImpl> errorMessage;
 
 }
 
+struct BinaryOperatorMap : qi::symbols<char, BinaryOperator::Tag>
+{
+    BinaryOperatorMap()
+    {
+        add
+            ("+", BinaryOperator::PLUS)
+            ("-", BinaryOperator::MINUS);
+    }
+};
+
 template <typename Iterator>
 struct Grammar : qi::grammar<Iterator, cst::Tree(), ascii::space_type>
 {
@@ -213,10 +223,12 @@ struct Grammar : qi::grammar<Iterator, cst::Tree(), ascii::space_type>
         unaryOperator %= inputPos >> '-' >> qi::attr(UnaryOperator::MINUS);
         unaryOperatorCall %= unaryOperator >> unaryExpression;
         unaryExpression %= constant | functionCall | identifier | unaryOperatorCall;
+        binaryOperator %= inputPos >> binaryOperatorMap;
+        expression %= unaryExpression >> *(binaryOperator > unaryExpression);
         functionCall %= identifier >> '(' > -(unaryExpression % ',') > ')';
         functionCallStatement %= identifier > '(' > -(unaryExpression % ',') > ')';
         variableDeclaration %= qi::lit("var") > identifier > -('=' > unaryExpression);
-        returnStatement %= inputPos >> qi::lit("return") > unaryExpression;
+        returnStatement %= inputPos >> qi::lit("return") > expression;
         statement %= (returnStatement | variableDeclaration | functionCallStatement) > ';';
         function %=
             identifier > '(' > -((qi::lit("int32") > identifier) % ',') > ')' > "->" > (identifier | error(&error::Message::missingReturnType, &errorLogger)) >
@@ -230,6 +242,7 @@ struct Grammar : qi::grammar<Iterator, cst::Tree(), ascii::space_type>
         );
     }
 
+    BinaryOperatorMap binaryOperatorMap;
     qi::rule<Iterator, cst::Tree(), ascii::space_type> tree;
     qi::rule<Iterator, cst::Identifier(), ascii::space_type> identifier;
     qi::rule<Iterator, cst::Function(), ascii::space_type> function;
@@ -242,6 +255,8 @@ struct Grammar : qi::grammar<Iterator, cst::Tree(), ascii::space_type>
     qi::rule<Iterator, cst::UnaryExpression(), ascii::space_type> unaryExpression;
     qi::rule<Iterator, cst::UnaryOperatorCall(), ascii::space_type> unaryOperatorCall;
     qi::rule<Iterator, cst::UnaryOperator(), ascii::space_type> unaryOperator;
+    qi::rule<Iterator, cst::Expression(), ascii::space_type> expression;
+    qi::rule<Iterator, cst::BinaryOperator(), ascii::space_type> binaryOperator;
     
 };
 

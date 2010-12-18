@@ -30,6 +30,26 @@ typedef boost::variant<
     boost::recursive_wrapper<UnaryOperatorCall>
 > UnaryExpression;
 
+struct BinaryOperator
+{
+    enum Tag { PLUS, MINUS };
+    Position position;
+    Tag tag;
+};
+
+template <typename ExpressionType>
+struct OpExpr
+{
+    BinaryOperator op;
+    ExpressionType expr;
+};
+
+struct Expression
+{
+    UnaryExpression first;
+    std::vector<OpExpr<UnaryExpression> > next;
+};
+
 struct FunctionCall
 {
     Identifier function;
@@ -63,6 +83,25 @@ inline const UnaryOperatorCall& getUnaryOperatorCall(const UnaryExpression& e) {
 
 }
 }
+
+BOOST_FUSION_ADAPT_STRUCT(
+    rask::cst::BinaryOperator,
+    (rask::Position, position)
+    (rask::cst::BinaryOperator::Tag, tag)
+)
+
+BOOST_FUSION_ADAPT_TPL_STRUCT(
+    (ExpressionType),
+    (rask::cst::OpExpr) (ExpressionType),
+    (rask::cst::BinaryOperator, op)
+    (ExpressionType, expr)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    rask::cst::Expression,
+    (rask::cst::UnaryExpression, first)
+    (std::vector<rask::cst::OpExpr<rask::cst::UnaryExpression> >, next)
+)
 
 BOOST_FUSION_ADAPT_STRUCT(
     rask::cst::FunctionCall,
