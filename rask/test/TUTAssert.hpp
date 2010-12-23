@@ -49,16 +49,15 @@ inline std::string formatMessage(const char *what, const char *file, int line)
 #define ENSURE_EQUALS(expr, expected) ensure_equals(formatMessage(#expr, __FILE__, __LINE__), (expr), (expected))
 #define ENSURE_THROWS(expr, ex) \
     do { \
-        bool thrown = false; \
         try \
         { \
             expr; \
         } \
         catch (const ex& ) \
         { \
-            thrown = true; \
+            break; \
         } \
-        if (!thrown) fail(formatMessage(#expr " has not thrown", __FILE__, __LINE__)); \
+        fail(formatMessage(#expr " has not thrown", __FILE__, __LINE__)); \
     } while (0)
 
 }
