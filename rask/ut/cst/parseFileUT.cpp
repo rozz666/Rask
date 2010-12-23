@@ -17,11 +17,11 @@
     ENSURE_EQUALS((actual).position, expectedPosition)
     
 #define ENSURE_CONST(actual, expectedValue, expectedPosition) \
-    ENSURE_EQUALS(getConstant((actual).first).value, expectedValue); \
-    ENSURE_EQUALS(getConstant((actual).first).position, expectedPosition)
+    ENSURE_EQUALS(getConstant((actual).expr).value, expectedValue); \
+    ENSURE_EQUALS(getConstant((actual).expr).position, expectedPosition)
 
 #define ENSURE_VARIABLE(actual, expectedName, expectedPosition) \
-    ENSURE_IDENTIFIER(getIdentifier((actual).first), expectedName, expectedPosition)
+    ENSURE_IDENTIFIER(getIdentifier((actual).expr), expectedName, expectedPosition)
 
 #define ENSURE_OPERATOR(actual, expectedTag, expectedPosition) \
     ENSURE((actual).tag == expectedTag); \
@@ -446,7 +446,7 @@ void object::test<21>()
     
     cst::Function& f = tree->functions[0];
     ENSURE_EQUALS(f.stmts.size(), 1u);
-    const cst::FunctionCall& fc = getFunctionCall(getVariableDecl(f.stmts[0]).value->first);
+    const cst::FunctionCall& fc = getFunctionCall(getVariableDecl(f.stmts[0]).value->expr);
     ENSURE_IDENTIFIER(fc.function, "g", at(3, 13));
     ENSURE_EQUALS(fc.args.size(), 2u);
     ENSURE_CONST(fc.args[0], 10, at(3, 15));
@@ -471,7 +471,7 @@ void object::test<22>()
     ENSURE_EQUALS(f.stmts.size(), 1u);
     cst::FunctionCall& fc1 = getFunctionCall(f.stmts[0]);
     ENSURE_EQUALS(fc1.args.size(), 1u);
-    cst::FunctionCall& fc2 = getFunctionCall(fc1.args[0].first);
+    cst::FunctionCall& fc2 = getFunctionCall(fc1.args[0].expr);
     ENSURE_IDENTIFIER(fc2.function, "g", at(3, 7));
     ENSURE_EQUALS(fc2.args.size(), 1u);
     ENSURE_CONST(fc2.args[0], 5, at(3, 9));
@@ -495,7 +495,7 @@ void object::test<23>()
     ENSURE_EQUALS(f.stmts.size(), 1u);
     const cst::Return& ret = getReturn(f.stmts[0]);
     ENSURE_EQUALS(ret.position, at(3, 5));
-    const cst::FunctionCall& fc = getFunctionCall(ret.value.first);
+    const cst::FunctionCall& fc = getFunctionCall(ret.value.expr);
     ENSURE(ret.value.next.empty());
     ENSURE_IDENTIFIER(fc.function, "g", at(3, 12));
     ENSURE_EQUALS(fc.args.size(), 0u);
@@ -517,7 +517,7 @@ void object::test<24>()
 
     cst::Function& f = tree->functions[0];
     ENSURE_EQUALS(f.stmts.size(), 1u);
-    const cst::UnaryOperatorCall& e = getUnaryOperatorCall(getReturn(f.stmts[0]).value.first);
+    const cst::UnaryOperatorCall& e = getUnaryOperatorCall(getReturn(f.stmts[0]).value.expr);
     ENSURE_OPERATOR(e.op, cst::UnaryOperator::MINUS, at(3, 12));
     ENSURE_IDENTIFIER(getIdentifier(e.expr), "x", at(3, 13));
 }
@@ -565,7 +565,7 @@ void object::test<26>()
     ENSURE_EQUALS(tree->functions[0].stmts.size(), 1u);
     ENSURE(getVariableDecl(tree->functions[0].stmts[0]).value);
     const cst::Expression& e = *getVariableDecl(tree->functions[0].stmts[0]).value;
-    const cst::Identifier& x = getIdentifier(e.first);
+    const cst::Identifier& x = getIdentifier(e.expr);
     ENSURE_EQUALS(x.position, at(3, 13));
     ENSURE_EQUALS(x.value, "x");
     ENSURE_EQUALS(e.next.size(), 2u);
@@ -596,7 +596,7 @@ void object::test<27>()
     ENSURE_EQUALS(tree->functions.size(), 1u);
     ENSURE_EQUALS(tree->functions[0].stmts.size(), 1u);
     const cst::Expression& e = getFunctionCall(tree->functions[0].stmts[0]).args[0];
-    const cst::Identifier& x = getIdentifier(e.first);
+    const cst::Identifier& x = getIdentifier(e.expr);
     ENSURE_EQUALS(x.position, at(3, 7));
     ENSURE_EQUALS(x.value, "x");
     ENSURE_EQUALS(e.next.size(), 2u);

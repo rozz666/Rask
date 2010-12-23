@@ -46,7 +46,7 @@ struct OpExpr
 
 struct Expression
 {
-    UnaryExpression first;
+    UnaryExpression expr;
     std::vector<OpExpr<UnaryExpression> > next;
 };
 
@@ -99,7 +99,7 @@ BOOST_FUSION_ADAPT_TPL_STRUCT(
 
 BOOST_FUSION_ADAPT_STRUCT(
     rask::cst::Expression,
-    (rask::cst::UnaryExpression, first)
+    (rask::cst::UnaryExpression, expr)
     (std::vector<rask::cst::OpExpr<rask::cst::UnaryExpression> >, next)
 )
 

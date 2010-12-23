@@ -34,7 +34,7 @@ public:
     virtual boost::optional<Expression> buildExpression(const cst::UnaryExpression& expr);
     virtual boost::optional<Expression> buildExpression(const cst::Expression& expr)
     {
-        return buildExpression(expr.first);
+        return buildExpression(expr.expr);
     }
     virtual boost::optional<Return> buildReturn(const cst::Return& ret);
     virtual boost::optional<FunctionCall> buildUnaryOperatorCall(const cst::UnaryOperatorCall& oc);
