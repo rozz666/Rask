@@ -24,8 +24,8 @@
     ENSURE_IDENTIFIER(getIdentifier((actual).expr), expectedName, expectedPosition)
 
 #define ENSURE_OPERATOR(actual, expectedTag, expectedPosition) \
-    ENSURE((actual).tag == expectedTag); \
-    ENSURE_EQUALS((actual).position, expectedPosition)
+    ENSURE((actual).op.tag == expectedTag); \
+    ENSURE_EQUALS((actual).op.position, expectedPosition)
 
 #define ENSURE_NO_ERRORS() \
     ENSURE_EQUALS(errorLogger.errors().size(), 0u)
@@ -518,8 +518,8 @@ void object::test<24>()
     cst::Function& f = tree->functions[0];
     ENSURE_EQUALS(f.stmts.size(), 1u);
     const cst::UnaryOperatorCall& e = getUnaryOperatorCall(getReturn(f.stmts[0]).value.expr);
-    ENSURE_OPERATOR(e.op, cst::UnaryOperator::MINUS, at(3, 12));
-    ENSURE_IDENTIFIER(getIdentifier(e.expr), "x", at(3, 13));
+    ENSURE_OPERATOR(e, cst::UnaryOperator::MINUS, at(3, 12));
+    ENSURE_VARIABLE(e, "x", at(3, 13));
 }
 
 template <>
@@ -541,9 +541,9 @@ void object::test<25>()
     const cst::Expression& expr = getReturn(f.stmts[0]).value;
     ENSURE_VARIABLE(expr, "x", at(3, 12));
     ENSURE_EQUALS(expr.next.size(), 2u);
-    ENSURE_OPERATOR(expr.next[0].op, cst::BinaryOperator::PLUS, at(3, 14));
+    ENSURE_OPERATOR(expr.next[0], cst::BinaryOperator::PLUS, at(3, 14));
     ENSURE_VARIABLE(expr.next[0], "y", at(3, 16));
-    ENSURE_OPERATOR(expr.next[1].op, cst::BinaryOperator::MINUS, at(3, 18));
+    ENSURE_OPERATOR(expr.next[1], cst::BinaryOperator::MINUS, at(3, 18));
     ENSURE_CONST(expr.next[1], 5, at(3, 20));
 }
 
@@ -566,9 +566,9 @@ void object::test<26>()
     const cst::Expression& expr = *getVariableDecl(f.stmts[0]).value;
     ENSURE_VARIABLE(expr, "x", at(3, 13));
     ENSURE_EQUALS(expr.next.size(), 2u);
-    ENSURE_OPERATOR(expr.next[0].op, cst::BinaryOperator::PLUS, at(3, 15));
+    ENSURE_OPERATOR(expr.next[0], cst::BinaryOperator::PLUS, at(3, 15));
     ENSURE_VARIABLE(expr.next[0], "y", at(3, 17));
-    ENSURE_OPERATOR(expr.next[1].op, cst::BinaryOperator::MINUS, at(3, 19));
+    ENSURE_OPERATOR(expr.next[1], cst::BinaryOperator::MINUS, at(3, 19));
     ENSURE_CONST(expr.next[1], 5, at(3, 21));
 }
 
@@ -591,9 +591,9 @@ void object::test<27>()
     const cst::Expression& expr = getFunctionCall(f.stmts[0]).args[0];
     ENSURE_VARIABLE(expr, "x", at(3, 7));
     ENSURE_EQUALS(expr.next.size(), 2u);
-    ENSURE_OPERATOR(expr.next[0].op, cst::BinaryOperator::PLUS, at(3, 9));
+    ENSURE_OPERATOR(expr.next[0], cst::BinaryOperator::PLUS, at(3, 9));
     ENSURE_VARIABLE(expr.next[0], "y", at(3, 11));
-    ENSURE_OPERATOR(expr.next[1].op, cst::BinaryOperator::MINUS, at(3, 13));
+    ENSURE_OPERATOR(expr.next[1], cst::BinaryOperator::MINUS, at(3, 13));
     ENSURE_CONST(expr.next[1], 5, at(3, 15));
 }
 
