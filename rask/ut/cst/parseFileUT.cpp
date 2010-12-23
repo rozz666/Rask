@@ -398,9 +398,7 @@ void object::test<19>()
     ENSURE(tree);
     ENSURE_NO_ERRORS();
     ENSURE_EQUALS(tree->functions.size(), 1u);
-    
-    ENSURE_EQUALS(tree->functions[0].type.value, "abcd123");
-    ENSURE_EQUALS(tree->functions[0].type.position, at(1, 8));
+    ENSURE_IDENTIFIER(tree->functions[0].type, "abcd123", at(1, 8));
 }
 
 template <>
@@ -417,15 +415,15 @@ void object::test<20>()
     ENSURE_NO_ERRORS();
     ENSURE_EQUALS(tree->functions.size(), 1u);
     
-    ENSURE_EQUALS(tree->functions[0].type.value, "abcd123");
-    ENSURE_EQUALS(tree->functions[0].type.position, at(1, 8));
-    ENSURE_EQUALS(tree->functions[0].stmts.size(), 2u);
-    ENSURE_EQUALS(getReturn(tree->functions[0].stmts[0]).position, at(3, 5));
-    ENSURE_EQUALS(getConstant(getReturn(tree->functions[0].stmts[0]).value.first).value, 10);
-    ENSURE_EQUALS(getConstant(getReturn(tree->functions[0].stmts[0]).value.first).position, at(3, 12));
-    ENSURE_EQUALS(getReturn(tree->functions[0].stmts[1]).position, at(4, 5));
-    ENSURE_EQUALS(getIdentifier(getReturn(tree->functions[0].stmts[1]).value.first).value, "x");
-    ENSURE_EQUALS(getIdentifier(getReturn(tree->functions[0].stmts[1]).value.first).position, at(4, 12));
+    cst::Function& f = tree->functions[0];
+    ENSURE_IDENTIFIER(tree->functions[0].type, "abcd123", at(1, 8));
+    ENSURE_EQUALS(f.stmts.size(), 2u);
+    cst::Return& ret1 = getReturn(f.stmts[0]);
+    ENSURE_EQUALS(ret1.position, at(3, 5));
+    ENSURE_CONST(ret1.value, 10, at(3, 12));
+    cst::Return& ret2 = getReturn(f.stmts[1]);
+    ENSURE_EQUALS(ret2.position, at(4, 5));
+    ENSURE_VARIABLE(ret2.value, "x", at(4, 12));
 }
 
 template <>
