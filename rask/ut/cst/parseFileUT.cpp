@@ -12,6 +12,13 @@
 #include <rask/test/TUTAssert.hpp>
 #include <rask/cst/parseFile.hpp>
 
+#define ENSURE_IDENTIFIER(actual, expectedValue, expectedPosition) \
+    ENSURE_EQUALS(actual.value, expectedValue); \
+    ENSURE_EQUALS(actual.position, expectedPosition)
+#define ENSURE_CONST(actual, expectedValue, expectedPosition) \
+    ENSURE_EQUALS(getConstant(actual.first).value, expectedValue); \
+    ENSURE_EQUALS(getConstant(actual.first).position, expectedPosition)
+
 namespace tut
 {
 
@@ -75,10 +82,9 @@ void object::test<1>()
 
     boost::optional<cst::Tree> tree = parseFile();
 
-    ensure("parsed", tree);
-    ensure_size("functions", tree->functions, 1u);
-    ensure_equals("name", tree->functions[0].name.value, "main");
-    ensure_equals("name pos", tree->functions[0].name.position, at(1, 1));
+    ENSURE(tree);
+    ENSURE_EQUALS(tree->functions.size(), 1u);
+    ENSURE_IDENTIFIER(tree->functions[0].name, "main", at(1, 1));
     ensureNoErrors();
 }
 
@@ -88,7 +94,7 @@ void object::test<2>()
 {
     using namespace rask;
 
-    ensure_not("not parsed", parseFile());
+    ENSURE(!parseFile());
     ensureErrorCountEquals(1);
     ensureError(error::Message::missingMainFunction(Position(sourceStream.file())));
 }
@@ -101,7 +107,7 @@ void object::test<3>()
 
     source << "main() -> \n{\n}";
 
-    ensure_not("not parsed", parseFile());
+    ENSURE(!parseFile());
     ensureErrorCountEquals(1);
     ensureError(error::Message::missingReturnType(at(2, 1)));
 }
@@ -114,7 +120,7 @@ void object::test<4>()
 
     source << "main() -> void\n}";
 
-    ensure_not("not parsed", parseFile());
+    ENSURE(!parseFile());
     ensureErrorCountEquals(1);
     ensureError(error::Message::missingOpeningBrace(at(2, 1)));
 }
@@ -127,7 +133,7 @@ void object::test<5>()
 
     source << "main() -> void\n{\n";
 
-    ensure_not("not parsed", parseFile());
+    ENSURE(!parseFile());
     ensureErrorCountEquals(1);
     ensureError(error::Message::missingClosingBrace(at(3, 1)));
 }
@@ -140,7 +146,7 @@ void object::test<6>()
 
     source << "main) -> void\n{\n}";
 
-    ensure_not("not parsed", parseFile());
+    ENSURE(!parseFile());
     ensureErrorCountEquals(1);
     ensureError(error::Message::missingOpeningParen(at(1, 5)));
 }
@@ -153,7 +159,7 @@ void object::test<7>()
 
     source << "main( -> void\n{\n}";
 
-    ensure_not("not parsed", parseFile());
+    ENSURE(!parseFile());
     ensureErrorCountEquals(1);
     ensureError(error::Message::missingClosingParen(at(1, 7)));
 }
@@ -166,7 +172,7 @@ void object::test<8>()
 
     source << "main() - void\n{\n}";
 
-    ensure_not("not parsed", parseFile());
+    ENSURE(!parseFile());
     ensureErrorCountEquals(1);
     ensureError(error::Message::missingRightArrow(at(1, 8)));
 }
@@ -179,7 +185,7 @@ void object::test<9>()
 
     source << "main() > void\n{\n}";
 
-    ensure_not("not parsed", parseFile());
+    ENSURE(!parseFile());
     ensureErrorCountEquals(1);
     ensureError(error::Message::missingRightArrow(at(1, 8)));
 }
@@ -194,30 +200,27 @@ void object::test<10>()
 
     boost::optional<cst::Tree> tree = parseFile();
 
-    ensure("parsed", tree);
+    ENSURE(tree);
     ensureNoErrors();
-    ensure_size("functions", tree->functions, 1u);
-    ensure_equals("name", tree->functions[0].name.value, "main");
-    ensure_equals("name pos", tree->functions[0].name.position, at(1, 1));
-    ensure_equals("count", tree->functions[0].stmts.size(), 3u);
+    ENSURE_EQUALS(tree->functions.size(), 1u);
+    cst::Function& f = tree->functions[0]; 
+    ENSURE_IDENTIFIER(f.name, "main", at(1, 1));
+    ENSURE_EQUALS(f.stmts.size(), 3u);
 
-    ensure_equals("function 1", getFunctionCall(tree->functions[0].stmts[0]).function.value, "abcd");
-    ensure_equals("function pos 1", getFunctionCall(tree->functions[0].stmts[0]).function.position, at(3, 5));
-    ensure_equals("count 1", getFunctionCall(tree->functions[0].stmts[0]).args.size(), 0u);
+    cst::FunctionCall& fc1 = getFunctionCall(f.stmts[0]);
+    ENSURE_IDENTIFIER(fc1.function, "abcd", at(3, 5));
+    ENSURE_EQUALS(fc1.args.size(), 0u);
 
-    ensure_equals("function 2", getFunctionCall(tree->functions[0].stmts[1]).function.value, "efgh");
-    ensure_equals("function pos 2", getFunctionCall(tree->functions[0].stmts[1]).function.position, at(4, 5));
-    ensure_equals("count 2", getFunctionCall(tree->functions[0].stmts[1]).args.size(), 1u);
-    ensure_equals("value 2", getConstant(getFunctionCall(tree->functions[0].stmts[1]).args[0].first).value, -2);
-    ensure_equals("value 2 pos", getConstant(getFunctionCall(tree->functions[0].stmts[1]).args[0].first).position, at(4, 10));
+    cst::FunctionCall& fc2 = getFunctionCall(f.stmts[1]);
+    ENSURE_IDENTIFIER(fc2.function, "efgh", at(4, 5));
+    ENSURE_EQUALS(fc2.args.size(), 1u);
+    ENSURE_CONST(fc2.args[0], -2, at(4, 10));
 
-    ensure_equals("function 3", getFunctionCall(tree->functions[0].stmts[2]).function.value, "ijkl");
-    ensure_equals("function pos 3", getFunctionCall(tree->functions[0].stmts[2]).function.position, at(5, 5));
-    ensure_equals("count 3", getFunctionCall(tree->functions[0].stmts[2]).args.size(), 2u);
-    ensure_equals("value 3", getConstant(getFunctionCall(tree->functions[0].stmts[2]).args[0].first).value, 2);
-    ensure_equals("value 3 pos", getConstant(getFunctionCall(tree->functions[0].stmts[2]).args[0].first).position, at(5, 10));
-    ensure_equals("value 4", getConstant(getFunctionCall(tree->functions[0].stmts[2]).args[1].first).value, 3);
-    ensure_equals("value 4 pos", getConstant(getFunctionCall(tree->functions[0].stmts[2]).args[1].first).position, at(5, 13));
+    cst::FunctionCall& fc3 = getFunctionCall(f.stmts[2]);
+    ENSURE_IDENTIFIER(fc3.function, "ijkl", at(5, 5));
+    ENSURE_EQUALS(fc3.args.size(), 2u);
+    ENSURE_CONST(fc3.args[0], 2, at(5, 10));
+    ENSURE_CONST(fc3.args[1], 3, at(5, 13));
 }
 
 template <>
@@ -228,7 +231,7 @@ void object::test<11>()
 
     source << "main() -> void\n{\n    print(1)\n}";
 
-    ensure_not("not parsed", parseFile());
+    ENSURE(!parseFile());
     ensureErrorCountEquals(1);
     ensureError(error::Message::missingSemicolon(at(4, 1)));
 }
@@ -241,7 +244,7 @@ void object::test<12>()
 
     source << "main() -> void\n{\n    print;\n}";
 
-    ensure_not("not parsed", parseFile());
+    ENSURE(!parseFile());
     ensureErrorCountEquals(1);
     ensureError(error::Message::missingOpeningParen(at(3, 10)));
 }
@@ -254,7 +257,7 @@ void object::test<13>()
 
     source << "main() -> void\n{\n    print(5 5;\n}";
 
-    ensure_not("not parsed", parseFile());
+    ENSURE(!parseFile());
     ensureErrorCountEquals(1);
     ensureError(error::Message::missingClosingParen(at(3, 13)));
 }
@@ -269,7 +272,7 @@ void object::test<14>()
 
     boost::optional<cst::Tree> tree = parseFile();
     
-    ensure("parsed", tree);
+    ENSURE(tree);
     ensureNoErrors();
     ensure_size("functions", tree->functions, 1u);
     
@@ -296,7 +299,7 @@ void object::test<15>()
 
     boost::optional<cst::Tree> tree = parseFile();
 
-    ensure("parsed", tree);
+    ENSURE(tree);
     ensureNoErrors();
     ensure_size("functions", tree->functions, 1u);
     
@@ -322,7 +325,7 @@ void object::test<16>()
     
     boost::optional<cst::Tree> tree = parseFile();
     
-    ensure("parsed", tree);
+    ENSURE(tree);
     ensureNoErrors();
     ensure_size("functions", tree->functions, 2u);
 
@@ -345,7 +348,7 @@ void object::test<17>()
     
     boost::optional<cst::Tree> tree = parseFile();
     
-    ensure("parsed", tree);
+    ENSURE(tree);
     ensureNoErrors();
     ensure_size("functions", tree->functions, 1u);
     
