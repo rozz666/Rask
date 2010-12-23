@@ -330,13 +330,13 @@ void object::test<16>()
     ENSURE_NO_ERRORS();
     ENSURE_EQUALS(tree->functions.size(), 2u);
 
-    ensure_equals(tree->functions[0].name.value, "f1");
-    ensure_equals(tree->functions[0].name.position, at(1, 1));
-    ensure_empty("f1 no stmts", tree->functions[0].stmts);
-
-    ensure_equals(tree->functions[1].name.value, "f2");
-    ensure_equals(tree->functions[1].name.position, at(4, 1));
-    ensure_empty("f2 no stmts", tree->functions[1].stmts);
+    cst::Function& f1 = tree->functions[0];
+    ENSURE_IDENTIFIER(f1.name, "f1", at(1, 1));
+    ENSURE_EQUALS(f1.stmts.size(), 0u);
+    
+    cst::Function& f2 = tree->functions[1];
+    ENSURE_IDENTIFIER(f2.name, "f2", at(4, 1));
+    ENSURE_EQUALS(f2.stmts.size(), 0u);
 }
 
 template <>
@@ -353,13 +353,13 @@ void object::test<17>()
     ENSURE_NO_ERRORS();
     ENSURE_EQUALS(tree->functions.size(), 1u);
     
-    ensure_equals("statements", tree->functions[0].stmts.size(), 1u);
-   
-    ensure_equals("a position", getVariableDecl(tree->functions[0].stmts[0]).name.position, at(3, 9));
-    ensure_equals("a name", getVariableDecl(tree->functions[0].stmts[0]).name.value, "a");
-    ensure("a has value", getVariableDecl(tree->functions[0].stmts[0]).value);
-    ensure_equals("b position", getIdentifier(getVariableDecl(tree->functions[0].stmts[0]).value->first).position, at(3, 13));
-    ensure_equals("b name", getIdentifier(getVariableDecl(tree->functions[0].stmts[0]).value->first).value, "b");
+    cst::Function& f = tree->functions[0];
+    ENSURE_EQUALS(f.stmts.size(), 1u);
+
+    cst::VariableDecl& decl = getVariableDecl(f.stmts[0]);
+    ENSURE_IDENTIFIER(decl.name, "a", at(3, 9));
+    ENSURE(decl.value);
+    ENSURE_VARIABLE(*decl.value, "b", at(3, 13));
 }
 
 template <>
@@ -376,16 +376,13 @@ void object::test<18>()
     ENSURE_NO_ERRORS();
     ENSURE_EQUALS(tree->functions.size(), 1u);
     
-    ENSURE_EQUALS(tree->functions[0].name.value, "f");
-    ENSURE_EQUALS(tree->functions[0].name.position, at(1, 1));
-    ENSURE_EQUALS(tree->functions[0].args.size(), 3u);
-    ENSURE_EQUALS(tree->functions[0].args[0].value, "x");
-    ENSURE_EQUALS(tree->functions[0].args[0].position, at(1, 9));
-    ENSURE_EQUALS(tree->functions[0].args[1].value, "y");
-    ENSURE_EQUALS(tree->functions[0].args[1].position, at(1, 18));
-    ENSURE_EQUALS(tree->functions[0].args[2].value, "z");
-    ENSURE_EQUALS(tree->functions[0].args[2].position, at(1, 27));
-    ENSURE(tree->functions[0].stmts.empty());
+    cst::Function& f = tree->functions[0];
+    ENSURE_IDENTIFIER(f.name, "f", at(1, 1));
+    ENSURE_EQUALS(f.args.size(), 3u);
+    ENSURE_IDENTIFIER(f.args[0], "x", at(1, 9));
+    ENSURE_IDENTIFIER(f.args[1], "y", at(1, 18));
+    ENSURE_IDENTIFIER(f.args[2], "z", at(1, 27));
+    ENSURE(f.stmts.empty());
 }
 
 template <>
