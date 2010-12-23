@@ -13,11 +13,18 @@
 #include <rask/cst/parseFile.hpp>
 
 #define ENSURE_IDENTIFIER(actual, expectedValue, expectedPosition) \
-    ENSURE_EQUALS(actual.value, expectedValue); \
-    ENSURE_EQUALS(actual.position, expectedPosition)
+    ENSURE_EQUALS((actual).value, expectedValue); \
+    ENSURE_EQUALS((actual).position, expectedPosition)
+    
 #define ENSURE_CONST(actual, expectedValue, expectedPosition) \
-    ENSURE_EQUALS(getConstant(actual.first).value, expectedValue); \
-    ENSURE_EQUALS(getConstant(actual.first).position, expectedPosition)
+    ENSURE_EQUALS(getConstant((actual).first).value, expectedValue); \
+    ENSURE_EQUALS(getConstant((actual).first).position, expectedPosition)
+
+#define ENSURE_VARIABLE(actual, expectedName, expectedPosition) \
+    ENSURE_IDENTIFIER(getIdentifier((actual).first), expectedName, expectedPosition)
+
+#define ENSURE_NO_ERRORS() \
+    ENSURE_EQUALS(errorLogger.errors().size(), 0u)
 
 namespace tut
 {
@@ -29,11 +36,6 @@ struct parseMain_TestData
     rask::InputStream sourceStream;
 
     parseMain_TestData() : sourceStream("test.rask", source) { }
-
-    void ensureNoErrors()
-    {
-        ensure("no errors", errorLogger.errors().empty());
-    }
 
     void ensureErrorCountEquals(unsigned n)
     {
@@ -85,7 +87,7 @@ void object::test<1>()
     ENSURE(tree);
     ENSURE_EQUALS(tree->functions.size(), 1u);
     ENSURE_IDENTIFIER(tree->functions[0].name, "main", at(1, 1));
-    ensureNoErrors();
+    ENSURE_NO_ERRORS();
 }
 
 template <>
@@ -201,7 +203,7 @@ void object::test<10>()
     boost::optional<cst::Tree> tree = parseFile();
 
     ENSURE(tree);
-    ensureNoErrors();
+    ENSURE_NO_ERRORS();
     ENSURE_EQUALS(tree->functions.size(), 1u);
     cst::Function& f = tree->functions[0]; 
     ENSURE_IDENTIFIER(f.name, "main", at(1, 1));
@@ -273,20 +275,20 @@ void object::test<14>()
     boost::optional<cst::Tree> tree = parseFile();
     
     ENSURE(tree);
-    ensureNoErrors();
-    ensure_size("functions", tree->functions, 1u);
-    
-    ensure_equals("statements", tree->functions[0].stmts.size(), 2u);
+    ENSURE_NO_ERRORS();
+    ENSURE_EQUALS(tree->functions.size(), 1u);
 
-    ensure_equals("x position", getVariableDecl(tree->functions[0].stmts[0]).name.position, at(3, 9));
-    ensure_equals("x name", getVariableDecl(tree->functions[0].stmts[0]).name.value, "x");
-    ensure_not("no x value", getVariableDecl(tree->functions[0].stmts[0]).value);
+    cst::Function& f = tree->functions[0];
+    ENSURE_EQUALS(f.stmts.size(), 2u);
 
-    ensure_equals("y position", getVariableDecl(tree->functions[0].stmts[1]).name.position, at(4, 9));
-    ensure_equals("y name", getVariableDecl(tree->functions[0].stmts[1]).name.value, "y");
-    ensure("y has value", getVariableDecl(tree->functions[0].stmts[1]).value);
-    ensure_equals("y value", getConstant(getVariableDecl(tree->functions[0].stmts[1]).value->first).value, -2);
-    ensure_equals("y value position", getConstant(getVariableDecl(tree->functions[0].stmts[1]).value->first).position, at(4, 13));
+    cst::VariableDecl& decl1 = getVariableDecl(f.stmts[0]);
+    ENSURE_IDENTIFIER(decl1.name, "x", at(3, 9));
+    ENSURE(!decl1.value);
+
+    cst::VariableDecl& decl2 = getVariableDecl(f.stmts[1]);
+    ENSURE_IDENTIFIER(decl2.name, "y", at(4, 9));
+    ENSURE(decl2.value);
+    ENSURE_CONST(*decl2.value, -2, at(4, 13));
 }
 
 template <>
@@ -300,19 +302,18 @@ void object::test<15>()
     boost::optional<cst::Tree> tree = parseFile();
 
     ENSURE(tree);
-    ensureNoErrors();
-    ensure_size("functions", tree->functions, 1u);
-    
-    ensure_size("statements", tree->functions[0].stmts, 1u);
-    ensure_equals("name", getFunctionCall(tree->functions[0].stmts[0]).function.value, "f");
-    ensure_equals("func pos", getFunctionCall(tree->functions[0].stmts[0]).function.position, at(3, 5));
-    ensure_size("args", getFunctionCall(tree->functions[0].stmts[0]).args, 3u);
-    ensure_equals(getIdentifier(getFunctionCall(tree->functions[0].stmts[0]).args[0].first).value, "x");
-    ensure_equals(getIdentifier(getFunctionCall(tree->functions[0].stmts[0]).args[0].first).position, at(3, 7));
-    ensure_equals(getConstant(getFunctionCall(tree->functions[0].stmts[0]).args[1].first).value, 1);
-    ensure_equals(getConstant(getFunctionCall(tree->functions[0].stmts[0]).args[1].first).position, at(3, 10));
-    ensure_equals(getIdentifier(getFunctionCall(tree->functions[0].stmts[0]).args[2].first).value, "y");
-    ensure_equals(getIdentifier(getFunctionCall(tree->functions[0].stmts[0]).args[2].first).position, at(3, 13));
+    ENSURE_NO_ERRORS();
+    ENSURE_EQUALS(tree->functions.size(), 1u);
+
+    cst::Function& f = tree->functions[0];
+    ENSURE_EQUALS(f.stmts.size(), 1u);
+
+    cst::FunctionCall& call = getFunctionCall(f.stmts[0]);
+    ENSURE_IDENTIFIER(call.function, "f", at(3, 5));
+    ENSURE_EQUALS(call.args.size(), 3u);
+    ENSURE_VARIABLE(call.args[0], "x", at(3, 7));
+    ENSURE_CONST(call.args[1], 1, at(3, 10));
+    ENSURE_VARIABLE(call.args[2], "y", at(3, 13));
 }
 
 template <>
@@ -326,8 +327,8 @@ void object::test<16>()
     boost::optional<cst::Tree> tree = parseFile();
     
     ENSURE(tree);
-    ensureNoErrors();
-    ensure_size("functions", tree->functions, 2u);
+    ENSURE_NO_ERRORS();
+    ENSURE_EQUALS(tree->functions.size(), 2u);
 
     ensure_equals(tree->functions[0].name.value, "f1");
     ensure_equals(tree->functions[0].name.position, at(1, 1));
@@ -349,8 +350,8 @@ void object::test<17>()
     boost::optional<cst::Tree> tree = parseFile();
     
     ENSURE(tree);
-    ensureNoErrors();
-    ensure_size("functions", tree->functions, 1u);
+    ENSURE_NO_ERRORS();
+    ENSURE_EQUALS(tree->functions.size(), 1u);
     
     ensure_equals("statements", tree->functions[0].stmts.size(), 1u);
    
@@ -372,7 +373,7 @@ void object::test<18>()
     boost::optional<cst::Tree> tree = parseFile();
     
     ENSURE(tree);
-    ensureNoErrors();
+    ENSURE_NO_ERRORS();
     ENSURE_EQUALS(tree->functions.size(), 1u);
     
     ENSURE_EQUALS(tree->functions[0].name.value, "f");
@@ -398,7 +399,7 @@ void object::test<19>()
     boost::optional<cst::Tree> tree = parseFile();
     
     ENSURE(tree);
-    ensureNoErrors();
+    ENSURE_NO_ERRORS();
     ENSURE_EQUALS(tree->functions.size(), 1u);
     
     ENSURE_EQUALS(tree->functions[0].type.value, "abcd123");
@@ -416,7 +417,7 @@ void object::test<20>()
     boost::optional<cst::Tree> tree = parseFile();
     
     ENSURE(tree);
-    ensureNoErrors();
+    ENSURE_NO_ERRORS();
     ENSURE_EQUALS(tree->functions.size(), 1u);
     
     ENSURE_EQUALS(tree->functions[0].type.value, "abcd123");
@@ -441,7 +442,7 @@ void object::test<21>()
     boost::optional<cst::Tree> tree = parseFile();
     
     ENSURE(tree);
-    ensureNoErrors();
+    ENSURE_NO_ERRORS();
     ENSURE_EQUALS(tree->functions.size(), 1u);
     
     ENSURE_EQUALS(tree->functions[0].stmts.size(), 1u);
@@ -466,7 +467,7 @@ void object::test<22>()
     boost::optional<cst::Tree> tree = parseFile();
     
     ENSURE(tree);
-    ensureNoErrors();
+    ENSURE_NO_ERRORS();
     ENSURE_EQUALS(tree->functions.size(), 1u);
     
     ENSURE_EQUALS(tree->functions[0].stmts.size(), 1u);
@@ -490,7 +491,7 @@ void object::test<23>()
     boost::optional<cst::Tree> tree = parseFile();
     
     ENSURE(tree);
-    ensureNoErrors();
+    ENSURE_NO_ERRORS();
     ENSURE_EQUALS(tree->functions.size(), 1u);
     
     ENSURE_EQUALS(tree->functions[0].stmts.size(), 1u);
@@ -514,7 +515,7 @@ void object::test<24>()
     boost::optional<cst::Tree> tree = parseFile();
     
     ENSURE(tree);
-    ensureNoErrors();
+    ENSURE_NO_ERRORS();
     ENSURE_EQUALS(tree->functions.size(), 1u);
     ENSURE_EQUALS(tree->functions[0].stmts.size(), 1u);
     const cst::UnaryOperatorCall& e = getUnaryOperatorCall(getReturn(tree->functions[0].stmts[0]).value.first);
@@ -536,7 +537,7 @@ void object::test<25>()
     boost::optional<cst::Tree> tree = parseFile();
 
     ENSURE(tree);
-    ensureNoErrors();
+    ENSURE_NO_ERRORS();
     ENSURE_EQUALS(tree->functions.size(), 1u);
     ENSURE_EQUALS(tree->functions[0].stmts.size(), 1u);
     const cst::Expression& e = getReturn(tree->functions[0].stmts[0]).value;
@@ -567,7 +568,7 @@ void object::test<26>()
     boost::optional<cst::Tree> tree = parseFile();
 
     ENSURE(tree);
-    ensureNoErrors();
+    ENSURE_NO_ERRORS();
     ENSURE_EQUALS(tree->functions.size(), 1u);
     ENSURE_EQUALS(tree->functions[0].stmts.size(), 1u);
     ENSURE(getVariableDecl(tree->functions[0].stmts[0]).value);
@@ -599,7 +600,7 @@ void object::test<27>()
     boost::optional<cst::Tree> tree = parseFile();
 
     ENSURE(tree);
-    ensureNoErrors();
+    ENSURE_NO_ERRORS();
     ENSURE_EQUALS(tree->functions.size(), 1u);
     ENSURE_EQUALS(tree->functions[0].stmts.size(), 1u);
     const cst::Expression& e = getFunctionCall(tree->functions[0].stmts[0]).args[0];
