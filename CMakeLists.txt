@@ -74,6 +74,7 @@ ADD_EXECUTABLE(
     rask/ut/ast/BuiltinFunctionsUT.cpp
     rask/ut/test/MockUT.cpp
     rask/ut/ast/buildExpressionUT.cpp
+    rask/ut/ast/buildUnaryExpressionUT.cpp
     rask/ut/cg/genValueUT.cpp
     rask/ut/ast/buildReturnUT.cpp
     rask/ut/cg/genReturnUT.cpp
