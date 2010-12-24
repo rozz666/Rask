@@ -22,7 +22,7 @@ public:
     BuilderMock(rask::error::Logger& logger, rask::ast::SymbolTable& st)
         : rask::ast::Builder(logger, st) { }
 
-    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildExpression, (const rask::cst::UnaryExpression&, expr));
+    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildUnaryExpression, (const rask::cst::UnaryExpression&, expr));
 };
     
 }
@@ -60,10 +60,10 @@ void object::test<1>()
     cst::UnaryOperatorCall oc;
     oc.op.tag = cst::UnaryOperator::MINUS;
 
-    rask::test::FunctionFactory functionFactory;
+    test::FunctionFactory functionFactory;
     ast::SharedCustomFunction f = functionFactory.createShared("operator-", ast::INT32, 1);
     ast::Constant retExpr(7);
-    MOCK_RETURN(builder, buildExpression, ast::Expression(retExpr));
+    MOCK_RETURN(builder, buildUnaryExpression, ast::Expression(retExpr));
 
     st.add(f);
     

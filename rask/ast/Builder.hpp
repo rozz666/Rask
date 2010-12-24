@@ -31,10 +31,10 @@ public:
     virtual bool buildFunction(const cst::Function& f);
     virtual boost::optional<Tree> buildTree(const cst::Tree& cst);
     virtual boost::optional<VariableDecl> buildVariableDecl(const cst::VariableDecl& vd);
-    virtual boost::optional<Expression> buildExpression(const cst::UnaryExpression& expr);
+    virtual boost::optional<Expression> buildUnaryExpression(const cst::UnaryExpression& expr);
     virtual boost::optional<Expression> buildExpression(const cst::Expression& expr)
     {
-        return buildExpression(expr.expr);
+        return buildUnaryExpression(expr.expr);
     }
     virtual boost::optional<Return> buildReturn(const cst::Return& ret);
     virtual boost::optional<FunctionCall> buildUnaryOperatorCall(const cst::UnaryOperatorCall& oc);

@@ -60,7 +60,7 @@ struct BuildExpression : boost::static_visitor<boost::optional<Expression> >
     }
 };
     
-boost::optional<Expression> Builder::buildExpression(const cst::UnaryExpression& expr)
+boost::optional<Expression> Builder::buildUnaryExpression(const cst::UnaryExpression& expr)
 {
     BuildExpression b(*this, symbolTable_, logger_);
     return expr.apply_visitor(b);
