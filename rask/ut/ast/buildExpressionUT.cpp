@@ -24,6 +24,7 @@ public:
 
     MOCK_METHOD(boost::optional<rask::ast::FunctionCall>, buildFunctionCall, (const rask::cst::FunctionCall&, fc));
     MOCK_METHOD(boost::optional<rask::ast::FunctionCall>, buildUnaryOperatorCall, (const rask::cst::UnaryOperatorCall&, oc));
+    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildUnaryExpression, (const rask::cst::UnaryExpression&, expr));
 };
 
 }
@@ -65,12 +66,15 @@ void object::test<1>()
 {
     using namespace rask;
 
-    cst::Constant c = cst::Constant::create(Position(), 123);
-    boost::optional<ast::Expression> expr = builder.buildExpression(createExpression(c));
+    cst::Expression e;
+    ast::Constant c(7);
+
+    MOCK_RETURN(builder, buildUnaryExpression, ast::Expression(c));
+    boost::optional<ast::Expression> expr = builder.buildExpression(e);
 
     ENSURE(expr);
     ENSURE(logger.errors().empty());
-    ENSURE(getConstant(*expr) == ast::Constant(c.value));
+    ENSURE(getConstant(*expr) == c);
 }
 
 template <>
@@ -78,92 +82,11 @@ template <>
 void object::test<2>()
 {
     using namespace rask;
-
-    cst::Identifier id = cst::Identifier::create(Position(), "abc");
-    ast::SharedVariable var(new ast::Variable(id));
-    st.add(var);
     
-    boost::optional<ast::Expression> expr = builder.buildExpression(createExpression(id));
+    cst::Expression e;
     
-    ENSURE(expr);
-    ENSURE(logger.errors().empty());
-    ENSURE(getVariable(*expr).lock() == var);
-}
-
-template <>
-template <>
-void object::test<3>()
-{
-    using namespace rask;
-    
-    cst::Identifier id = cst::Identifier::create(Position("xxx", 1, 2), "abc");
-    
-    ENSURE(!builder.buildExpression(createExpression(id)));
-    ENSURE_EQUALS(logger.errors().size(), 1u);
-    ENSURE_EQUALS(logger.errors()[0], error::Message::unknownIdentifier(id.position, id.value));
-}
-
-template <>
-template <>
-void object::test<4>()
-{
-    using namespace rask;
-
-    cst::FunctionCall fc;
-    unsigned n = 5;
-
-    MOCK_RETURN(builder, buildFunctionCall, ast::FunctionCall(ast::WeakFunction(), ast::FunctionCall::Arguments(n)));
-
-    boost::optional<ast::Expression> expr = builder.buildExpression(createExpression(fc));
-
-    ENSURE(expr);
-    ENSURE(logger.errors().empty());
-    ENSURE(getFunctionCall(*expr).args().size() == n);
-}
-
-template <>
-template <>
-void object::test<5>()
-{
-    using namespace rask;
-
-    cst::FunctionCall fc;
-
-    MOCK_RETURN(builder, buildFunctionCall, boost::none);
-
-    ENSURE(!builder.buildExpression(createExpression(fc)));
-    ENSURE(logger.errors().empty());
-}
-
-template <>
-template <>
-void object::test<6>()
-{
-    using namespace rask;
-
-    cst::UnaryOperatorCall c;
-    unsigned n = 5;
-    
-    MOCK_RETURN(builder, buildUnaryOperatorCall, ast::FunctionCall(ast::WeakFunction(), ast::FunctionCall::Arguments(n)));
-
-    boost::optional<ast::Expression> expr = builder.buildExpression(createExpression(c));
-
-    ENSURE(expr);
-    ENSURE(logger.errors().empty());
-    ENSURE(getFunctionCall(*expr).args().size() == n);
-}
-
-template <>
-template <>
-void object::test<7>()
-{
-    using namespace rask;
-    
-    cst::UnaryOperatorCall c;
-    
-    MOCK_RETURN(builder, buildUnaryOperatorCall, boost::none);
-    
-    ENSURE(!builder.buildExpression(createExpression(c)));
+    MOCK_RETURN(builder, buildUnaryExpression, boost::none);
+    ENSURE(!builder.buildExpression(e));
     ENSURE(logger.errors().empty());
 }
 
