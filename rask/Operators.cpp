@@ -11,8 +11,8 @@
 namespace rask
 {
 
-const std::string BINARY_MINUS_NAME = "operator-";
-const std::string BINARY_PLUS_NAME = "operator+";
-const std::string UNARY_MINUS_NAME = "operator-";
+const std::string BINARY_MINUS_NAME = "binary-";
+const std::string BINARY_PLUS_NAME = "binary+";
+const std::string UNARY_MINUS_NAME = "unary-";
 
 }
