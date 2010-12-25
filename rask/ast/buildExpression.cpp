@@ -66,7 +66,27 @@ boost::optional<Expression> Builder::buildUnaryExpression(const cst::UnaryExpres
     return expr.apply_visitor(b);
 }
 
-}
+boost::optional<Expression> Builder::buildExpression(const cst::Expression& expr)
+{
+    boost::optional<Expression> left = buildUnaryExpression(expr.expr);
+
+    if (!left) return boost::none;
+    
+    for(std::size_t i = 0; i != expr.next.size(); ++i)
+    {
+        Expression right = *buildUnaryExpression(expr.next[i].expr);
+
+        FunctionCall::Arguments args(2);
+        args[0] = *left;
+        args[1] = right;
+
+        std::string funcName = (expr.next[i].op.tag == cst::BinaryOperator::MINUS) ? "operator-" : "operator+";
+        left = FunctionCall(*symbolTable_.getFunction(funcName), args);
+    }
+
+    return left;
 }
 
 
+}
+}
