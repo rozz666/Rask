@@ -1,18 +1,18 @@
-#addImm:test:addImm.rask #Feature4
-#addVar1:test:addVar.rask #Feature4
-#addVar2:test:addVar.rask #Feature4
-#addFunc1:test:addFunc.rask #Feature4
-#addFunc2:test:addFunc.rask #Feature4
-#addMisc1:test:addMisc.rask #Feature4
-#addMisc2:test:addMisc.rask #Feature4
+addImm:test:addImm.rask #Feature4
+addVar1:test:addVar.rask #Feature4
+addVar2:test:addVar.rask #Feature4
+addFunc1:test:addFunc.rask #Feature4
+addFunc2:test:addFunc.rask #Feature4
+addMisc1:test:addMisc.rask #Feature4
+addMisc2:test:addMisc.rask #Feature4
 
-#subImm:test:subImm.rask #Feature4
-#subVar1:test:subVar.rask #Feature4
-#subVar2:test:subVar.rask #Feature4
-#subFunc1:test:subFunc.rask #Feature4
-#subFunc2:test:subFunc.rask #Feature4
-#subMisc1:test:subMisc.rask #Feature4
-#subMisc2:test:subMisc.rask #Feature4
+subImm:test:subImm.rask #Feature4
+subVar1:test:subVar.rask #Feature4
+subVar2:test:subVar.rask #Feature4
+subFunc1:test:subFunc.rask #Feature4
+subFunc2:test:subFunc.rask #Feature4
+subMisc1:test:subMisc.rask #Feature4
+subMisc2:test:subMisc.rask #Feature4
 
 #mulImm:test:subImm.rask #Feature4
 #mulVar1:test:subVar.rask #Feature4
