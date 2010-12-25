@@ -1,2 +1,4 @@
+Refactor genFunctionCall and UTs
+Simplify operator addition!
 Make cg::declBuiltinFunctions use ast::BuiltinFunctions
 Check if variable is already declared
