@@ -597,4 +597,29 @@ void object::test<27>()
     ENSURE_CONST(expr.next[1], 5, at(3, 15));
 }
 
+template <>
+template <>
+void object::test<28>()
+{
+    using namespace rask;
+
+    source << "f() -> abcd123\n{\n    f(x * y * 7);\n}";
+
+    boost::optional<cst::Tree> tree = parseFile();
+
+    ENSURE(tree);
+    ENSURE_NO_ERRORS();
+    ENSURE_EQUALS(tree->functions.size(), 1u);
+
+    cst::Function& f = tree->functions[0];
+    ENSURE_EQUALS(f.stmts.size(), 1u);
+    const cst::Expression& expr = getFunctionCall(f.stmts[0]).args[0];
+    ENSURE_VARIABLE(expr, "x", at(3, 7));
+    ENSURE_EQUALS(expr.next.size(), 2u);
+    ENSURE_OPERATOR(expr.next[0], cst::BinaryOperator::MULT, at(3, 9));
+    ENSURE_VARIABLE(expr.next[0], "y", at(3, 11));
+    ENSURE_OPERATOR(expr.next[1], cst::BinaryOperator::MULT, at(3, 13));
+    ENSURE_CONST(expr.next[1], 7, at(3, 15));
+}
+
 }

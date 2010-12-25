@@ -32,7 +32,7 @@ typedef boost::variant<
 
 struct BinaryOperator
 {
-    enum Tag { PLUS, MINUS };
+    enum Tag { PLUS, MINUS, MULT };
     Position position;
     Tag tag;
 };
