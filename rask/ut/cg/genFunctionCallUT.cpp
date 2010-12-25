@@ -201,4 +201,31 @@ void object::test<5>()
     ENSURE(binOp->getOperand(1) == a2);
 }
 
+template <>
+template <>
+void object::test<6>()
+{
+    using namespace rask;
+    
+    unsigned numArgs = 2;
+    createFunction(BINARY_PLUS_NAME, numArgs);
+    ast::SharedBuiltinFunction dummy(new ast::BuiltinFunction(BINARY_PLUS_NAME, ast::INT32, numArgs));
+    ast::FunctionCall fc(dummy, ast::FunctionCall::Arguments(numArgs, ast::Constant(1)));
+    
+    MOCK_RETURN(cg, genValue, a1);
+    MOCK_RETURN(cg, genValue, a2);
+    
+    llvm::Value *val = cg.genFunctionCall(fc, *block);
+    
+    ENSURE_CALL(cg, genValue(fc.args()[0], *block));
+    ENSURE_EQUALS(block->size(), 1u);
+    ENSURE(val == &*block->begin());
+    ENSURE(llvm::isa<llvm::BinaryOperator>(val));
+    llvm::BinaryOperator *binOp = llvm::cast<llvm::BinaryOperator>(val);
+    ENSURE(binOp->getOpcode() == llvm::Instruction::Add);
+    ENSURE_EQUALS(binOp->getNumOperands(), 2u);
+    ENSURE(binOp->getOperand(0) == a1);
+    ENSURE(binOp->getOperand(1) == a2);
+}
+
 }

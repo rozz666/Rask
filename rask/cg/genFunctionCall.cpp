@@ -34,6 +34,13 @@ llvm::Value *CodeGenerator::genFunctionCall(const ast::FunctionCall& fc, llvm::B
         return llvm::BinaryOperator::CreateNSWSub(left, right, "", &block);
     }
 
+    if (f->name().value == BINARY_PLUS_NAME)
+    {
+        llvm::Value *left = genValue(fc.args()[0], block);
+        llvm::Value *right = genValue(fc.args()[1], block);
+        return llvm::BinaryOperator::CreateNSWAdd(left, right, "", &block);
+    }
+
     const llvm::Module& module = *block.getParent()->getParent();
 
     if (!module.getFunction(f->name().value))
