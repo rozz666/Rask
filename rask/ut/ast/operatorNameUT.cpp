@@ -50,4 +50,11 @@ void object::test<3>()
     ENSURE_EQUALS(rask::ast::operatorName(rask::cst::UnaryOperator::MINUS), rask::UNARY_MINUS_NAME);
 }
 
+template <>
+template <>
+void object::test<4>()
+{
+    ENSURE_EQUALS(rask::ast::operatorName(rask::cst::BinaryOperator::MULT), rask::BINARY_MULT_NAME);
+}
+
 }

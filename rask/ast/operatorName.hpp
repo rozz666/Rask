@@ -18,7 +18,13 @@ namespace ast
 
 inline std::string operatorName(cst::BinaryOperator::Tag op)
 {
-    return (op == cst::BinaryOperator::MINUS) ? BINARY_MINUS_NAME : BINARY_PLUS_NAME;
+    switch (op)
+    {
+        case cst::BinaryOperator::MINUS: return BINARY_MINUS_NAME;
+        case cst::BinaryOperator::PLUS: return BINARY_PLUS_NAME;
+        default:
+            return BINARY_MULT_NAME;
+    }
 }
 
 inline std::string operatorName(cst::UnaryOperator::Tag)
