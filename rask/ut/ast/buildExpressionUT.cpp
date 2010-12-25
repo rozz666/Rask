@@ -12,7 +12,7 @@
 #include <rask/test/Mock.hpp>
 #include <rask/ast/Builder.hpp>
 #include <rask/test/FunctionFactory.hpp>
-#include <rask/ast/Operators.hpp>
+#include <rask/Operators.hpp>
 
 namespace
 {
@@ -109,10 +109,8 @@ void object::test<3>()
     MOCK_RETURN(builder, buildUnaryExpression, ast::Expression(c));
 
     test::FunctionFactory functionFactory;
-    ast::SharedCustomFunction opMinus =
-        functionFactory.createShared(ast::operatorName(cst::BinaryOperator::MINUS), ast::INT32, 2);
-    ast::SharedCustomFunction opPlus =
-        functionFactory.createShared(ast::operatorName(cst::BinaryOperator::PLUS), ast::INT32, 2);
+    ast::SharedCustomFunction opMinus = functionFactory.createShared(BINARY_MINUS_NAME, ast::INT32, 2);
+    ast::SharedCustomFunction opPlus = functionFactory.createShared(BINARY_PLUS_NAME, ast::INT32, 2);
     st.add(opMinus);
     st.add(opPlus);
     

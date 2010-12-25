@@ -11,6 +11,7 @@
 #include <rask/test/TUTAssert.hpp>
 #include <rask/ast/BuiltinFunctions.hpp>
 #include <rask/ast/SymbolTable.hpp>
+#include <rask/Operators.hpp>
 
 namespace tut
 {
@@ -69,7 +70,7 @@ template <>
 template <>
 void object::test<3>()
 {
-    ensureBuiltinFunction("operator-", rask::ast::INT32, 1);
+    ensureBuiltinFunction(rask::UNARY_MINUS_NAME, rask::ast::INT32, 1);
 }
 
 }

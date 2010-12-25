@@ -27,7 +27,8 @@ add_library(
     rask/ast/BuiltinFunctions.cpp
     rask/ast/buildExpression.cpp
     rask/ast/buildReturn.cpp
-    rask/ast/buildUnaryOperatorCall.cpp)
+    rask/ast/buildUnaryOperatorCall.cpp
+    rask/Operators.cpp)
 
 add_library(
     raskcst STATIC
@@ -43,14 +44,15 @@ add_library(
     rask/cg/genVariableDecl.cpp
     rask/cg/genValue.cpp
     rask/cg/genReturn.cpp
-    rask/cg/Prefixes.cpp)
+    rask/cg/Prefixes.cpp
+    rask/Operators.cpp)
 
 
 ADD_EXECUTABLE(rask rask/main/rask.cpp)
 ADD_EXECUTABLE(
     raskut
     rask/main/ut.cpp
-    rask/ut/ast/OperatorsUT.cpp
+    rask/ut/ast/operatorNameUT.cpp
     rask/ut/ast/CustomFunctionUT.cpp
     rask/ut/ast/buildFunctionUT.cpp
     rask/ut/cst/parseFileUT.cpp

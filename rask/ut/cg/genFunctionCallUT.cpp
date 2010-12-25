@@ -14,6 +14,7 @@
 #include <rask/ast/BuiltinFunction.hpp>
 #include <rask/test/TUTAssert.hpp>
 #include <rask/test/Mock.hpp>
+#include <rask/Operators.hpp>
 #include <llvm/LLVMContext.h>
 #include <llvm/Instructions.h>
 #include <llvm/DerivedTypes.h>
@@ -157,10 +158,9 @@ void object::test<4>()
 {
     using namespace rask;
 
-    std::string f = "operator-";
     unsigned numArgs = 1;
-    createFunction(f, numArgs);
-    ast::SharedBuiltinFunction dummy(new ast::BuiltinFunction(f, ast::INT32, numArgs));
+    createFunction(UNARY_MINUS_NAME, numArgs);
+    ast::SharedBuiltinFunction dummy(new ast::BuiltinFunction(UNARY_MINUS_NAME, ast::INT32, numArgs));
     ast::FunctionCall fc(dummy, ast::FunctionCall::Arguments(numArgs, ast::Constant(1)));
 
     MOCK_RETURN(cg, genValue, a1);

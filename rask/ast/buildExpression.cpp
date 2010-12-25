@@ -8,7 +8,7 @@
 //
 
 #include <rask/ast/Builder.hpp>
-#include <rask/ast/Operators.hpp>
+#include <rask/ast/operatorName.hpp>
 
 namespace rask
 {

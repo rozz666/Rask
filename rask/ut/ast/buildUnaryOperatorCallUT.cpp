@@ -11,6 +11,7 @@
 #include <rask/test/Mock.hpp>
 #include <rask/ast/Builder.hpp>
 #include <rask/test/FunctionFactory.hpp>
+#include <rask/Operators.hpp>
 
 namespace
 {
@@ -61,7 +62,7 @@ void object::test<1>()
     oc.op.tag = cst::UnaryOperator::MINUS;
 
     test::FunctionFactory functionFactory;
-    ast::SharedCustomFunction f = functionFactory.createShared("operator-", ast::INT32, 1);
+    ast::SharedCustomFunction f = functionFactory.createShared(UNARY_MINUS_NAME, ast::INT32, 1);
     ast::Constant retExpr(7);
     MOCK_RETURN(builder, buildUnaryExpression, ast::Expression(retExpr));
 

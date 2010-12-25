@@ -7,6 +7,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <rask/ast/Builder.hpp>
+#include <rask/Operators.hpp>
 
 namespace rask
 {
@@ -17,7 +18,7 @@ boost::optional<FunctionCall> Builder::buildUnaryOperatorCall(const cst::UnaryOp
 {
     FunctionCall::Arguments args;
     args.push_back(*buildUnaryExpression(oc.expr));
-    return FunctionCall(*symbolTable_.getFunction("operator-"), args);
+    return FunctionCall(*symbolTable_.getFunction(UNARY_MINUS_NAME), args);
 }
     
 }

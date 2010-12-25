@@ -11,6 +11,7 @@
 #include <llvm/DerivedTypes.h>
 #include <llvm/Instructions.h>
 #include <rask/cg/CodeGenerator.hpp>
+#include <rask/Operators.hpp>
 
 namespace rask
 {
@@ -21,7 +22,7 @@ llvm::Value *CodeGenerator::genFunctionCall(const ast::FunctionCall& fc, llvm::B
 {
     ast::SharedFunction f = fc.function().lock();
 
-    if (f->name().value == "operator-")
+    if (f->name().value == UNARY_MINUS_NAME)
     {
         return llvm::BinaryOperator::CreateNeg(genValue(fc.args()[0], block), "", &block);
     }

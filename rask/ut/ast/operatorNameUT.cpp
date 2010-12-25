@@ -8,7 +8,7 @@
 //
 #include <tut/tut.hpp>
 #include <rask/test/TUTAssert.hpp>
-#include <rask/ast/Operators.hpp>
+#include <rask/ast/operatorName.hpp>
 
 namespace tut
 {
@@ -23,7 +23,7 @@ typedef factory::object object;
 
 namespace
 {
-tut::factory tf("rask.ast.Operators");
+tut::factory tf("rask.ast.operatorName");
 }
 
 namespace tut
@@ -33,21 +33,21 @@ template <>
 template <>
 void object::test<1>()
 {
-    ENSURE_EQUALS(rask::ast::operatorName(rask::cst::BinaryOperator::MINUS), "operator-");
+    ENSURE_EQUALS(rask::ast::operatorName(rask::cst::BinaryOperator::MINUS), rask::BINARY_MINUS_NAME);
 }
 
 template <>
 template <>
 void object::test<2>()
 {
-    ENSURE_EQUALS(rask::ast::operatorName(rask::cst::BinaryOperator::PLUS), "operator+");
+    ENSURE_EQUALS(rask::ast::operatorName(rask::cst::BinaryOperator::PLUS), rask::BINARY_PLUS_NAME);
 }
 
 template <>
 template <>
 void object::test<3>()
 {
-    ENSURE_EQUALS(rask::ast::operatorName(rask::cst::UnaryOperator::MINUS), "operator-");
+    ENSURE_EQUALS(rask::ast::operatorName(rask::cst::UnaryOperator::MINUS), rask::UNARY_MINUS_NAME);
 }
 
 }
