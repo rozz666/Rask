@@ -15,7 +15,7 @@ namespace rask
 namespace ast
 {
 
-inline std::string operatorName(const cst::BinaryOperator::Tag& op)
+inline std::string operatorName(cst::BinaryOperator::Tag op)
 {
     return (op == cst::BinaryOperator::MINUS) ? "operator-" : "operator+";
 }
