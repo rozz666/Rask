@@ -141,7 +141,7 @@ void object::test<3>()
     try
     {
         cg.genFunctionCall(fc, *block);
-        FAIL("exprected invalid_argument");
+        FAIL("expected invalid_argument");
     }
     catch (const std::invalid_argument& e)
     {
