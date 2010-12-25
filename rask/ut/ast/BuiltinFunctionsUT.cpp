@@ -73,4 +73,18 @@ void object::test<3>()
     ensureBuiltinFunction(rask::UNARY_MINUS_NAME, rask::ast::INT32, 1);
 }
 
+template <>
+template <>
+void object::test<4>()
+{
+    ensureBuiltinFunction(rask::BINARY_MINUS_NAME, rask::ast::INT32, 2);
+}
+
+template <>
+template <>
+void object::test<5>()
+{
+    ensureBuiltinFunction(rask::BINARY_PLUS_NAME, rask::ast::INT32, 2);
+}
+
 }

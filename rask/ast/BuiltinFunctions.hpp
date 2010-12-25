@@ -31,6 +31,8 @@ private:
     SharedBuiltinFunction print_;
     SharedBuiltinFunction getInt32_;
     SharedBuiltinFunction operatorMinusInt32_;
+    SharedBuiltinFunction operatorMinusInt32Int32_;
+    SharedBuiltinFunction operatorPlusInt32Int32_;
 };
 
 }
