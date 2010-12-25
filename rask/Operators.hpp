@@ -16,6 +16,7 @@ namespace rask
 
 extern const std::string BINARY_MINUS_NAME;
 extern const std::string BINARY_PLUS_NAME;
+extern const std::string BINARY_MULT_NAME;
 extern const std::string UNARY_MINUS_NAME;
 
 }
