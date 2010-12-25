@@ -8,6 +8,7 @@
 //
 
 #include <rask/ast/Builder.hpp>
+#include <rask/ast/Operators.hpp>
 
 namespace rask
 {
@@ -80,8 +81,7 @@ boost::optional<Expression> Builder::buildExpression(const cst::Expression& expr
         args[0] = *left;
         args[1] = right;
 
-        std::string funcName = (expr.next[i].op.tag == cst::BinaryOperator::MINUS) ? "operator-" : "operator+";
-        left = FunctionCall(*symbolTable_.getFunction(funcName), args);
+        left = FunctionCall(*symbolTable_.getFunction(operatorName(expr.next[i].op.tag)), args);
     }
 
     return left;
