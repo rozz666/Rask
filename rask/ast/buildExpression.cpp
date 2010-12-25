@@ -75,11 +75,13 @@ boost::optional<Expression> Builder::buildExpression(const cst::Expression& expr
     
     for(std::size_t i = 0; i != expr.next.size(); ++i)
     {
-        Expression right = *buildUnaryExpression(expr.next[i].expr);
+        boost::optional<Expression> right = buildUnaryExpression(expr.next[i].expr);
+
+        if (!right) return boost::none;
 
         FunctionCall::Arguments args(2);
         args[0] = *left;
-        args[1] = right;
+        args[1] = *right;
 
         left = FunctionCall(*symbolTable_.getFunction(operatorName(expr.next[i].op.tag)), args);
     }

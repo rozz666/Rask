@@ -129,4 +129,19 @@ void object::test<3>()
     ENSURE(getConstant(fc1.args()[1]) == c);
 }
 
+template <>
+template <>
+void object::test<4>()
+{
+    using namespace rask;
+
+    cst::Expression e;
+    e.next.resize(2);
+
+    MOCK_RETURN(builder, buildUnaryExpression, ast::Expression(ast::Constant(1)));
+    MOCK_RETURN(builder, buildUnaryExpression, boost::none);
+    ENSURE(!builder.buildExpression(e));
+    ENSURE(logger.errors().empty());
+}
+
 }
