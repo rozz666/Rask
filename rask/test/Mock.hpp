@@ -13,6 +13,7 @@
 #include <deque>
 #include <boost/preprocessor.hpp>
 #include <boost/mpl/if.hpp>
+#include <boost/assert.hpp>
 #include <rask/test/TUTAssert.hpp>
 
 namespace rask
@@ -145,7 +146,7 @@ do { \
 do { \
     if (mock.call__##call.calls.empty()) FAIL(#call " not called"); \
     unsigned vi = mock.getCallVerificationIndex(); \
-    assert(mock.call__##call.calls.front().callIndex__ >= vi); \
+    BOOST_ASSERT(mock.call__##call.calls.front().callIndex__ >= vi); \
     if (mock.call__##call.calls.front().callIndex__ > vi) FAIL(#call " called too late"); \
     mock.call__##call.calls.front().verify__(__FILE__, __LINE__, mock.call__##call.calls.front()).call; \
     mock.call__##call.calls.pop_front(); \
