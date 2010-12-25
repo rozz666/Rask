@@ -62,6 +62,30 @@ struct genFunctionCall_TestData
         llvm::FunctionType *type = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), args, false);
         llvm::Function::Create(type, llvm::Function::ExternalLinkage, name, &*module);
     }
+
+    void checkBinaryOperator(const std::string& opName, llvm::Instruction::BinaryOps op)
+    {
+        using namespace rask;
+
+        unsigned numArgs = 2;
+        createFunction(opName, numArgs);
+        ast::SharedBuiltinFunction dummy(new ast::BuiltinFunction(opName, ast::INT32, numArgs));
+        ast::FunctionCall fc(dummy, ast::FunctionCall::Arguments(numArgs, ast::Constant(1)));
+
+        MOCK_RETURN(cg, genValue, a1);
+        MOCK_RETURN(cg, genValue, a2);
+
+        llvm::Value *val = cg.genFunctionCall(fc, *block);
+
+        ENSURE_EQUALS(block->size(), 1u);
+        ENSURE(val == &*block->begin());
+        ENSURE(llvm::isa<llvm::BinaryOperator>(val));
+        llvm::BinaryOperator *binOp = llvm::cast<llvm::BinaryOperator>(val);
+        ENSURE(binOp->getOpcode() == op);
+        ENSURE_EQUALS(binOp->getNumOperands(), 2u);
+        ENSURE(binOp->getOperand(0) == a1);
+        ENSURE(binOp->getOperand(1) == a2);
+    }
 };
 
 typedef test_group<genFunctionCall_TestData> factory;
@@ -176,78 +200,21 @@ template <>
 template <>
 void object::test<5>()
 {
-    using namespace rask;
-
-    unsigned numArgs = 2;
-    createFunction(BINARY_MINUS_NAME, numArgs);
-    ast::SharedBuiltinFunction dummy(new ast::BuiltinFunction(BINARY_MINUS_NAME, ast::INT32, numArgs));
-    ast::FunctionCall fc(dummy, ast::FunctionCall::Arguments(numArgs, ast::Constant(1)));
-
-    MOCK_RETURN(cg, genValue, a1);
-    MOCK_RETURN(cg, genValue, a2);
-
-    llvm::Value *val = cg.genFunctionCall(fc, *block);
-
-    ENSURE_EQUALS(block->size(), 1u);
-    ENSURE(val == &*block->begin());
-    ENSURE(llvm::isa<llvm::BinaryOperator>(val));
-    llvm::BinaryOperator *binOp = llvm::cast<llvm::BinaryOperator>(val);
-    ENSURE(binOp->getOpcode() == llvm::Instruction::Sub);
-    ENSURE_EQUALS(binOp->getNumOperands(), 2u);
-    ENSURE(binOp->getOperand(0) == a1);
-    ENSURE(binOp->getOperand(1) == a2);
+    checkBinaryOperator(rask::BINARY_MINUS_NAME, llvm::Instruction::Sub);
 }
 
 template <>
 template <>
 void object::test<6>()
 {
-    using namespace rask;
-
-    unsigned numArgs = 2;
-    createFunction(BINARY_PLUS_NAME, numArgs);
-    ast::SharedBuiltinFunction dummy(new ast::BuiltinFunction(BINARY_PLUS_NAME, ast::INT32, numArgs));
-    ast::FunctionCall fc(dummy, ast::FunctionCall::Arguments(numArgs, ast::Constant(1)));
-
-    MOCK_RETURN(cg, genValue, a1);
-    MOCK_RETURN(cg, genValue, a2);
-
-    llvm::Value *val = cg.genFunctionCall(fc, *block);
-
-    ENSURE_EQUALS(block->size(), 1u);
-    ENSURE(val == &*block->begin());
-    ENSURE(llvm::isa<llvm::BinaryOperator>(val));
-    llvm::BinaryOperator *binOp = llvm::cast<llvm::BinaryOperator>(val);
-    ENSURE(binOp->getOpcode() == llvm::Instruction::Add);
-    ENSURE_EQUALS(binOp->getNumOperands(), 2u);
-    ENSURE(binOp->getOperand(0) == a1);
-    ENSURE(binOp->getOperand(1) == a2);
+    checkBinaryOperator(rask::BINARY_PLUS_NAME, llvm::Instruction::Add);
 }
 
 template <>
 template <>
 void object::test<7>()
 {
-    using namespace rask;
-
-    unsigned numArgs = 2;
-    createFunction(BINARY_MULT_NAME, numArgs);
-    ast::SharedBuiltinFunction dummy(new ast::BuiltinFunction(BINARY_MULT_NAME, ast::INT32, numArgs));
-    ast::FunctionCall fc(dummy, ast::FunctionCall::Arguments(numArgs, ast::Constant(1)));
-
-    MOCK_RETURN(cg, genValue, a1);
-    MOCK_RETURN(cg, genValue, a2);
-
-    llvm::Value *val = cg.genFunctionCall(fc, *block);
-
-    ENSURE_EQUALS(block->size(), 1u);
-    ENSURE(val == &*block->begin());
-    ENSURE(llvm::isa<llvm::BinaryOperator>(val));
-    llvm::BinaryOperator *binOp = llvm::cast<llvm::BinaryOperator>(val);
-    ENSURE(binOp->getOpcode() == llvm::Instruction::Mul);
-    ENSURE_EQUALS(binOp->getNumOperands(), 2u);
-    ENSURE(binOp->getOperand(0) == a1);
-    ENSURE(binOp->getOperand(1) == a2);
+    checkBinaryOperator(rask::BINARY_MULT_NAME, llvm::Instruction::Mul);
 }
 
 }
