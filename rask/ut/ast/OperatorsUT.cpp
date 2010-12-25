@@ -43,4 +43,11 @@ void object::test<2>()
     ENSURE_EQUALS(rask::ast::operatorName(rask::cst::BinaryOperator::PLUS), "operator+");
 }
 
+template <>
+template <>
+void object::test<3>()
+{
+    ENSURE_EQUALS(rask::ast::operatorName(rask::cst::UnaryOperator::MINUS), "operator-");
+}
+
 }

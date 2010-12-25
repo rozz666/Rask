@@ -20,6 +20,11 @@ inline std::string operatorName(const cst::BinaryOperator::Tag& op)
     return (op == cst::BinaryOperator::MINUS) ? "operator-" : "operator+";
 }
 
+inline std::string operatorName(cst::UnaryOperator::Tag)
+{
+    return "operator-";
+}
+
 }
 }
 #endif /* RASK_AST_OPERATORS_HPP */
