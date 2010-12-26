@@ -20,7 +20,11 @@ void Optimizer::optimize(ChainExpression& ce) const
     {
         if (ce.next.empty())
         {
-            ce = ChainExpression(getChainExpression(ce.expr));
+            do
+            {
+                ce = ChainExpression(getChainExpression(ce.expr));
+            }
+            while (ce.next.empty());
         }
         else
         {

@@ -44,11 +44,13 @@ void object::test<1>()
 
     cst::ChainExpression ce2;
     ce2.expr = ce;
+    cst::ChainExpression ce3;
+    ce3.expr = ce2;
 
-    optimizer.optimize(ce2);
-    ENSURE_EQUALS(getConstant(ce2.expr).value, c);
-    ENSURE_EQUALS(ce2.next.size(), 1u);
-    ENSURE_EQUALS(getConstant(ce2.next[0].expr).value, c2);
+    optimizer.optimize(ce3);
+    ENSURE_EQUALS(getConstant(ce3.expr).value, c);
+    ENSURE_EQUALS(ce3.next.size(), 1u);
+    ENSURE_EQUALS(getConstant(ce3.next[0].expr).value, c2);
 }
 
 template <>
