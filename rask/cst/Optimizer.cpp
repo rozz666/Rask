@@ -28,7 +28,10 @@ void Optimizer::optimize(ChainExpression& ce) const
         }
         else
         {
-            ce.expr = Expression(getChainExpression(ce.expr).expr);
+            while (ce.expr.type() == typeid(ChainExpression))
+            {
+                ce.expr = Expression(getChainExpression(ce.expr).expr);
+            }
         }
     }
 }

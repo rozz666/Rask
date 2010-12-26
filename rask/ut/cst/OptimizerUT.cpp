@@ -80,13 +80,16 @@ void object::test<3>()
 
     cst::ChainExpression ce2;
     ce2.expr = ce;
-    ce2.next.resize(1);
-    ce2.next[0].expr = cst::Constant::create(Position(), c2);
 
-    optimizer.optimize(ce2);
-    ENSURE_EQUALS(getConstant(ce2.expr).value, c);
-    ENSURE_EQUALS(ce2.next.size(), 1u);
-    ENSURE_EQUALS(getConstant(ce2.next[0].expr).value, c2);
+    cst::ChainExpression ce3;
+    ce3.expr = ce2;
+    ce3.next.resize(1);
+    ce3.next[0].expr = cst::Constant::create(Position(), c2);
+
+    optimizer.optimize(ce3);
+    ENSURE_EQUALS(getConstant(ce3.expr).value, c);
+    ENSURE_EQUALS(ce3.next.size(), 1u);
+    ENSURE_EQUALS(getConstant(ce3.next[0].expr).value, c2);
 }
 
 }
