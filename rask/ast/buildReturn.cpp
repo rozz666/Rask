@@ -16,7 +16,7 @@ namespace ast
 
 boost::optional<Return> Builder::buildReturn(const cst::Return& ret)
 {
-    boost::optional<Expression> expr = buildExpression(ret.value);
+    boost::optional<Expression> expr = buildChainExpression(ret.value);
 
     if (!expr) return boost::none;
 

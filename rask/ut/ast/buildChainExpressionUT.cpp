@@ -56,7 +56,7 @@ typedef factory::object object;
 
 namespace
 {
-tut::factory tf("rask.ast.Builder.buildExpression");
+tut::factory tf("rask.ast.Builder.buildChainExpression");
 }
 
 namespace tut
@@ -72,7 +72,7 @@ void object::test<1>()
     ast::Constant c(7);
 
     MOCK_RETURN(builder, buildUnaryExpression, ast::Expression(c));
-    boost::optional<ast::Expression> expr = builder.buildExpression(e);
+    boost::optional<ast::Expression> expr = builder.buildChainExpression(e);
 
     ENSURE(expr);
     ENSURE(logger.errors().empty());
@@ -88,7 +88,7 @@ void object::test<2>()
     cst::ChainExpression e;
     
     MOCK_RETURN(builder, buildUnaryExpression, boost::none);
-    ENSURE(!builder.buildExpression(e));
+    ENSURE(!builder.buildChainExpression(e));
     ENSURE(logger.errors().empty());
 }
 
@@ -114,7 +114,7 @@ void object::test<3>()
     st.add(opMinus);
     st.add(opPlus);
     
-    boost::optional<ast::Expression> expr = builder.buildExpression(e);
+    boost::optional<ast::Expression> expr = builder.buildChainExpression(e);
 
     ENSURE(expr);
     ENSURE(logger.errors().empty());
@@ -140,7 +140,7 @@ void object::test<4>()
 
     MOCK_RETURN(builder, buildUnaryExpression, ast::Expression(ast::Constant(1)));
     MOCK_RETURN(builder, buildUnaryExpression, boost::none);
-    ENSURE(!builder.buildExpression(e));
+    ENSURE(!builder.buildChainExpression(e));
     ENSURE(logger.errors().empty());
 }
 

@@ -23,7 +23,7 @@ public:
     BuilderMock(rask::error::Logger& logger, rask::ast::SymbolTable& st)
     : rask::ast::Builder(logger, st) { }
 
-    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildExpression, (const rask::cst::ChainExpression&, expr));
+    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildChainExpression, (const rask::cst::ChainExpression&, expr));
 };
     
 }
@@ -85,8 +85,8 @@ void object::test<2>()
     ccall.function = cst::Identifier::create(Position(file, 2, 4), f->name().value);
     ccall.args.resize(2);
 
-    MOCK_RETURN(builder, buildExpression, ast::Expression(dummy1));
-    MOCK_RETURN(builder, buildExpression, ast::Expression(dummy2));
+    MOCK_RETURN(builder, buildChainExpression, ast::Expression(dummy1));
+    MOCK_RETURN(builder, buildChainExpression, ast::Expression(dummy2));
     
     boost::optional<ast::FunctionCall> call = builder.buildFunctionCall(ccall);
     
@@ -94,9 +94,9 @@ void object::test<2>()
     ENSURE_EQUALS(logger.errors().size(), 0u);
     ENSURE(call->function().lock() == f);
     ENSURE_EQUALS(call->args().size(), 2u);
-    ENSURE_CALL(builder, buildExpression(ccall.args[0]));
+    ENSURE_CALL(builder, buildChainExpression(ccall.args[0]));
     ENSURE_EQUALS(getConstant(call->args()[0]), dummy1);
-    ENSURE_CALL(builder, buildExpression(ccall.args[1]));
+    ENSURE_CALL(builder, buildChainExpression(ccall.args[1]));
     ENSURE_EQUALS(getConstant(call->args()[1]), dummy2);
 }
 
@@ -140,14 +140,14 @@ void object::test<5>()
     ccall.function = cst::Identifier::create(Position(file, 2, 4), "print");
     ccall.args.resize(2);
 
-    MOCK_RETURN(builder, buildExpression, ast::Expression(dummy1));
-    MOCK_RETURN(builder, buildExpression, ast::Expression(dummy2));
+    MOCK_RETURN(builder, buildChainExpression, ast::Expression(dummy1));
+    MOCK_RETURN(builder, buildChainExpression, ast::Expression(dummy2));
     
     ENSURE(!builder.buildFunctionCall(ccall));
     ENSURE_EQUALS(logger.errors().size(), 1u);
     ENSURE_EQUALS(logger.errors()[0], error::Message::functionNotFound(ccall.function.position, "print(int, int)"));
-    ENSURE_CALL(builder, buildExpression(ccall.args[0]));
-    ENSURE_CALL(builder, buildExpression(ccall.args[1]));
+    ENSURE_CALL(builder, buildChainExpression(ccall.args[0]));
+    ENSURE_CALL(builder, buildChainExpression(ccall.args[1]));
 }
 
 }

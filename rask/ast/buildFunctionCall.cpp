@@ -29,7 +29,7 @@ boost::optional<FunctionCall> Builder::buildFunctionCall(const cst::FunctionCall
 
     BOOST_FOREACH(const cst::ChainExpression& e, call.args)
     {
-        args.push_back(*buildExpression(e));
+        args.push_back(*buildChainExpression(e));
     }
 
     if (call.args.size() != (*f)->argCount())
