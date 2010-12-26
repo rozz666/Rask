@@ -26,7 +26,7 @@ llvm::Value *CodeGenerator::genFunctionCall(const ast::FunctionCall& fc, llvm::B
         llvm::BinaryOperator *(*)(llvm::Value *left, llvm::Value *right, const llvm::Twine& name, llvm::BasicBlock *bb)
     > BinaryOpMap;
     static const BinaryOpMap binaryOpMap = boost::assign::map_list_of
-        (BINARY_MINUS_NAME, BinaryOpMap::mapped_type(&llvm::BinaryOperator::CreateNSWSub))
+        (BINARY_MINUS_NAME, BinaryOpMap::mapped_type(llvm::BinaryOperator::CreateNSWSub))
         (BINARY_PLUS_NAME, BinaryOpMap::mapped_type(llvm::BinaryOperator::CreateNSWAdd))
         (BINARY_MULT_NAME, BinaryOpMap::mapped_type(llvm::BinaryOperator::CreateNSWMul));
 
