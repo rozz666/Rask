@@ -35,17 +35,20 @@ template <>
 void object::test<1>()
 {
     using namespace rask;
-    int c = 8;
+    int c = 8, c2 = 13;
 
     cst::ChainExpression ce;
     ce.expr = cst::Constant::create(Position(), c);
+    ce.next.resize(1);
+    ce.next[0].expr = cst::Constant::create(Position(), c2);
 
     cst::ChainExpression ce2;
     ce2.expr = ce;
 
     optimizer.optimize(ce2);
     ENSURE_EQUALS(getConstant(ce2.expr).value, c);
-    ENSURE_EQUALS(ce2.next.size(), 0u);
+    ENSURE_EQUALS(ce2.next.size(), 1u);
+    ENSURE_EQUALS(getConstant(ce2.next[0].expr).value, c2);
 }
 
 template <>
@@ -63,25 +66,5 @@ void object::test<2>()
     ENSURE_EQUALS(ce.next.size(), 0u);
 }
 
-template <>
-template <>
-void object::test<3>()
-{
-    using namespace rask;
-    int c = 8, c2 = 13;
-
-    cst::ChainExpression ce;
-    ce.expr = cst::Constant::create(Position(), c);
-    ce.next.resize(1);
-    ce.next[0].expr = cst::Constant::create(Position(), c2);
-
-    cst::ChainExpression ce2;
-    ce2.expr = ce;
-
-    optimizer.optimize(ce2);
-    ENSURE_EQUALS(getConstant(ce2.expr).value, c);
-    ENSURE_EQUALS(ce2.next.size(), 1u);
-    ENSURE_EQUALS(getConstant(ce2.next[0].expr).value, c2);
-}
 
 }
