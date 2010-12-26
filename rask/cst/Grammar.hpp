@@ -209,7 +209,8 @@ struct BinaryOperatorMap : qi::symbols<char, BinaryOperator::Tag>
         add
             ("+", BinaryOperator::PLUS)
             ("-", BinaryOperator::MINUS)
-            ("*", BinaryOperator::MULT);
+            ("*", BinaryOperator::MULT)
+            ("/", BinaryOperator::DIV);
     }
 };
 
