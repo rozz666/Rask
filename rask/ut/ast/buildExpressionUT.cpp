@@ -165,13 +165,31 @@ template <>
 void object::test<8>()
 {
     using namespace rask;
-    
+
     cst::ChainExpression ce;
-    
+
     MOCK_RETURN(builder, buildChainExpression, boost::none);
 
     ENSURE(!builder.buildExpression(ce));
     ENSURE(logger.errors().empty());
+}
+
+template <>
+template <>
+void object::test<9>()
+{
+    using namespace rask;
+
+    ast::Constant ret(5);
+    cst::ChainExpression ce;
+
+    MOCK_RETURN(builder, buildChainExpression, ast::Expression(ret));
+
+    boost::optional<ast::Expression> expr = builder.buildExpression(ce);
+
+    ENSURE(expr);
+    ENSURE(logger.errors().empty());
+    ENSURE_EQUALS(getConstant(*expr), ret);
 }
 
 }

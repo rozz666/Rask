@@ -62,7 +62,7 @@ struct BuildExpression : boost::static_visitor<boost::optional<Expression> >
 
     boost::optional<Expression> operator()(const cst::ChainExpression& ce)
     {
-        return boost::none;
+        return builder.buildChainExpression(ce);
     }
 };
     
