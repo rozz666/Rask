@@ -16,7 +16,7 @@ namespace cst
 
 void Optimizer::optimize(ChainExpression& ce) const
 {
-    if (ce.expr.type() == typeid(ChainExpression))
+    while (ce.expr.type() == typeid(ChainExpression))
     {
         if (ce.next.empty())
         {
@@ -28,10 +28,7 @@ void Optimizer::optimize(ChainExpression& ce) const
         }
         else
         {
-            while (ce.expr.type() == typeid(ChainExpression))
-            {
-                ce.expr = Expression(getChainExpression(ce.expr).expr);
-            }
+            ce.expr = Expression(getChainExpression(ce.expr).expr);
         }
     }
 }

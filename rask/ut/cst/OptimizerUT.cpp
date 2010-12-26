@@ -75,21 +75,21 @@ void object::test<3>()
     using namespace rask;
     int c = 8, c2 = 13;
 
-    cst::ChainExpression ce;
-    ce.expr = cst::Constant::create(Position(), c);
+    cst::ChainExpression ce1, ce2, ce3, ce4, ce5;
+    ce1.expr = cst::Constant::create(Position(), c);
+    ce2.expr = ce1;
 
-    cst::ChainExpression ce2;
-    ce2.expr = ce;
-
-    cst::ChainExpression ce3;
     ce3.expr = ce2;
     ce3.next.resize(1);
     ce3.next[0].expr = cst::Constant::create(Position(), c2);
 
-    optimizer.optimize(ce3);
-    ENSURE_EQUALS(getConstant(ce3.expr).value, c);
-    ENSURE_EQUALS(ce3.next.size(), 1u);
-    ENSURE_EQUALS(getConstant(ce3.next[0].expr).value, c2);
+    ce4.expr = ce3;
+    ce5.expr = ce4;
+
+    optimizer.optimize(ce5);
+    ENSURE_EQUALS(getConstant(ce5.expr).value, c);
+    ENSURE_EQUALS(ce5.next.size(), 1u);
+    ENSURE_EQUALS(getConstant(ce5.next[0].expr).value, c2);
 }
 
 }
