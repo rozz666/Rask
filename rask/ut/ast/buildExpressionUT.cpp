@@ -26,7 +26,7 @@ public:
 
     MOCK_METHOD(boost::optional<rask::ast::FunctionCall>, buildFunctionCall, (const rask::cst::FunctionCall&, fc));
     MOCK_METHOD(boost::optional<rask::ast::FunctionCall>, buildUnaryOperatorCall, (const rask::cst::UnaryOperatorCall&, oc));
-    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildUnaryExpression, (const rask::cst::UnaryExpression&, expr));
+    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildUnaryExpression, (const rask::cst::Expression&, expr));
 };
 
 }
@@ -42,7 +42,7 @@ struct buildExpression_TestData
 
     buildExpression_TestData() : builder(logger, st) { }
 
-    rask::cst::ChainExpression createExpression(const rask::cst::UnaryExpression& u)
+    rask::cst::ChainExpression createExpression(const rask::cst::Expression& u)
     {
         rask::cst::ChainExpression e;
         e.expr = u;

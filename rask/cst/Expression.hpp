@@ -22,13 +22,15 @@ namespace cst
 
 struct FunctionCall;
 struct UnaryOperatorCall;
-    
+struct ChainExpression;
+
 typedef boost::variant<
     Constant,
     Identifier,
     boost::recursive_wrapper<FunctionCall>,
-    boost::recursive_wrapper<UnaryOperatorCall>
-> UnaryExpression;
+    boost::recursive_wrapper<UnaryOperatorCall>,
+    boost::recursive_wrapper<ChainExpression>
+> Expression;
 
 struct BinaryOperator
 {
@@ -40,12 +42,12 @@ struct BinaryOperator
 struct OpExpr
 {
     BinaryOperator op;
-    UnaryExpression expr;
+    Expression expr;
 };
 
 struct ChainExpression
 {
-    UnaryExpression expr;
+    Expression expr;
     std::vector<OpExpr> next;
 };
 
@@ -65,20 +67,20 @@ struct UnaryOperator
 struct UnaryOperatorCall
 {
     UnaryOperator op;
-    UnaryExpression expr;
+    Expression expr;
 };
 
-inline Constant& getConstant(UnaryExpression& e) { return boost::get<Constant>(e); }
-inline const Constant& getConstant(const UnaryExpression& e) { return boost::get<Constant>(e); }
+inline Constant& getConstant(Expression& e) { return boost::get<Constant>(e); }
+inline const Constant& getConstant(const Expression& e) { return boost::get<Constant>(e); }
 
-inline Identifier& getIdentifier(UnaryExpression& e) { return boost::get<Identifier>(e); }
-inline const Identifier& getIdentifier(const UnaryExpression& e) { return boost::get<Identifier>(e); }
+inline Identifier& getIdentifier(Expression& e) { return boost::get<Identifier>(e); }
+inline const Identifier& getIdentifier(const Expression& e) { return boost::get<Identifier>(e); }
 
-inline FunctionCall& getFunctionCall(UnaryExpression& e) { return boost::get<FunctionCall>(e); }
-inline const FunctionCall& getFunctionCall(const UnaryExpression& e) { return boost::get<FunctionCall>(e); }
+inline FunctionCall& getFunctionCall(Expression& e) { return boost::get<FunctionCall>(e); }
+inline const FunctionCall& getFunctionCall(const Expression& e) { return boost::get<FunctionCall>(e); }
 
-inline UnaryOperatorCall& getUnaryOperatorCall(UnaryExpression& e) { return boost::get<UnaryOperatorCall>(e); }
-inline const UnaryOperatorCall& getUnaryOperatorCall(const UnaryExpression& e) { return boost::get<UnaryOperatorCall>(e); }
+inline UnaryOperatorCall& getUnaryOperatorCall(Expression& e) { return boost::get<UnaryOperatorCall>(e); }
+inline const UnaryOperatorCall& getUnaryOperatorCall(const Expression& e) { return boost::get<UnaryOperatorCall>(e); }
 
 }
 }
@@ -92,12 +94,12 @@ BOOST_FUSION_ADAPT_STRUCT(
 BOOST_FUSION_ADAPT_STRUCT(
     rask::cst::OpExpr,
     (rask::cst::BinaryOperator, op)
-    (rask::cst::UnaryExpression, expr)
+    (rask::cst::Expression, expr)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
     rask::cst::ChainExpression,
-    (rask::cst::UnaryExpression, expr)
+    (rask::cst::Expression, expr)
     (std::vector<rask::cst::OpExpr>, next)
 )
 
@@ -116,7 +118,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 BOOST_FUSION_ADAPT_STRUCT(
     rask::cst::UnaryOperatorCall,
     (rask::cst::UnaryOperator, op)
-    (rask::cst::UnaryExpression, expr)
+    (rask::cst::Expression, expr)
 )
 
 #endif // RASK_CST_EXPRESSION_HPP

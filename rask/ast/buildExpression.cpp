@@ -59,9 +59,15 @@ struct BuildExpression : boost::static_visitor<boost::optional<Expression> >
         
         return ast::Expression(*c);
     }
+
+    boost::optional<Expression> operator()(const cst::ChainExpression& ce)
+    {
+        throw std::runtime_error(
+            "boost::optional<Expression> operator()(const cst::ChainExpression& ce) not implemented");
+    }
 };
     
-boost::optional<Expression> Builder::buildUnaryExpression(const cst::UnaryExpression& expr)
+boost::optional<Expression> Builder::buildUnaryExpression(const cst::Expression& expr)
 {
     BuildExpression b(*this, symbolTable_, logger_);
     return expr.apply_visitor(b);

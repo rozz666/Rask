@@ -23,7 +23,7 @@ public:
     BuilderMock(rask::error::Logger& logger, rask::ast::SymbolTable& st)
         : rask::ast::Builder(logger, st) { }
 
-    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildUnaryExpression, (const rask::cst::UnaryExpression&, expr));
+    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildUnaryExpression, (const rask::cst::Expression&, expr));
 };
     
 }
