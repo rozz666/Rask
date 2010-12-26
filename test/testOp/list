@@ -22,20 +22,20 @@ mulFunc2:test:mulFunc.rask #Feature4
 mulMisc1:test:mulMisc.rask #Feature4
 mulMisc2:test:mulMisc.rask #Feature4
 
-#divImm:test:divImm.rask #Feature4
-#divVar1:test:divVar.rask #Feature4
-#divVar2:test:divVar.rask #Feature4
-#divFunc1:test:divFunc.rask #Feature4
-#divFunc2:test:divFunc.rask #Feature4
-#divMisc1:test:divMisc.rask #Feature4
-#divMisc2:test:divMisc.rask #Feature4
+divImm:test:divImm.rask #Feature4
+divVar1:test:divVar.rask #Feature4
+divVar2:test:divVar.rask #Feature4
+divFunc1:test:divFunc.rask #Feature4
+divFunc2:test:divFunc.rask #Feature4
+divMisc1:test:divMisc.rask #Feature4
+divMisc2:test:divMisc.rask #Feature4
 
-#modImm:test:modImm.rask #Feature4
-#modVar1:test:modVar.rask #Feature4
-#modVar2:test:modVar.rask #Feature4
-#modFunc1:test:modFunc.rask #Feature4
-#modFunc2:test:modFunc.rask #Feature4
-#modMisc:test:modMisc.rask #Feature4
+modImm:test:modImm.rask #Feature4
+modVar1:test:modVar.rask #Feature4
+modVar2:test:modVar.rask #Feature4
+modFunc1:test:modFunc.rask #Feature4
+modFunc2:test:modFunc.rask #Feature4
+modMisc:test:modMisc.rask #Feature4
 
 #prioAddDiv:test:prioAddDiv.rask #Feature4
 #prioAddMod:test:prioAddMod.rask #Feature4
