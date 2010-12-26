@@ -10,6 +10,7 @@
 #define RASK_TEST_TUTASSERT_HPP
 
 #include <tut/tut.hpp>
+#include <sstream>
 
 namespace tut
 {
@@ -45,8 +46,52 @@ inline std::string formatMessage(const char *what, const char *file, int line)
 }
 
 #define FAIL(msg) fail(formatMessage(msg, __FILE__, __LINE__))
-#define ENSURE(x) ensure(formatMessage(#x, __FILE__, __LINE__), (x))
-#define ENSURE_EQUALS(expr, expected) ensure_equals(formatMessage(#expr, __FILE__, __LINE__), (expr), (expected))
+#define ENSURE(x) \
+    do \
+    { \
+        try \
+        { \
+            ensure(formatMessage(#x, __FILE__, __LINE__), (x)); \
+        } \
+        catch (const tut::tut_error& ) \
+        { \
+            throw; \
+        } \
+        catch (const std::exception& e) \
+        { \
+            std::ostringstream ss; \
+            ss << #x " has thrown an exception with message " << e.what(); \
+            fail(formatMessage(ss.str().c_str(), __FILE__, __LINE__)); \
+        } \
+        catch (...) \
+        { \
+            fail(formatMessage(#x " has thrown an unknown exception", __FILE__, __LINE__)); \
+        } \
+    } while (0)
+
+#define ENSURE_EQUALS(expr, expected) \
+    do \
+    { \
+        try \
+        { \
+            ensure_equals(formatMessage(#expr, __FILE__, __LINE__), (expr), (expected)); \
+        } \
+        catch (const tut::tut_error& ) \
+        { \
+            throw; \
+        } \
+        catch (const std::exception& e) \
+        { \
+            std::ostringstream ss; \
+            ss << #expr " has thrown an exception with message " << e.what(); \
+            fail(formatMessage(ss.str().c_str(), __FILE__, __LINE__)); \
+        } \
+        catch (...) \
+        { \
+            fail(formatMessage(#expr " has thrown an unknown exception", __FILE__, __LINE__)); \
+        } \
+    } while (0)
+
 #define ENSURE_THROWS(expr, ex) \
     do { \
         try \
