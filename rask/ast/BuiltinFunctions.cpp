@@ -21,7 +21,9 @@ BuiltinFunctions::BuiltinFunctions()
     operatorMinusInt32_(new BuiltinFunction(UNARY_MINUS_NAME, ast::INT32, 1)),
     operatorMinusInt32Int32_(new BuiltinFunction(BINARY_MINUS_NAME, ast::INT32, 2)),
     operatorPlusInt32Int32_(new BuiltinFunction(BINARY_PLUS_NAME, ast::INT32, 2)),
-    operatorMultInt32Int32_(new BuiltinFunction(BINARY_MULT_NAME, ast::INT32, 2))
+    operatorMultInt32Int32_(new BuiltinFunction(BINARY_MULT_NAME, ast::INT32, 2)),
+    operatorDivInt32Int32_(new BuiltinFunction(BINARY_DIV_NAME, ast::INT32, 2)),
+    operatorModInt32Int32_(new BuiltinFunction(BINARY_MOD_NAME, ast::INT32, 2))
 {
 }
     
@@ -33,6 +35,8 @@ void BuiltinFunctions::declare(SymbolTable& st)
     st.add(operatorMinusInt32Int32_);
     st.add(operatorPlusInt32Int32_);
     st.add(operatorMultInt32Int32_);
+    st.add(operatorDivInt32Int32_);
+    st.add(operatorModInt32Int32_);
 }
     
 }

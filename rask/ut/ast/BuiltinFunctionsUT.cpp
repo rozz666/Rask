@@ -94,4 +94,19 @@ void object::test<6>()
     ensureBuiltinFunction(rask::BINARY_MULT_NAME, rask::ast::INT32, 2);
 }
 
+template <>
+template <>
+void object::test<7>()
+{
+    ensureBuiltinFunction(rask::BINARY_DIV_NAME, rask::ast::INT32, 2);
+}
+
+template <>
+template <>
+void object::test<8>()
+{
+    ensureBuiltinFunction(rask::BINARY_MOD_NAME, rask::ast::INT32, 2);
+}
+
+
 }

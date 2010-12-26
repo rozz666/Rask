@@ -34,6 +34,8 @@ private:
     SharedBuiltinFunction operatorMinusInt32Int32_;
     SharedBuiltinFunction operatorPlusInt32Int32_;
     SharedBuiltinFunction operatorMultInt32Int32_;
+    SharedBuiltinFunction operatorDivInt32Int32_;
+    SharedBuiltinFunction operatorModInt32Int32_;
 };
 
 }
