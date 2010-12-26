@@ -37,16 +37,16 @@ modFunc1:test:modFunc.rask #Feature4
 modFunc2:test:modFunc.rask #Feature4
 modMisc:test:modMisc.rask #Feature4
 
-#prioAddDiv:test:prioAddDiv.rask #Feature4
-#prioAddMod:test:prioAddMod.rask #Feature4
-#prioAddMul:test:prioAddMul.rask #Feature4
-#prioAddSub:test:prioAddSub.rask #Feature4
-#prioDivMod:test:prioDivMod.rask #Feature4
-#prioMulDiv:test:prioMulDiv.rask #Feature4
-#prioMulMod:test:prioMulMod.rask #Feature4
-#prioSubDiv:test:prioSubDiv.rask #Feature4
-#prioSubMod:test:prioSubMod.rask #Feature4
-#prioSubMul:test:prioSubMul.rask #Feature4
+prioAddDiv:test:prioAddDiv.rask #Feature4
+prioAddMod:test:prioAddMod.rask #Feature4
+prioAddMul:test:prioAddMul.rask #Feature4
+prioAddSub:test:prioAddSub.rask #Feature4
+prioDivMod:test:prioDivMod.rask #Feature4
+prioMulDiv:test:prioMulDiv.rask #Feature4
+prioMulMod:test:prioMulMod.rask #Feature4
+prioSubDiv:test:prioSubDiv.rask #Feature4
+prioSubMod:test:prioSubMod.rask #Feature4
+prioSubMul:test:prioSubMul.rask #Feature4
 
 negVar:test:negVar.rask #Feature4
 negFunc:test:negFunc.rask #Feature4
