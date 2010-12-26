@@ -30,22 +30,22 @@ public:
 namespace tut
 {
 
-struct buildUnaryExpression_TestData
+struct buildExpression_TestData
 {
     rask::error::Logger logger;
     rask::ast::SymbolTable st;
     BuilderMock builder;
     
-    buildUnaryExpression_TestData() : builder(logger, st) { }
+    buildExpression_TestData() : builder(logger, st) { }
 };
 
-typedef test_group<buildUnaryExpression_TestData> factory;
+typedef test_group<buildExpression_TestData> factory;
 typedef factory::object object;
 }
 
 namespace
 {
-tut::factory tf("rask.ast.Builder.buildUnaryExpression");
+tut::factory tf("rask.ast.Builder.buildExpression");
 }
 
 namespace tut
@@ -58,7 +58,7 @@ void object::test<1>()
     using namespace rask;
     
     cst::Constant c = cst::Constant::create(Position(), 123);
-    boost::optional<ast::Expression> expr = builder.buildUnaryExpression(c);
+    boost::optional<ast::Expression> expr = builder.buildExpression(c);
     
     ENSURE(expr);
     ENSURE(logger.errors().empty());
@@ -75,7 +75,7 @@ void object::test<2>()
     ast::SharedVariable var(new ast::Variable(id));
     st.add(var);
     
-    boost::optional<ast::Expression> expr = builder.buildUnaryExpression(id);
+    boost::optional<ast::Expression> expr = builder.buildExpression(id);
     
     ENSURE(expr);
     ENSURE(logger.errors().empty());
@@ -90,7 +90,7 @@ void object::test<3>()
     
     cst::Identifier id = cst::Identifier::create(Position("xxx", 1, 2), "abc");
     
-    ENSURE(!builder.buildUnaryExpression(id));
+    ENSURE(!builder.buildExpression(id));
     ENSURE_EQUALS(logger.errors().size(), 1u);
     ENSURE_EQUALS(logger.errors()[0], error::Message::unknownIdentifier(id.position, id.value));
 }
@@ -106,7 +106,7 @@ void object::test<4>()
     
     MOCK_RETURN(builder, buildFunctionCall, ast::FunctionCall(ast::WeakFunction(), ast::FunctionCall::Arguments(n)));
     
-    boost::optional<ast::Expression> expr = builder.buildUnaryExpression(fc);
+    boost::optional<ast::Expression> expr = builder.buildExpression(fc);
     
     ENSURE(expr);
     ENSURE(logger.errors().empty());
@@ -123,7 +123,7 @@ void object::test<5>()
     
     MOCK_RETURN(builder, buildFunctionCall, boost::none);
     
-    ENSURE(!builder.buildUnaryExpression(fc));
+    ENSURE(!builder.buildExpression(fc));
     ENSURE(logger.errors().empty());
 }
 
@@ -138,7 +138,7 @@ void object::test<6>()
     
     MOCK_RETURN(builder, buildUnaryOperatorCall, ast::FunctionCall(ast::WeakFunction(), ast::FunctionCall::Arguments(n)));
     
-    boost::optional<ast::Expression> expr = builder.buildUnaryExpression(c);
+    boost::optional<ast::Expression> expr = builder.buildExpression(c);
     
     ENSURE(expr);
     ENSURE(logger.errors().empty());
@@ -155,7 +155,7 @@ void object::test<7>()
     
     MOCK_RETURN(builder, buildUnaryOperatorCall, boost::none);
     
-    ENSURE(!builder.buildUnaryExpression(c));
+    ENSURE(!builder.buildExpression(c));
     ENSURE(logger.errors().empty());
 }
 

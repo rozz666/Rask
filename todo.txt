@@ -1,5 +1,6 @@
 Refactor genFunctionCall and UTs
 Add ENSURE_CALLs to genFunctionCall UTs
+Add ENSURE_CALLs to buildChainExpression UTs
 Simplify operator addition!
 Make cg::declBuiltinFunctions use ast::BuiltinFunctions
 Check if variable is already declared

@@ -67,7 +67,7 @@ struct BuildExpression : boost::static_visitor<boost::optional<Expression> >
     }
 };
     
-boost::optional<Expression> Builder::buildUnaryExpression(const cst::Expression& expr)
+boost::optional<Expression> Builder::buildExpression(const cst::Expression& expr)
 {
     BuildExpression b(*this, symbolTable_, logger_);
     return expr.apply_visitor(b);
@@ -75,13 +75,13 @@ boost::optional<Expression> Builder::buildUnaryExpression(const cst::Expression&
 
 boost::optional<Expression> Builder::buildChainExpression(const cst::ChainExpression& expr)
 {
-    boost::optional<Expression> left = buildUnaryExpression(expr.expr);
+    boost::optional<Expression> left = buildExpression(expr.expr);
 
     if (!left) return boost::none;
     
     for(std::size_t i = 0; i != expr.next.size(); ++i)
     {
-        boost::optional<Expression> right = buildUnaryExpression(expr.next[i].expr);
+        boost::optional<Expression> right = buildExpression(expr.next[i].expr);
 
         if (!right) return boost::none;
 

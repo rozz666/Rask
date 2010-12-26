@@ -17,7 +17,7 @@ namespace ast
 boost::optional<FunctionCall> Builder::buildUnaryOperatorCall(const cst::UnaryOperatorCall& oc)
 {
     FunctionCall::Arguments args;
-    args.push_back(*buildUnaryExpression(oc.expr));
+    args.push_back(*buildExpression(oc.expr));
     return FunctionCall(*symbolTable_.getFunction(UNARY_MINUS_NAME), args);
 }
     

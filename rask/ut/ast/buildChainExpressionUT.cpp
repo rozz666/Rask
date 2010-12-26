@@ -26,7 +26,7 @@ public:
 
     MOCK_METHOD(boost::optional<rask::ast::FunctionCall>, buildFunctionCall, (const rask::cst::FunctionCall&, fc));
     MOCK_METHOD(boost::optional<rask::ast::FunctionCall>, buildUnaryOperatorCall, (const rask::cst::UnaryOperatorCall&, oc));
-    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildUnaryExpression, (const rask::cst::Expression&, expr));
+    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildExpression, (const rask::cst::Expression&, expr));
 };
 
 }
@@ -34,13 +34,13 @@ public:
 namespace tut
 {
 
-struct buildExpression_TestData
+struct buildChainExpression_TestData
 {
     rask::error::Logger logger;
     rask::ast::SymbolTable st;
     BuilderMock builder;
 
-    buildExpression_TestData() : builder(logger, st) { }
+    buildChainExpression_TestData() : builder(logger, st) { }
 
     rask::cst::ChainExpression createExpression(const rask::cst::Expression& u)
     {
@@ -50,7 +50,7 @@ struct buildExpression_TestData
     }
 };
 
-typedef test_group<buildExpression_TestData> factory;
+typedef test_group<buildChainExpression_TestData> factory;
 typedef factory::object object;
 }
 
@@ -71,7 +71,7 @@ void object::test<1>()
     cst::ChainExpression e;
     ast::Constant c(7);
 
-    MOCK_RETURN(builder, buildUnaryExpression, ast::Expression(c));
+    MOCK_RETURN(builder, buildExpression, ast::Expression(c));
     boost::optional<ast::Expression> expr = builder.buildChainExpression(e);
 
     ENSURE(expr);
@@ -87,7 +87,7 @@ void object::test<2>()
     
     cst::ChainExpression e;
     
-    MOCK_RETURN(builder, buildUnaryExpression, boost::none);
+    MOCK_RETURN(builder, buildExpression, boost::none);
     ENSURE(!builder.buildChainExpression(e));
     ENSURE(logger.errors().empty());
 }
@@ -104,9 +104,9 @@ void object::test<3>()
     e.next[0].op.tag = cst::BinaryOperator::MINUS;
     e.next[1].op.tag = cst::BinaryOperator::PLUS;
 
-    MOCK_RETURN(builder, buildUnaryExpression, ast::Expression(a));
-    MOCK_RETURN(builder, buildUnaryExpression, ast::Expression(b));
-    MOCK_RETURN(builder, buildUnaryExpression, ast::Expression(c));
+    MOCK_RETURN(builder, buildExpression, ast::Expression(a));
+    MOCK_RETURN(builder, buildExpression, ast::Expression(b));
+    MOCK_RETURN(builder, buildExpression, ast::Expression(c));
 
     test::FunctionFactory functionFactory;
     ast::SharedCustomFunction opMinus = functionFactory.createShared(BINARY_MINUS_NAME, ast::INT32, 2);
@@ -138,8 +138,8 @@ void object::test<4>()
     cst::ChainExpression e;
     e.next.resize(2);
 
-    MOCK_RETURN(builder, buildUnaryExpression, ast::Expression(ast::Constant(1)));
-    MOCK_RETURN(builder, buildUnaryExpression, boost::none);
+    MOCK_RETURN(builder, buildExpression, ast::Expression(ast::Constant(1)));
+    MOCK_RETURN(builder, buildExpression, boost::none);
     ENSURE(!builder.buildChainExpression(e));
     ENSURE(logger.errors().empty());
 }
