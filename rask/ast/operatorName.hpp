@@ -22,8 +22,10 @@ inline std::string operatorName(cst::BinaryOperator::Tag op)
     {
         case cst::BinaryOperator::MINUS: return BINARY_MINUS_NAME;
         case cst::BinaryOperator::PLUS: return BINARY_PLUS_NAME;
+        case cst::BinaryOperator::MULT: return BINARY_MULT_NAME;
+        case cst::BinaryOperator::DIV: return BINARY_DIV_NAME;
         default:
-            return BINARY_MULT_NAME;
+            return BINARY_MOD_NAME;
     }
 }
 

@@ -57,4 +57,18 @@ void object::test<4>()
     ENSURE_EQUALS(rask::ast::operatorName(rask::cst::BinaryOperator::MULT), rask::BINARY_MULT_NAME);
 }
 
+template <>
+template <>
+void object::test<5>()
+{
+    ENSURE_EQUALS(rask::ast::operatorName(rask::cst::BinaryOperator::DIV), rask::BINARY_DIV_NAME);
+}
+
+template <>
+template <>
+void object::test<6>()
+{
+    ENSURE_EQUALS(rask::ast::operatorName(rask::cst::BinaryOperator::MOD), rask::BINARY_MOD_NAME);
+}
+
 }
