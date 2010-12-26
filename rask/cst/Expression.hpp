@@ -37,23 +37,22 @@ struct BinaryOperator
     Tag tag;
 };
 
-template <typename ExpressionType>
 struct OpExpr
 {
     BinaryOperator op;
-    ExpressionType expr;
+    UnaryExpression expr;
 };
 
-struct Expression
+struct ChainExpression
 {
     UnaryExpression expr;
-    std::vector<OpExpr<UnaryExpression> > next;
+    std::vector<OpExpr> next;
 };
 
 struct FunctionCall
 {
     Identifier function;
-    std::vector<Expression> args;
+    std::vector<ChainExpression> args;
 };
 
 struct UnaryOperator
@@ -90,23 +89,22 @@ BOOST_FUSION_ADAPT_STRUCT(
     (rask::cst::BinaryOperator::Tag, tag)
 )
 
-BOOST_FUSION_ADAPT_TPL_STRUCT(
-    (ExpressionType),
-    (rask::cst::OpExpr) (ExpressionType),
+BOOST_FUSION_ADAPT_STRUCT(
+    rask::cst::OpExpr,
     (rask::cst::BinaryOperator, op)
-    (ExpressionType, expr)
+    (rask::cst::UnaryExpression, expr)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-    rask::cst::Expression,
+    rask::cst::ChainExpression,
     (rask::cst::UnaryExpression, expr)
-    (std::vector<rask::cst::OpExpr<rask::cst::UnaryExpression> >, next)
+    (std::vector<rask::cst::OpExpr>, next)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
     rask::cst::FunctionCall,
     (rask::cst::Identifier, function)
-    (std::vector<rask::cst::Expression>, args)
+    (std::vector<rask::cst::ChainExpression>, args)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(

@@ -42,9 +42,9 @@ struct buildExpression_TestData
 
     buildExpression_TestData() : builder(logger, st) { }
 
-    rask::cst::Expression createExpression(const rask::cst::UnaryExpression& u)
+    rask::cst::ChainExpression createExpression(const rask::cst::UnaryExpression& u)
     {
-        rask::cst::Expression e;
+        rask::cst::ChainExpression e;
         e.expr = u;
         return e;
     }
@@ -68,7 +68,7 @@ void object::test<1>()
 {
     using namespace rask;
 
-    cst::Expression e;
+    cst::ChainExpression e;
     ast::Constant c(7);
 
     MOCK_RETURN(builder, buildUnaryExpression, ast::Expression(c));
@@ -85,7 +85,7 @@ void object::test<2>()
 {
     using namespace rask;
     
-    cst::Expression e;
+    cst::ChainExpression e;
     
     MOCK_RETURN(builder, buildUnaryExpression, boost::none);
     ENSURE(!builder.buildExpression(e));
@@ -99,7 +99,7 @@ void object::test<3>()
     using namespace rask;
 
     ast::Constant a(1), b(2), c(3);
-    cst::Expression e;
+    cst::ChainExpression e;
     e.next.resize(2);
     e.next[0].op.tag = cst::BinaryOperator::MINUS;
     e.next[1].op.tag = cst::BinaryOperator::PLUS;
@@ -135,7 +135,7 @@ void object::test<4>()
 {
     using namespace rask;
 
-    cst::Expression e;
+    cst::ChainExpression e;
     e.next.resize(2);
 
     MOCK_RETURN(builder, buildUnaryExpression, ast::Expression(ast::Constant(1)));

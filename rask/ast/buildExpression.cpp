@@ -67,7 +67,7 @@ boost::optional<Expression> Builder::buildUnaryExpression(const cst::UnaryExpres
     return expr.apply_visitor(b);
 }
 
-boost::optional<Expression> Builder::buildExpression(const cst::Expression& expr)
+boost::optional<Expression> Builder::buildExpression(const cst::ChainExpression& expr)
 {
     boost::optional<Expression> left = buildUnaryExpression(expr.expr);
 

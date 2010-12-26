@@ -22,7 +22,7 @@ namespace cst
 struct VariableDecl
 {
     Identifier name;
-    boost::optional<Expression> value;
+    boost::optional<ChainExpression> value;
 };
 
 }
@@ -31,7 +31,7 @@ struct VariableDecl
 BOOST_FUSION_ADAPT_STRUCT(
     rask::cst::VariableDecl,
     (rask::cst::Identifier, name)
-    (boost::optional<rask::cst::Expression>, value)
+    (boost::optional<rask::cst::ChainExpression>, value)
 )
                           
 #endif // RASK_CST_VARDECL_HPP

@@ -538,7 +538,7 @@ void object::test<25>()
 
     cst::Function& f = tree->functions[0];
     ENSURE_EQUALS(f.stmts.size(), 1u);
-    const cst::Expression& expr = getReturn(f.stmts[0]).value;
+    const cst::ChainExpression& expr = getReturn(f.stmts[0]).value;
     ENSURE_VARIABLE(expr, "x", at(3, 12));
     ENSURE_EQUALS(expr.next.size(), 2u);
     ENSURE_OPERATOR(expr.next[0], cst::BinaryOperator::PLUS, at(3, 14));
@@ -563,7 +563,7 @@ void object::test<26>()
 
     cst::Function& f = tree->functions[0];
     ENSURE_EQUALS(f.stmts.size(), 1u);
-    const cst::Expression& expr = *getVariableDecl(f.stmts[0]).value;
+    const cst::ChainExpression& expr = *getVariableDecl(f.stmts[0]).value;
     ENSURE_VARIABLE(expr, "x", at(3, 13));
     ENSURE_EQUALS(expr.next.size(), 2u);
     ENSURE_OPERATOR(expr.next[0], cst::BinaryOperator::PLUS, at(3, 15));
@@ -588,7 +588,7 @@ void object::test<27>()
 
     cst::Function& f = tree->functions[0];
     ENSURE_EQUALS(f.stmts.size(), 1u);
-    const cst::Expression& expr = getFunctionCall(f.stmts[0]).args[0];
+    const cst::ChainExpression& expr = getFunctionCall(f.stmts[0]).args[0];
     ENSURE_VARIABLE(expr, "x", at(3, 7));
     ENSURE_EQUALS(expr.next.size(), 2u);
     ENSURE_OPERATOR(expr.next[0], cst::BinaryOperator::PLUS, at(3, 9));
@@ -613,7 +613,7 @@ void object::test<28>()
 
     cst::Function& f = tree->functions[0];
     ENSURE_EQUALS(f.stmts.size(), 1u);
-    const cst::Expression& expr = getFunctionCall(f.stmts[0]).args[0];
+    const cst::ChainExpression& expr = getFunctionCall(f.stmts[0]).args[0];
     ENSURE_VARIABLE(expr, "x", at(3, 7));
     ENSURE_EQUALS(expr.next.size(), 2u);
     ENSURE_OPERATOR(expr.next[0], cst::BinaryOperator::MULT, at(3, 9));
@@ -638,7 +638,7 @@ void object::test<29>()
     
     cst::Function& f = tree->functions[0];
     ENSURE_EQUALS(f.stmts.size(), 1u);
-    const cst::Expression& expr = getFunctionCall(f.stmts[0]).args[0];
+    const cst::ChainExpression& expr = getFunctionCall(f.stmts[0]).args[0];
     ENSURE_VARIABLE(expr, "x", at(3, 7));
     ENSURE_EQUALS(expr.next.size(), 2u);
     ENSURE_OPERATOR(expr.next[0], cst::BinaryOperator::DIV, at(3, 9));
@@ -663,7 +663,7 @@ void object::test<30>()
 
     cst::Function& f = tree->functions[0];
     ENSURE_EQUALS(f.stmts.size(), 1u);
-    const cst::Expression& expr = getFunctionCall(f.stmts[0]).args[0];
+    const cst::ChainExpression& expr = getFunctionCall(f.stmts[0]).args[0];
     ENSURE_VARIABLE(expr, "x", at(3, 7));
     ENSURE_EQUALS(expr.next.size(), 2u);
     ENSURE_OPERATOR(expr.next[0], cst::BinaryOperator::MOD, at(3, 9));

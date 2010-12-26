@@ -32,7 +32,7 @@ public:
     virtual boost::optional<Tree> buildTree(const cst::Tree& cst);
     virtual boost::optional<VariableDecl> buildVariableDecl(const cst::VariableDecl& vd);
     virtual boost::optional<Expression> buildUnaryExpression(const cst::UnaryExpression& expr);
-    virtual boost::optional<Expression> buildExpression(const cst::Expression& expr);
+    virtual boost::optional<Expression> buildExpression(const cst::ChainExpression& expr);
     virtual boost::optional<Return> buildReturn(const cst::Return& ret);
     virtual boost::optional<FunctionCall> buildUnaryOperatorCall(const cst::UnaryOperatorCall& oc);
 
@@ -41,7 +41,7 @@ private:
     error::Logger& logger_;
     SymbolTable& symbolTable_;
     
-    std::string functionSignature(const std::string& name, const std::vector<cst::Expression>& args);
+    std::string functionSignature(const std::string& name, const std::vector<cst::ChainExpression>& args);
 };
 
 }

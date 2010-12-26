@@ -75,7 +75,7 @@ bool Builder::buildFunction(const cst::Function& cf)
     return true;
 }
 
-std::string Builder::functionSignature(const std::string& name, const std::vector<cst::Expression>& args)
+std::string Builder::functionSignature(const std::string& name, const std::vector<cst::ChainExpression>& args)
 {
     std::ostringstream os;
     

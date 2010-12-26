@@ -258,7 +258,7 @@ struct Grammar : qi::grammar<Iterator, cst::Tree(), ascii::space_type>
     qi::rule<Iterator, cst::UnaryExpression(), ascii::space_type> unaryExpression;
     qi::rule<Iterator, cst::UnaryOperatorCall(), ascii::space_type> unaryOperatorCall;
     qi::rule<Iterator, cst::UnaryOperator(), ascii::space_type> unaryOperator;
-    qi::rule<Iterator, cst::Expression(), ascii::space_type> expression;
+    qi::rule<Iterator, cst::ChainExpression(), ascii::space_type> expression;
     qi::rule<Iterator, cst::BinaryOperator(), ascii::space_type> binaryOperator;
     
 };
