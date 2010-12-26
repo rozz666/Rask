@@ -23,6 +23,7 @@ public:
 
     MOCK_METHOD(boost::optional<rask::ast::FunctionCall>, buildFunctionCall, (const rask::cst::FunctionCall&, fc));
     MOCK_METHOD(boost::optional<rask::ast::FunctionCall>, buildUnaryOperatorCall, (const rask::cst::UnaryOperatorCall&, oc));
+    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildChainExpression, (const rask::cst::ChainExpression&, oc));
 };
     
 }
@@ -156,6 +157,20 @@ void object::test<7>()
     MOCK_RETURN(builder, buildUnaryOperatorCall, boost::none);
     
     ENSURE(!builder.buildExpression(c));
+    ENSURE(logger.errors().empty());
+}
+
+template <>
+template <>
+void object::test<8>()
+{
+    using namespace rask;
+    
+    cst::ChainExpression ce;
+    
+    MOCK_RETURN(builder, buildChainExpression, boost::none);
+
+    ENSURE(!builder.buildExpression(ce));
     ENSURE(logger.errors().empty());
 }
 

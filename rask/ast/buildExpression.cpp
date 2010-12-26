@@ -62,8 +62,7 @@ struct BuildExpression : boost::static_visitor<boost::optional<Expression> >
 
     boost::optional<Expression> operator()(const cst::ChainExpression& ce)
     {
-        throw std::runtime_error(
-            "boost::optional<Expression> operator()(const cst::ChainExpression& ce) not implemented");
+        return boost::none;
     }
 };
     
