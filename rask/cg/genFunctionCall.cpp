@@ -28,7 +28,9 @@ llvm::Value *CodeGenerator::genFunctionCall(const ast::FunctionCall& fc, llvm::B
     static const BinaryOpMap binaryOpMap = boost::assign::map_list_of
         (BINARY_MINUS_NAME, BinaryOpMap::mapped_type(llvm::BinaryOperator::CreateNSWSub))
         (BINARY_PLUS_NAME, BinaryOpMap::mapped_type(llvm::BinaryOperator::CreateNSWAdd))
-        (BINARY_MULT_NAME, BinaryOpMap::mapped_type(llvm::BinaryOperator::CreateNSWMul));
+        (BINARY_MULT_NAME, BinaryOpMap::mapped_type(llvm::BinaryOperator::CreateNSWMul))
+        (BINARY_DIV_NAME, BinaryOpMap::mapped_type(llvm::BinaryOperator::CreateSDiv))
+        (BINARY_MOD_NAME, BinaryOpMap::mapped_type(llvm::BinaryOperator::CreateSRem));
 
     ast::SharedFunction f = fc.function().lock();
 

@@ -217,4 +217,18 @@ void object::test<7>()
     checkBinaryOperator(rask::BINARY_MULT_NAME, llvm::Instruction::Mul);
 }
 
+template <>
+template <>
+void object::test<8>()
+{
+    checkBinaryOperator(rask::BINARY_DIV_NAME, llvm::Instruction::SDiv);
+}
+
+template <>
+template <>
+void object::test<9>()
+{
+    checkBinaryOperator(rask::BINARY_MOD_NAME, llvm::Instruction::SRem);
+}
+
 }
