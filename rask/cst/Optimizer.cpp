@@ -18,7 +18,14 @@ void Optimizer::optimize(ChainExpression& ce) const
 {
     if (ce.expr.type() == typeid(ChainExpression))
     {
-        ce = ChainExpression(getChainExpression(ce.expr));
+        if (ce.next.empty())
+        {
+            ce = ChainExpression(getChainExpression(ce.expr));
+        }
+        else
+        {
+            ce.expr = Expression(getChainExpression(ce.expr).expr);
+        }
     }
 }
 

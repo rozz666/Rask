@@ -66,5 +66,25 @@ void object::test<2>()
     ENSURE_EQUALS(ce.next.size(), 0u);
 }
 
+template <>
+template <>
+void object::test<3>()
+{
+    using namespace rask;
+    int c = 8, c2 = 13;
+
+    cst::ChainExpression ce;
+    ce.expr = cst::Constant::create(Position(), c);
+
+    cst::ChainExpression ce2;
+    ce2.expr = ce;
+    ce2.next.resize(1);
+    ce2.next[0].expr = cst::Constant::create(Position(), c2);
+
+    optimizer.optimize(ce2);
+    ENSURE_EQUALS(getConstant(ce2.expr).value, c);
+    ENSURE_EQUALS(ce2.next.size(), 1u);
+    ENSURE_EQUALS(getConstant(ce2.next[0].expr).value, c2);
+}
 
 }
