@@ -202,16 +202,24 @@ boost::phoenix::function<errorMessageImpl> errorMessage;
 
 }
 
-struct BinaryOperatorMap : qi::symbols<char, BinaryOperator::Tag>
+struct MultiplicativeOperatorMap : qi::symbols<char, BinaryOperator::Tag>
 {
-    BinaryOperatorMap()
+    MultiplicativeOperatorMap()
     {
         add
-            ("+", BinaryOperator::PLUS)
-            ("-", BinaryOperator::MINUS)
             ("*", BinaryOperator::MULT)
             ("/", BinaryOperator::DIV)
             ("%", BinaryOperator::MOD);
+    }
+};
+
+struct AdditiveOperatorMap : qi::symbols<char, BinaryOperator::Tag>
+{
+    AdditiveOperatorMap()
+    {
+        add
+            ("+", BinaryOperator::PLUS)
+            ("-", BinaryOperator::MINUS);
     }
 };
 
@@ -226,8 +234,11 @@ struct Grammar : qi::grammar<Iterator, cst::Tree(), ascii::space_type>
         unaryOperator %= inputPos >> '-' >> qi::attr(UnaryOperator::MINUS);
         unaryOperatorCall %= unaryOperator >> unaryExpression;
         unaryExpression %= constant | functionCall | identifier | unaryOperatorCall;
-        binaryOperator %= inputPos >> binaryOperatorMap;
-        expression %= unaryExpression >> *(binaryOperator > unaryExpression);
+        additiveOperator %= inputPos >> additiveOperatorMap;
+        multiplicativeOperator %= inputPos >> multiplicativeOperatorMap;
+        expression %= additiveExpression;
+        additiveExpression %= multiplicativeExpression >> *(additiveOperator > multiplicativeExpression);
+        multiplicativeExpression %= unaryExpression >> *(multiplicativeOperator > unaryExpression);
         functionCall %= identifier >> '(' > -(expression % ',') > ')';
         functionCallStatement %= identifier > '(' > -(expression % ',') > ')';
         variableDeclaration %= qi::lit("var") > identifier > -('=' > expression);
@@ -245,7 +256,8 @@ struct Grammar : qi::grammar<Iterator, cst::Tree(), ascii::space_type>
         );
     }
 
-    BinaryOperatorMap binaryOperatorMap;
+    AdditiveOperatorMap additiveOperatorMap;
+    MultiplicativeOperatorMap multiplicativeOperatorMap;
     qi::rule<Iterator, cst::Tree(), ascii::space_type> tree;
     qi::rule<Iterator, cst::Identifier(), ascii::space_type> identifier;
     qi::rule<Iterator, cst::Function(), ascii::space_type> function;
@@ -256,11 +268,13 @@ struct Grammar : qi::grammar<Iterator, cst::Tree(), ascii::space_type>
     qi::rule<Iterator, cst::Return(), ascii::space_type> returnStatement;
     qi::rule<Iterator, cst::Constant(), ascii::space_type> constant;
     qi::rule<Iterator, cst::Expression(), ascii::space_type> unaryExpression;
+    qi::rule<Iterator, cst::ChainExpression(), ascii::space_type> expression;
     qi::rule<Iterator, cst::UnaryOperatorCall(), ascii::space_type> unaryOperatorCall;
     qi::rule<Iterator, cst::UnaryOperator(), ascii::space_type> unaryOperator;
-    qi::rule<Iterator, cst::ChainExpression(), ascii::space_type> expression;
-    qi::rule<Iterator, cst::BinaryOperator(), ascii::space_type> binaryOperator;
-    
+    qi::rule<Iterator, cst::ChainExpression(), ascii::space_type> additiveExpression;
+    qi::rule<Iterator, cst::ChainExpression(), ascii::space_type> multiplicativeExpression;
+    qi::rule<Iterator, cst::BinaryOperator(), ascii::space_type> additiveOperator;
+    qi::rule<Iterator, cst::BinaryOperator(), ascii::space_type> multiplicativeOperator;
 };
 
 }

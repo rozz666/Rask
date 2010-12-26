@@ -82,6 +82,9 @@ inline const FunctionCall& getFunctionCall(const Expression& e) { return boost::
 inline UnaryOperatorCall& getUnaryOperatorCall(Expression& e) { return boost::get<UnaryOperatorCall>(e); }
 inline const UnaryOperatorCall& getUnaryOperatorCall(const Expression& e) { return boost::get<UnaryOperatorCall>(e); }
 
+inline ChainExpression& getChainExpression(Expression& e) { return boost::get<ChainExpression>(e); }
+inline const ChainExpression& getChainExpression(const Expression& e) { return boost::get<ChainExpression>(e); }
+
 }
 }
 
