@@ -23,6 +23,31 @@
 #include <rask/cst/Tree.hpp>
 #include <rask/error/Logger.hpp>
 
+namespace boost
+{
+namespace spirit
+{
+namespace traits
+{
+
+template <>
+struct transform_attribute<rask::cst::Expression, rask::cst::ChainExpression, qi::domain, void>
+{
+    typedef rask::cst::ChainExpression type;
+    static type pre(rask::cst::Expression& val) { return type(); }
+    static void post(rask::cst::Expression& val, type attr)
+    {
+        if (attr.next.empty()) val = attr.expr;
+        else val = attr;
+    }
+
+    static void fail(rask::cst::Expression&) { }
+};
+
+}
+}
+}
+
 namespace rask
 {
 namespace cst
@@ -268,7 +293,7 @@ struct Grammar : qi::grammar<Iterator, cst::Tree(), ascii::space_type>
     qi::rule<Iterator, cst::Return(), ascii::space_type> returnStatement;
     qi::rule<Iterator, cst::Constant(), ascii::space_type> constant;
     qi::rule<Iterator, cst::Expression(), ascii::space_type> unaryExpression;
-    qi::rule<Iterator, cst::ChainExpression(), ascii::space_type> expression;
+    qi::rule<Iterator, cst::Expression(), ascii::space_type> expression;
     qi::rule<Iterator, cst::UnaryOperatorCall(), ascii::space_type> unaryOperatorCall;
     qi::rule<Iterator, cst::UnaryOperator(), ascii::space_type> unaryOperator;
     qi::rule<Iterator, cst::ChainExpression(), ascii::space_type> additiveExpression;

@@ -21,7 +21,7 @@ namespace cst
 struct Return
 {
     Position position;
-    ChainExpression value;
+    Expression value;
 };
 
 }
@@ -30,7 +30,7 @@ struct Return
 BOOST_FUSION_ADAPT_STRUCT(
     rask::cst::Return,
     (rask::Position, position)
-    (rask::cst::ChainExpression, value)
+    (rask::cst::Expression, value)
 )
 
 #endif // RASK_CST_RETURN_HPP

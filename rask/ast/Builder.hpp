@@ -41,7 +41,7 @@ private:
     error::Logger& logger_;
     SymbolTable& symbolTable_;
     
-    std::string functionSignature(const std::string& name, const std::vector<cst::ChainExpression>& args);
+    std::string functionSignature(const std::string& name, const std::vector<cst::Expression>& args);
 };
 
 }
