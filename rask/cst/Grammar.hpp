@@ -258,7 +258,12 @@ struct Grammar : qi::grammar<Iterator, cst::Tree(), ascii::space_type>
         constant %= inputPos >> qi::int_;
         unaryOperator %= inputPos >> '-' >> qi::attr(UnaryOperator::MINUS);
         unaryOperatorCall %= unaryOperator >> unaryExpression;
-        unaryExpression %= constant | functionCall | identifier | unaryOperatorCall;
+        unaryExpression %=
+            constant |
+            functionCall |
+            identifier |
+            unaryOperatorCall |
+            ('(' > expression > ')');
         additiveOperator %= inputPos >> additiveOperatorMap;
         multiplicativeOperator %= inputPos >> multiplicativeOperatorMap;
         expression %= additiveExpression;

@@ -705,4 +705,45 @@ void object::test<31>()
     ENSURE_OPERATOR(expr.next[1], cst::BinaryOperator::MINUS, at(3, 25));
     ENSURE_VARIABLE(expr.next[1].expr, "z", at(3, 27));
 }
+
+template <>
+template <>
+void object::test<32>()
+{
+    using namespace rask;
+
+    source << "f() -> abcd123\n{\n    f((x + y) * (u - v) / (a * b));\n}";
+
+    boost::optional<cst::Tree> tree = parseFile();
+
+    ENSURE(tree);
+    ENSURE_NO_ERRORS();
+    ENSURE_EQUALS(tree->functions.size(), 1u);
+
+    cst::Function& f = tree->functions[0];
+    ENSURE_EQUALS(f.stmts.size(), 1u);
+    const cst::ChainExpression& expr = getChainExpression(getFunctionCall(f.stmts[0]).args[0]);
+    const cst::ChainExpression& left = getChainExpression(expr.expr);
+    ENSURE_EQUALS(expr.next.size(), 2u);
+    ENSURE_OPERATOR(expr.next[0], cst::BinaryOperator::MULT, at(3, 15));
+    const cst::ChainExpression& center = getChainExpression(expr.next[0].expr);
+    ENSURE_OPERATOR(expr.next[1], cst::BinaryOperator::DIV, at(3, 25));
+    const cst::ChainExpression& right = getChainExpression(expr.next[1].expr);
+
+    ENSURE_VARIABLE(left.expr, "x", at(3, 8));
+    ENSURE_EQUALS(left.next.size(), 1u);
+    ENSURE_OPERATOR(left.next[0], cst::BinaryOperator::PLUS, at(3, 10));
+    ENSURE_VARIABLE(left.next[0].expr, "y", at(3, 12));
+
+    ENSURE_VARIABLE(center.expr, "u", at(3, 18));
+    ENSURE_EQUALS(center.next.size(), 1u);
+    ENSURE_OPERATOR(center.next[0], cst::BinaryOperator::MINUS, at(3, 20));
+    ENSURE_VARIABLE(center.next[0].expr, "v", at(3, 22));
+
+    ENSURE_VARIABLE(right.expr, "a", at(3, 28));
+    ENSURE_EQUALS(right.next.size(), 1u);
+    ENSURE_OPERATOR(right.next[0], cst::BinaryOperator::MULT, at(3, 30));
+    ENSURE_VARIABLE(right.next[0].expr, "b", at(3, 32));
+}
+
 }
