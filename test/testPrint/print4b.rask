@@ -1,0 +1,4 @@
+main() -> void
+{
+    print(1, 2);
+}

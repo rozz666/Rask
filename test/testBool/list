@@ -1,0 +1,5 @@
+#imm:test:imm.rask #Feature5.1
+#var:test:var.rask #Feature5.1
+#badAdd1:error:badAdd1.rask #Feature5.1
+#badAdd2:error:badAdd2.rask #Feature5.1
+#badAdd3:error:badAdd3.rask #Feature5.1

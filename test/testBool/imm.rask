@@ -1,0 +1,5 @@
+main() -> void
+{
+    print(false);
+    print(true);
+}

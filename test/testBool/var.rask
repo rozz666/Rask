@@ -1,0 +1,11 @@
+main() -> void
+{
+    var a = false;
+    var b = true;
+    var c = a;
+    var d = b;
+    print(a);
+    print(b);
+    print(c);
+    print(d);
+}
