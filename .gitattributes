@@ -1,3 +1,5 @@
 *.cpp eol=LF
 *.hpp eol=LF
 *.sh eol=LF
+*.rask eol=LF
+
