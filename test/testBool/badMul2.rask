@@ -1,0 +1,4 @@
+main() -> void
+{
+    var x = true * 5;
+}
