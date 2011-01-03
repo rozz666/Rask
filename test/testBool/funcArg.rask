@@ -1,0 +1,11 @@
+f1(bool x, bool y) -> void
+{
+    print(x);
+    print(y);
+}
+
+main() -> void
+{
+    var x = true;
+    f1(x, false);
+}

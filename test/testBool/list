@@ -15,3 +15,5 @@
 #badMod1:error:badMod1.rask #Feature5.1
 #badMod2:error:badMod2.rask #Feature5.1
 #badMod3:error:badMod3.rask #Feature5.1
+#funcArg:test:funcArg.rask #Feature5.1
+#funcRet:test:funcRet.rask #Feature5.1
