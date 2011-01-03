@@ -29,9 +29,9 @@ boost::optional<FunctionDecl> Builder::buildFunctionDecl(const cst::Function& f)
         return boost::none;
     }
 
-    BOOST_FOREACH(const cst::Identifier& arg, f.args)
+    BOOST_FOREACH(const cst::FunctionArgument& arg, f.args)
     {
-        cf->addArg(arg);
+        cf->addArg(arg.name);
     }
     
     return fd;

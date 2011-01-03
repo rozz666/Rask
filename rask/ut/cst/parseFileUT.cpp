@@ -372,7 +372,7 @@ void object::test<18>()
 {
     using namespace rask;
     
-    source << "f(int32 x, int32 y, int32 z) -> void\n{ }";
+    source << "f(Type1 x, Type2 y, Type3 z) -> void\n{ }";
     
     boost::optional<cst::Tree> tree = parseFile();
     
@@ -383,9 +383,12 @@ void object::test<18>()
     cst::Function& f = tree->functions[0];
     ENSURE_IDENTIFIER(f.name, "f", at(1, 1));
     ENSURE_EQUALS(f.args.size(), 3u);
-    ENSURE_IDENTIFIER(f.args[0], "x", at(1, 9));
-    ENSURE_IDENTIFIER(f.args[1], "y", at(1, 18));
-    ENSURE_IDENTIFIER(f.args[2], "z", at(1, 27));
+    ENSURE_IDENTIFIER(f.args[0].name, "x", at(1, 9));
+    ENSURE_IDENTIFIER(f.args[0].type, "Type1", at(1, 3));
+    ENSURE_IDENTIFIER(f.args[1].name, "y", at(1, 18));
+    ENSURE_IDENTIFIER(f.args[1].type, "Type2", at(1, 12));
+    ENSURE_IDENTIFIER(f.args[2].name, "z", at(1, 27));
+    ENSURE_IDENTIFIER(f.args[2].type, "Type3", at(1, 21));
     ENSURE(f.stmts.empty());
 }
 

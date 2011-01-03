@@ -19,10 +19,16 @@ namespace rask
 namespace cst
 {
 
+struct FunctionArgument
+{
+    Identifier type;
+    Identifier name;
+};
+
 struct Function
 {
     Identifier name;
-    std::vector<Identifier> args;
+    std::vector<FunctionArgument> args;
     Identifier type;
     std::vector<Statement> stmts;
 };
@@ -31,9 +37,15 @@ struct Function
 }
 
 BOOST_FUSION_ADAPT_STRUCT(
+    rask::cst::FunctionArgument,
+    (rask::cst::Identifier, type)
+    (rask::cst::Identifier, name)
+)
+    
+BOOST_FUSION_ADAPT_STRUCT(
     rask::cst::Function,
     (rask::cst::Identifier, name)
-    (std::vector<rask::cst::Identifier>, args)
+    (std::vector<rask::cst::FunctionArgument>, args)
     (rask::cst::Identifier, type)
     (std::vector<rask::cst::Statement>, stmts)
 )

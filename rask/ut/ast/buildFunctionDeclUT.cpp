@@ -86,8 +86,9 @@ void object::test<3>()
     cst::Function cf;
     cf.name = cst::Identifier::create(Position(), "asia");
     cf.type = cst::Identifier::create(Position(), "void");
-    cf.args.push_back(cst::Identifier::create(Position(), "arg1"));
-    cf.args.push_back(cst::Identifier::create(Position(), "arg2"));
+    cf.args.resize(2);
+    cf.args[0].name = cst::Identifier::create(Position(), "arg1");
+    cf.args[1].name = cst::Identifier::create(Position(), "arg2");
     
     boost::optional<ast::FunctionDecl> fd = builder.buildFunctionDecl(cf);
     
@@ -96,8 +97,8 @@ void object::test<3>()
     
     ast::SharedCustomFunction f = fd->function();
     ENSURE_EQUALS(f->argCount(), 2u);
-    ENSURE_EQUALS(f->arg(0)->name().value, cf.args[0].value);
-    ENSURE_EQUALS(f->arg(1)->name().value, cf.args[1].value);
+    ENSURE_EQUALS(f->arg(0)->name().value, cf.args[0].name.value);
+    ENSURE_EQUALS(f->arg(1)->name().value, cf.args[1].name.value);
 }
 
 template <>

@@ -211,16 +211,17 @@ void object::test<8>()
 {
     using namespace rask;
 
-    cf.args.push_back(cst::Identifier::create(Position(), "arg1"));
-    cf.args.push_back(cst::Identifier::create(Position(), "arg2"));
+    cf.args.resize(2);
+    cf.args[0].name = cst::Identifier::create(Position(), "arg1");
+    cf.args[1].name = cst::Identifier::create(Position(), "arg2");
 
-    f->addArg(cf.args[0]);
-    f->addArg(cf.args[1]);
+    f->addArg(cf.args[0].name);
+    f->addArg(cf.args[1].name);
 
     ENSURE(builder.buildFunction(cf));
 
-    ENSURE(st.getVariable(cf.args[0].value) == f->arg(0));
-    ENSURE(st.getVariable(cf.args[1].value) == f->arg(1));
+    ENSURE(st.getVariable(cf.args[0].name.value) == f->arg(0));
+    ENSURE(st.getVariable(cf.args[1].name.value) == f->arg(1));
 }
 
 }
