@@ -1,4 +1,4 @@
-f1(bool x, bool y) -> void
+f1(boolean x, boolean y) -> void
 {
     print(x);
     print(y);

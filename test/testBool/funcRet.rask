@@ -1,9 +1,9 @@
-f1() -> bool
+f1() -> boolean
 {
     return true;
 }
 
-f2(bool x) -> bool
+f2(boolean x) -> boolean
 {
     return x;
 }
