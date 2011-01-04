@@ -1,3 +1,4 @@
+Split ast::SymbolTable into function table and variable table and scopes.
 Refactor genFunctionCall and UTs
 Add ENSURE_CALLs to genFunctionCall UTs
 Add ENSURE_CALLs to buildChainExpression UTs
