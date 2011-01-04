@@ -14,9 +14,9 @@ namespace rask
 namespace test
 {
 
-ast::VariableDecl VariableDeclFactory::create(const std::string& name, boost::int32_t value)
+ast::VariableDecl VariableDeclFactory::create(const std::string& name)
 {
-    return ast::VariableDecl(cst::Identifier::create(Position(), name), ast::Constant(value));
+    return ast::VariableDecl(cst::Identifier::create(Position(), name), ast::Constant(0));
 }
 
 }
