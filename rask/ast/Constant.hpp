@@ -22,12 +22,14 @@ public:
 
     Constant() { }
     Constant(boost::int32_t value) : value_(value) { }
-    operator boost::int32_t() const { return value_; }
+    operator boost::int32_t() const { return getInt32(); }
 
     friend bool operator==(const Constant& left, const Constant& right)
     {
         return left.value_ == right.value_;
     }
+
+    boost::int32_t getInt32() const { return value_; }
 
 private:
 
