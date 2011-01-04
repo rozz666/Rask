@@ -26,7 +26,7 @@ struct GetValue : boost::static_visitor<llvm::Value *>
 
     llvm::Value *operator()(const ast::Constant& c)
     {
-        return llvm::ConstantInt::get(block.getContext(), llvm::APInt(32, c, true));
+        return llvm::ConstantInt::get(block.getContext(), llvm::APInt(32, c.getInt32(), true));
     }
 
     llvm::Value *operator()(const ast::WeakVariable& var)

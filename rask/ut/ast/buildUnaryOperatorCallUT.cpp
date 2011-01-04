@@ -73,7 +73,7 @@ void object::test<1>()
     ENSURE(fc);
     ENSURE(fc->function().lock() == f);
     ENSURE_EQUALS(fc->args().size(), 1u);
-    ENSURE_EQUALS(getConstant(fc->args()[0]), retExpr);
+    ENSURE(getConstant(fc->args()[0]) == retExpr);
 }
 
 }

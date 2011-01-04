@@ -73,7 +73,7 @@ void object::test<1>()
     using namespace rask;
     
     ast::Constant c(10);
-    ENSURE(cg.genValue(c, *block) == llvm::ConstantInt::get(ctx, llvm::APInt(32, c, true)));
+    ENSURE(cg.genValue(c, *block) == llvm::ConstantInt::get(ctx, llvm::APInt(32, c.getInt32(), true)));
 }
 
 template <>

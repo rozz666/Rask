@@ -95,9 +95,9 @@ void object::test<2>()
     ENSURE(call->function().lock() == f);
     ENSURE_EQUALS(call->args().size(), 2u);
     ENSURE_CALL(builder, buildExpression(ccall.args[0]));
-    ENSURE_EQUALS(getConstant(call->args()[0]), dummy1);
+    ENSURE(getConstant(call->args()[0]) == dummy1);
     ENSURE_CALL(builder, buildExpression(ccall.args[1]));
-    ENSURE_EQUALS(getConstant(call->args()[1]), dummy2);
+    ENSURE(getConstant(call->args()[1]) == dummy2);
 }
 
 template <>

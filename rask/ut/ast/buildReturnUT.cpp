@@ -58,7 +58,7 @@ void object::test<1>()
 {
     using namespace rask;
 
-    ast::Constant value = 555;
+    ast::Constant value(555);
 
     MOCK_RETURN(builder, buildExpression, ast::Expression(value));
 

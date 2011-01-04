@@ -113,8 +113,8 @@ void object::test<3>()
 {
     using namespace rask;
 
-    f.addStmt(varDeclFactory.create("asia", 1));
-    f.addStmt(varDeclFactory.create("kasia", 2));
+    f.addStmt(varDeclFactory.create("asia"));
+    f.addStmt(varDeclFactory.create("kasia"));
     
     cg.genFunction(f, *module);
     llvm::Function *gf = module->getFunction(f.name().value);

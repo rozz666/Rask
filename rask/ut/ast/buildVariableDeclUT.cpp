@@ -74,7 +74,7 @@ void object::test<1>()
     ENSURE_CALL(builder, buildExpression(*cvd.value));
     ENSURE_EQUALS(vd->var()->name().position, cvd.name.position);
     ENSURE_EQUALS(vd->var()->name().value, cvd.name.value);
-    ENSURE_EQUALS(getConstant(vd->value()), dummy);
+    ENSURE(getConstant(vd->value()) == dummy);
     ENSURE(st.getVariable(cvd.name.value) == vd->var());
 }
 

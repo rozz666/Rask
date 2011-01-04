@@ -21,8 +21,7 @@ class Constant
 public:
 
     Constant() { }
-    Constant(boost::int32_t value) : value_(value) { }
-    operator boost::int32_t() const { return getInt32(); }
+    explicit Constant(boost::int32_t value) : value_(value) { }
 
     friend bool operator==(const Constant& left, const Constant& right)
     {

@@ -189,7 +189,7 @@ void object::test<9>()
 
     ENSURE(expr);
     ENSURE(logger.errors().empty());
-    ENSURE_EQUALS(getConstant(*expr), ret);
+    ENSURE(getConstant(*expr) == ret);
 }
 
 }

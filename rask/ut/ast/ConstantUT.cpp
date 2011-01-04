@@ -55,20 +55,6 @@ void object::test<2>()
     ast::Constant c1(n1);
     ast::Constant c2(n2);
     
-    ENSURE_EQUALS(static_cast<boost::int32_t>(c1), n1);
-    ENSURE_EQUALS(static_cast<boost::int32_t>(c2), n2);
-}
-
-template <>
-template <>
-void object::test<3>()
-{
-    using namespace rask;
-    boost::int32_t n1 = 77;
-    boost::int32_t n2 = 35;
-    ast::Constant c1(n1);
-    ast::Constant c2(n2);
-    
     ENSURE_EQUALS(c1.getInt32(), n1);
     ENSURE_EQUALS(c2.getInt32(), n2);
 }

@@ -21,7 +21,7 @@ class VariableDeclFactory
 {
 public:
 
-    ast::VariableDecl create(const std::string& name, ast::Constant value = ast::Constant(0));
+    ast::VariableDecl create(const std::string& name, boost::int32_t value = 0);
 };
 
 }

@@ -168,8 +168,8 @@ void object::test<6>()
 {
     using namespace rask;
 
-    ast::Constant c1 = 1;
-    ast::Constant c2 = 2;
+    ast::Constant c1(1);
+    ast::Constant c2(2);
     
     cf.stmts.resize(2, cst::Return());
 
@@ -183,8 +183,8 @@ void object::test<6>()
     ENSURE_CALL(builder, buildReturn(getReturn(cf.stmts[1])));
 
     ENSURE_EQUALS(f->stmtCount(), 2u);
-    ENSURE_EQUALS(getConstant(getReturn(f->stmt(0)).expr()), c1);
-    ENSURE_EQUALS(getConstant(getReturn(f->stmt(1)).expr()), c2);
+    ENSURE(getConstant(getReturn(f->stmt(0)).expr()) == c1);
+    ENSURE(getConstant(getReturn(f->stmt(1)).expr()) == c2);
 }
 
 template <>

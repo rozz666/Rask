@@ -68,9 +68,9 @@ void object::test<1>()
 
     cst::Identifier name;
     name.value = "asia";
-    ast::VariableDecl vd(name, 10);
+    ast::VariableDecl vd(name, ast::Constant(10));
     
-    llvm::Value *value = llvm::ConstantInt::get(ctx, llvm::APInt(32, getConstant(vd.value()), true));
+    llvm::Value *value = llvm::ConstantInt::get(ctx, llvm::APInt(32, getConstant(vd.value()).getInt32(), true));
     MOCK_RETURN(cg, genValue, value);
     
     llvm::AllocaInst *alloc = cg.genVariableDecl(vd, *block);
