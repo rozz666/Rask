@@ -52,6 +52,7 @@ ADD_EXECUTABLE(rask rask/main/rask.cpp)
 ADD_EXECUTABLE(
     raskut
     rask/main/ut.cpp
+    rask/ut/ast/ConstantUT.cpp
     rask/ut/ast/operatorNameUT.cpp
     rask/ut/ast/CustomFunctionUT.cpp
     rask/ut/ast/buildFunctionUT.cpp
