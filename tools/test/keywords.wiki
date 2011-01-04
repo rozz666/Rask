@@ -1,0 +1,34 @@
+++ Keywords
+
+The compiler should generate code for:
+//keywords.rask//
+
+[[table style="width: 80%;"]][[row]][[cell style="border: 1px solid silver; padding: 10px; background-color: #f7f7ff"]]
+[[html]]
+<code>
+<span style="font-size: 10pt; color:#000000;"><span style="color:#000080; font-weight:bold">void</span><br/>
+<span style="color:#000080; font-weight:bold">int32</span><br/>
+<span style="color:#000080; font-weight:bold">var</span><br/>
+<span style="color:#000080; font-weight:bold">return</span><br/>
+<span style="color:#000080; font-weight:bold">if</span><br/>
+<span style="color:#000080; font-weight:bold">for</span><br/>
+<span style="color:#000080; font-weight:bold">while</span><br/>
+<span style="color:#000080; font-weight:bold">class</span><br/>
+<span style="color:#000080; font-weight:bold">struct</span><br/>
+<span style="color:#000080; font-weight:bold">type</span><br/>
+<span style="color:#000080; font-weight:bold">else</span><br/>
+<span style="color:#000080; font-weight:bold">true</span><br/>
+<span style="color:#000080; font-weight:bold">false</span><br/></span></code>
+[[/html]]
+[[/cell]][[/row]][[/table]]
+
+The program should output:
+
+[[table style="width: 80%;"]][[row]][[cell style="border: 1px solid silver; padding: 10px; background-color: #f7f7ff"]]
+[[html]]
+<code>
+5<br/>
+</code>
+[[/html]]
+[[/cell]][[/row]][[/table]]
+

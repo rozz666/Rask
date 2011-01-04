@@ -3,4 +3,4 @@ simple2:test:simple2.rask #Simple2
 simple3:error:simple3.rask #Simple3
 simple2:test:simple2.rask #Simple4
 simple2:test:simple2.rask #Simple4
-
+keywords:test:keywords.rask #Keywords

@@ -34,9 +34,19 @@ prettyCode()
     local CODE=`cat $1`
     CODE=${CODE//" "/"&#xA0;"}
     CODE=${CODE//$'\n'/$'<br/>\n'}
-    CODE=${CODE//"var"/"<span style=\"color:#000080; font-weight:bold\">var</span>"}
     CODE=${CODE//"void"/"<span style=\"color:#000080; font-weight:bold\">void</span>"}
     CODE=${CODE//"int32"/"<span style=\"color:#000080; font-weight:bold\">int32</span>"}
+    CODE=${CODE//"var"/"<span style=\"color:#000080; font-weight:bold\">var</span>"}
+    CODE=${CODE//"return"/"<span style=\"color:#000080; font-weight:bold\">return</span>"}
+    CODE=${CODE//"if"/"<span style=\"color:#000080; font-weight:bold\">if</span>"}
+    CODE=${CODE//"for"/"<span style=\"color:#000080; font-weight:bold\">for</span>"}
+    CODE=${CODE//"while"/"<span style=\"color:#000080; font-weight:bold\">while</span>"}
+    CODE=${CODE//"class"/"<span style=\"color:#000080; font-weight:bold\">class</span>"}
+    CODE=${CODE//"struct"/"<span style=\"color:#000080; font-weight:bold\">struct</span>"}
+    CODE=${CODE//"type"/"<span style=\"color:#000080; font-weight:bold\">type</span>"}
+    CODE=${CODE//"else"/"<span style=\"color:#000080; font-weight:bold\">else</span>"}
+    CODE=${CODE//"true"/"<span style=\"color:#000080; font-weight:bold\">true</span>"}
+    CODE=${CODE//"false"/"<span style=\"color:#000080; font-weight:bold\">false</span>"}
     echo "[[table style=\"width: 80%;\"]][[row]][[cell style=\"border: 1px solid silver; padding: 10px; background-color: #f7f7ff\"]]"
     echo "[[html]]"
     echo "<code>"
