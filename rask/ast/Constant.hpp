@@ -16,7 +16,28 @@ namespace rask
 namespace ast
 {
 
-typedef boost::int32_t Constant;
+class Constant
+{
+public:
+
+    Constant() { }
+    Constant(boost::int32_t value) : value_(value) { }
+    operator boost::int32_t() const { return value_; }
+
+    friend bool operator==(const Constant& left, const Constant& right)
+    {
+        return left.value_ == right.value_;
+    }
+
+private:
+
+    boost::int32_t value_;
+};
+
+inline bool operator!=(const Constant& left, const Constant& right)
+{
+    return !(left == right);
+}
 
 }
 }
