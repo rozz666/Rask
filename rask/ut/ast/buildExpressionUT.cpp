@@ -192,4 +192,22 @@ void object::test<9>()
     ENSURE(getConstant(*expr) == ret);
 }
 
+template <>
+template <>
+void object::test<10>()
+{
+    using namespace rask;
+    
+    cst::Identifier c1 = cst::Identifier::create(Position(), "true");
+    cst::Identifier c2 = cst::Identifier::create(Position(), "false");
+    boost::optional<ast::Expression> expr1 = builder.buildExpression(c1);
+    boost::optional<ast::Expression> expr2 = builder.buildExpression(c2);
+    
+    ENSURE(expr1);
+    ENSURE(expr2);
+    ENSURE(logger.errors().empty());
+    ENSURE(getConstant(*expr1) == ast::Constant(true));
+    ENSURE(getConstant(*expr2) == ast::Constant(false));
+}
+
 }

@@ -31,6 +31,9 @@ struct BuildExpression : boost::static_visitor<boost::optional<Expression> >
 
     boost::optional<Expression> operator()(const cst::Identifier& id)
     {
+        if (id.value == "true") return ast::Expression(ast::Constant(true));
+        if (id.value == "false") return ast::Expression(ast::Constant(false));
+        
         boost::optional<SharedVariable> var = st.getVariable(id.value);
 
         if (!var)
