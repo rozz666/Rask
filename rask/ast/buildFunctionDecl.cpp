@@ -7,17 +7,25 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <sstream>
+#include <map>
 #include <boost/foreach.hpp>
 #include <rask/ast/Builder.hpp>
+#include <boost/assign/list_of.hpp>
 
 namespace rask
 {
 namespace ast
 {
 
+typedef std::map<std::string, BasicType> TypeDictionary;
+const TypeDictionary typeDictionary = boost::assign::map_list_of
+    ("int32", INT32)
+    ("boolean", BOOLEAN)
+    ("void", VOID);
+
 boost::optional<FunctionDecl> Builder::buildFunctionDecl(const cst::Function& f)
 {
-    FunctionDecl fd(f.name, f.type.value == "int32" ? INT32 : (f.type.value == "boolean" ? BOOLEAN : VOID));
+    FunctionDecl fd(f.name, typeDictionary.find(f.type.value)->second);
     SharedCustomFunction cf = fd.function();
     
     SharedFunction r = symbolTable_.add(cf);
