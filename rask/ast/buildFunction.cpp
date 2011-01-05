@@ -83,9 +83,9 @@ std::string Builder::functionSignature(const std::string& name, const std::vecto
     
     if (!args.empty())
     {
-        os << "int";
+        os << "int32";
 
-        std::fill_n(std::ostream_iterator<std::string>(os), args.size() - 1, ", int");
+        std::fill_n(std::ostream_iterator<std::string>(os), args.size() - 1, ", int32");
     }
    
     os << ")";

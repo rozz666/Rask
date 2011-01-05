@@ -145,7 +145,7 @@ void object::test<5>()
     
     ENSURE(!builder.buildFunctionCall(ccall));
     ENSURE_EQUALS(logger.errors().size(), 1u);
-    ENSURE_EQUALS(logger.errors()[0], error::Message::functionNotFound(ccall.function.position, "print(int, int)"));
+    ENSURE_EQUALS(logger.errors()[0], error::Message::functionNotFound(ccall.function.position, "print(int32, int32)"));
     ENSURE_CALL(builder, buildExpression(ccall.args[0]));
     ENSURE_CALL(builder, buildExpression(ccall.args[1]));
 }
