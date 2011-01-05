@@ -16,7 +16,8 @@ namespace ast {
 enum BasicType
 {
     VOID,
-    INT32
+    INT32,
+    BOOLEAN
 };
 
 }

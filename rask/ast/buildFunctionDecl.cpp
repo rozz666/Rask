@@ -17,7 +17,7 @@ namespace ast
 
 boost::optional<FunctionDecl> Builder::buildFunctionDecl(const cst::Function& f)
 {
-    FunctionDecl fd(f.name, f.type.value == "int32" ? INT32 : VOID);
+    FunctionDecl fd(f.name, f.type.value == "int32" ? INT32 : (f.type.value == "boolean" ? BOOLEAN : VOID));
     SharedCustomFunction cf = fd.function();
     
     SharedFunction r = symbolTable_.add(cf);

@@ -113,16 +113,22 @@ void object::test<4>()
     cst::Function cf2;
     cf2.name = cst::Identifier::create(Position(), "asia2");
     cf2.type = cst::Identifier::create(Position(), "int32");
-
+    cst::Function cf3;
+    cf3.name = cst::Identifier::create(Position(), "asia3");
+    cf3.type = cst::Identifier::create(Position(), "boolean");
+    
     boost::optional<ast::FunctionDecl> fd1 = builder.buildFunctionDecl(cf1);
     boost::optional<ast::FunctionDecl> fd2 = builder.buildFunctionDecl(cf2);
-
+    boost::optional<ast::FunctionDecl> fd3 = builder.buildFunctionDecl(cf3);
+    
     ENSURE(fd1);
     ENSURE(fd2);
+    ENSURE(fd3);
     ENSURE_EQUALS(logger.errors().size(), 0u);
 
     ENSURE(fd1->function()->type() == ast::VOID);
     ENSURE(fd2->function()->type() == ast::INT32);
+    ENSURE(fd3->function()->type() == ast::BOOLEAN);
 }
 
 }
