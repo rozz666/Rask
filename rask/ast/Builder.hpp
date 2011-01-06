@@ -12,6 +12,7 @@
 #include <boost/optional.hpp>
 #include <rask/ast/Tree.hpp>
 #include <rask/ast/SymbolTable.hpp>
+#include <rask/ast/Scope.hpp>
 #include <rask/cst/Tree.hpp>
 #include <rask/error/Logger.hpp>
 
@@ -28,7 +29,7 @@ public:
     
     virtual boost::optional<FunctionCall> buildFunctionCall(const cst::FunctionCall& fc);
     virtual boost::optional<FunctionDecl> buildFunctionDecl(const cst::Function& f);
-    virtual bool buildFunction(const cst::Function& f);
+    virtual bool buildFunction(const cst::Function& f, SharedScope = SharedScope());
     virtual boost::optional<Tree> buildTree(const cst::Tree& cst);
     virtual boost::optional<VariableDecl> buildVariableDecl(const cst::VariableDecl& vd);
     virtual boost::optional<Expression> buildExpression(const cst::Expression& expr);

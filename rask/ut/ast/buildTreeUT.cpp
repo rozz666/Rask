@@ -15,7 +15,7 @@
 
 namespace
 {
-    
+
 MOCK(BuilderMock, rask::ast::Builder)
 {
 public:
@@ -29,7 +29,7 @@ public:
     }
 
     MOCK_METHOD(boost::optional<rask::ast::FunctionDecl>, buildFunctionDecl, (const rask::cst::Function&, f));
-    MOCK_METHOD(bool, buildFunction, (const rask::cst::Function&, f));
+    MOCK_METHOD(bool, buildFunction, (const rask::cst::Function&, f)(rask::ast::SharedScope, scope));
 };
 
 MOCK(BuilderMockBuildFunction, rask::ast::Builder)
@@ -46,7 +46,7 @@ public:
 
     MOCK_METHOD(boost::optional<rask::ast::FunctionDecl>, buildFunctionDecl, (const rask::cst::Function&, f));
 
-    virtual bool buildFunction(const rask::cst::Function& cf)
+    virtual bool buildFunction(const rask::cst::Function& cf, rask::ast::SharedScope)
     {
         rask::ast::SharedCustomFunction f =
             boost::dynamic_pointer_cast<rask::ast::CustomFunction>(*st.getFunction(cf.name.value));
@@ -126,8 +126,8 @@ void object::test<2>()
     ENSURE_CALL(builder, buildFunctionDecl(cst.functions[0]));
     ENSURE_CALL(builder, buildFunctionDecl(cst.functions[1]));
     ENSURE_NO_CALLS(builder, buildFunctionDecl);
-    ENSURE_CALL(builder, buildFunction(cst.functions[0]));
-    ENSURE_CALL(builder, buildFunction(cst.functions[1]));
+    ENSURE_CALL(builder, buildFunction(cst.functions[0], ast::SharedScope()));
+    ENSURE_CALL(builder, buildFunction(cst.functions[1], ast::SharedScope()));
     ENSURE_NO_CALLS(builder, buildFunction);
 }
 
@@ -166,8 +166,8 @@ void object::test<4>()
     ENSURE_CALL(builder, buildFunctionDecl(cst.functions[0]));
     ENSURE_CALL(builder, buildFunctionDecl(cst.functions[1]));
     ENSURE_NO_CALLS(builder, buildFunctionDecl);
-    ENSURE_CALL(builder, buildFunction(cst.functions[0]));
-    ENSURE_CALL(builder, buildFunction(cst.functions[1]));
+    ENSURE_CALL(builder, buildFunction(cst.functions[0], ast::SharedScope()));
+    ENSURE_CALL(builder, buildFunction(cst.functions[1], ast::SharedScope()));
     ENSURE_NO_CALLS(builder, buildFunction);
 }
 

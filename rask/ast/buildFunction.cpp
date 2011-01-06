@@ -57,7 +57,7 @@ struct StatementVisitor : boost::static_visitor<bool>
     }
 };
 
-bool Builder::buildFunction(const cst::Function& cf)
+bool Builder::buildFunction(const cst::Function& cf, SharedScope)
 {
     SharedCustomFunction f = boost::dynamic_pointer_cast<CustomFunction>(*symbolTable_.getFunction(cf.name.value));
 
