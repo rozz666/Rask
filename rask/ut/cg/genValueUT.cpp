@@ -16,6 +16,7 @@
 #include <llvm/Instructions.h>
 #include <llvm/DerivedTypes.h>
 #include <rask/test/VariableFactory.hpp>
+#include <rask/null.hpp>
 
 namespace
 {
@@ -97,7 +98,7 @@ void object::test<3>()
 {
     using namespace rask;
 
-    ast::Expression fc = ast::FunctionCall(ast::WeakFunction(), ast::FunctionCall::Arguments(0));
+    ast::Expression fc = ast::FunctionCall(null, ast::FunctionCall::Arguments(0));
 
     MOCK_RETURN(cg, genFunctionCall, 0);
 

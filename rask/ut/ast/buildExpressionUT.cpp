@@ -110,7 +110,7 @@ void object::test<4>()
     cst::Expression fc = cst::FunctionCall();
     unsigned n = 5;
     
-    MOCK_RETURN(builder, buildFunctionCall, ast::FunctionCall(ast::WeakFunction(), ast::FunctionCall::Arguments(n)));
+    MOCK_RETURN(builder, buildFunctionCall, ast::FunctionCall(null, ast::FunctionCall::Arguments(n)));
     
     boost::optional<ast::Expression> expr = builder.buildExpression(fc, scope);
     
@@ -143,7 +143,7 @@ void object::test<6>()
     cst::Expression c = cst::UnaryOperatorCall();
     unsigned n = 5;
     
-    MOCK_RETURN(builder, buildUnaryOperatorCall, ast::FunctionCall(ast::WeakFunction(), ast::FunctionCall::Arguments(n)));
+    MOCK_RETURN(builder, buildUnaryOperatorCall, ast::FunctionCall(null, ast::FunctionCall::Arguments(n)));
     
     boost::optional<ast::Expression> expr = builder.buildExpression(c, scope);
     

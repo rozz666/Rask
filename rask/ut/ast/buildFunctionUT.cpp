@@ -11,6 +11,7 @@
 #include <rask/test/Mock.hpp>
 #include <rask/ast/Builder.hpp>
 #include <rask/test/VariableDeclFactory.hpp>
+#include <rask/null.hpp>
 
 namespace
 {
@@ -94,8 +95,8 @@ void object::test<2>()
     
     cf.stmts.resize(2, cst::FunctionCall());
 
-    MOCK_RETURN(builder, buildFunctionCall, ast::FunctionCall(ast::WeakFunction(), ast::FunctionCall::Arguments(n1)));
-    MOCK_RETURN(builder, buildFunctionCall, ast::FunctionCall(ast::WeakFunction(), ast::FunctionCall::Arguments(n2)));
+    MOCK_RETURN(builder, buildFunctionCall, ast::FunctionCall(null, ast::FunctionCall::Arguments(n1)));
+    MOCK_RETURN(builder, buildFunctionCall, ast::FunctionCall(null, ast::FunctionCall::Arguments(n2)));
     
     ENSURE(builder.buildFunction(cf, scope));
     
