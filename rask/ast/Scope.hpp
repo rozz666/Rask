@@ -10,6 +10,9 @@
 #define RASK_AST_SCOPE_HPP
 
 #include <boost/shared_ptr.hpp>
+#include <boost/optional.hpp>
+#include <map>
+#include <rask/ast/Variable.hpp>
 
 namespace rask
 {
@@ -19,6 +22,26 @@ namespace ast
 
 class Scope
 {
+public:
+
+    SharedVariable addVariable(SharedVariable var)
+    {
+        return vars_.insert(Vars::value_type(var->name().value, var)).first->second;
+    }
+
+    boost::optional<SharedVariable> getVariable(const std::string& name)
+    {
+        Vars::const_iterator it = vars_.find(name);
+
+        if (it == vars_.end()) return boost::none;
+
+        return it->second;
+    }
+
+private:
+
+    typedef std::map<std::string, SharedVariable> Vars;
+    Vars vars_;
 };
 
 typedef boost::shared_ptr<Scope> SharedScope;
