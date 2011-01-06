@@ -41,32 +41,6 @@ public:
     MOCK_METHOD(bool, buildFunction, (const rask::cst::Function&, f)(rask::ast::SharedScope, scope));
 };
 
-MOCK(BuilderMockBuildFunction, rask::ast::Builder)
-{
-public:
-
-    rask::ast::SymbolTable& st;
-    bool allParamsOk;
-
-    BuilderMockBuildFunction(rask::error::Logger& logger, rask::ast::SymbolTable& st)
-        : rask::ast::Builder(logger, st),
-        st(st), allParamsOk(true)
-    {
-    }
-
-    MOCK_METHOD(boost::optional<rask::ast::FunctionDecl>, buildFunctionDecl, (const rask::cst::Function&, f));
-
-    virtual bool buildFunction(const rask::cst::Function& cf, rask::ast::SharedScope)
-    {
-        rask::ast::SharedCustomFunction f =
-            boost::dynamic_pointer_cast<rask::ast::CustomFunction>(*st.getFunction(cf.name.value));
-
-        if (st.getVariable(f->arg(0)->name().value)) allParamsOk = false;
-
-        return true;
-    }
-};
-
 }
 
 namespace tut
