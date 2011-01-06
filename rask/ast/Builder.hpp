@@ -40,10 +40,14 @@ public:
 
 private:
 
+    typedef std::vector<std::pair<const cst::Function *, SharedCustomFunction> > Functions;
+
     error::Logger& logger_;
     FunctionTable& functionTable_;
 
     std::string functionSignature(const std::string& name, const std::vector<cst::Expression>& args);
+    boost::optional<Functions> buildFunctionDecls(const std::vector<cst::Function>& cfs, Tree& ast);
+    bool buildFunctions(const Functions& fs, SharedScopeFactory scopeFactory);
 };
 
 }

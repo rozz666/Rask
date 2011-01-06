@@ -15,15 +15,13 @@ namespace rask
 namespace ast
 {
 
-boost::optional<Tree> Builder::buildTree(const cst::Tree& cst, SharedScopeFactory scopeFactory)
+boost::optional<Builder::Functions> Builder::buildFunctionDecls(const std::vector<cst::Function>& cfs, Tree& ast)
 {
-    Tree ast;
     bool failed = false;
-    typedef std::vector<std::pair<const cst::Function *, SharedCustomFunction> > Functions;
     Functions functions;
-    functions.reserve(cst.functions.size());
+    functions.reserve(cfs.size());
 
-    BOOST_FOREACH(const cst::Function& f, cst.functions)
+    BOOST_FOREACH(const cst::Function& f, cfs)
     {
         if (boost::optional<FunctionDecl> fd = buildFunctionDecl(f))
         {
@@ -38,12 +36,27 @@ boost::optional<Tree> Builder::buildTree(const cst::Tree& cst, SharedScopeFactor
 
     if (failed) return boost::none;
 
-    BOOST_FOREACH(const Functions::value_type& f, functions)
+    return functions;
+}
+
+bool Builder::buildFunctions(const Builder::Functions& fs, SharedScopeFactory scopeFactory)
+{
+    bool failed = false;
+
+    BOOST_FOREACH(const Functions::value_type& f, fs)
     {
         if (!buildFunction(*f.first, f.second, scopeFactory->createScope())) failed = true;
     }
 
-    if (failed) return boost::none;
+    return !failed;
+}
+
+boost::optional<Tree> Builder::buildTree(const cst::Tree& cst, SharedScopeFactory scopeFactory)
+{
+    Tree ast;
+    boost::optional<Functions> functions = buildFunctionDecls(cst.functions, ast);
+
+    if (!functions || !buildFunctions(*functions, scopeFactory)) return boost::none;
 
     if (!functionTable_.getFunction("main"))
     {
