@@ -22,7 +22,8 @@ public:
     BuilderMock(rask::error::Logger& logger, rask::ast::SymbolTable& st)
     : rask::ast::Builder(logger, st) { }
 
-    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildExpression, (const rask::cst::Expression&, expr));
+    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildExpression,
+        (const rask::cst::Expression&, expr)(rask::ast::SharedScope, scope))
 };
 
 }
@@ -35,9 +36,10 @@ struct buildReturn_TestData
     rask::cst::Return ret;
     rask::error::Logger logger;
     rask::ast::SymbolTable st;
+    rask::ast::SharedScope scope;
     BuilderMock builder;
 
-    buildReturn_TestData() : builder(logger, st) { }
+    buildReturn_TestData() : scope(new rask::ast::Scope), builder(logger, st) { }
 };
 
 typedef test_group<buildReturn_TestData> factory;
@@ -62,11 +64,11 @@ void object::test<1>()
 
     MOCK_RETURN(builder, buildExpression, ast::Expression(value));
 
-    boost::optional<ast::Return> r = builder.buildReturn(ret);
+    boost::optional<ast::Return> r = builder.buildReturn(ret, scope);
 
     ENSURE(r);
     ENSURE_EQUALS(logger.errors().size(), 0u);
-    ENSURE_CALL(builder, buildExpression(ret.value));
+    ENSURE_CALL(builder, buildExpression(ret.value, scope));
     ENSURE(getConstant(r->expr()) == value);
 }
 
@@ -78,9 +80,9 @@ void object::test<2>()
 
     MOCK_RETURN(builder, buildExpression, boost::none);
 
-    ENSURE(!builder.buildReturn(ret));
+    ENSURE(!builder.buildReturn(ret, scope));
     ENSURE_EQUALS(logger.errors().size(), 0u);
-    ENSURE_CALL(builder, buildExpression(ret.value));
+    ENSURE_CALL(builder, buildExpression(ret.value, scope));
 }
 
 }

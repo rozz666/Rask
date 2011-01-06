@@ -19,13 +19,14 @@ struct StatementVisitor : boost::static_visitor<bool>
 {
     Builder& b;
     CustomFunction& f;
+    SharedScope scope;
 
-    StatementVisitor(Builder& b, CustomFunction& f)
-        : b(b), f(f) { }
+    StatementVisitor(Builder& b, CustomFunction& f, SharedScope scope)
+        : b(b), f(f), scope(scope) { }
 
     bool operator()(const cst::FunctionCall& call)
     {
-        boost::optional<ast::FunctionCall> fc = b.buildFunctionCall(call);
+        boost::optional<ast::FunctionCall> fc = b.buildFunctionCall(call, scope);
 
         if (!fc) return false;
 
@@ -36,7 +37,7 @@ struct StatementVisitor : boost::static_visitor<bool>
 
     bool operator()(const cst::VariableDecl& vd)
     {
-        boost::optional<ast::VariableDecl> d = b.buildVariableDecl(vd);
+        boost::optional<ast::VariableDecl> d = b.buildVariableDecl(vd, scope);
         
         if (!d) return false;
         
@@ -47,7 +48,7 @@ struct StatementVisitor : boost::static_visitor<bool>
 
     bool operator()(const cst::Return& ret)
     {
-        boost::optional<ast::Return> r = b.buildReturn(ret);
+        boost::optional<ast::Return> r = b.buildReturn(ret, scope);
 
         if (!r) return false;
 
@@ -57,18 +58,18 @@ struct StatementVisitor : boost::static_visitor<bool>
     }
 };
 
-bool Builder::buildFunction(const cst::Function& cf, SharedScope)
+bool Builder::buildFunction(const cst::Function& cf, SharedScope scope)
 {
     SharedCustomFunction f = boost::dynamic_pointer_cast<CustomFunction>(*symbolTable_.getFunction(cf.name.value));
 
     for (unsigned short i = 0; i != f->argCount(); ++i)
     {
-        symbolTable_.add(f->arg(i));
+        scope->addVariable(f->arg(i));
     }
 
     BOOST_FOREACH(const cst::Statement& stmt, cf.stmts)
     {
-        StatementVisitor sv(*this, *f);
+        StatementVisitor sv(*this, *f, scope);
         if (!stmt.apply_visitor(sv)) return false;
     }
 

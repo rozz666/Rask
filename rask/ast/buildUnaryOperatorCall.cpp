@@ -14,10 +14,10 @@ namespace rask
 namespace ast
 {
 
-boost::optional<FunctionCall> Builder::buildUnaryOperatorCall(const cst::UnaryOperatorCall& oc)
+boost::optional<FunctionCall> Builder::buildUnaryOperatorCall(const cst::UnaryOperatorCall& oc, SharedScope scope)
 {
     FunctionCall::Arguments args;
-    args.push_back(*buildExpression(oc.expr));
+    args.push_back(*buildExpression(oc.expr, scope));
     return FunctionCall(*symbolTable_.getFunction(UNARY_MINUS_NAME), args);
 }
     

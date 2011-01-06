@@ -19,10 +19,10 @@ struct BuildExpression : boost::static_visitor<boost::optional<Expression> >
 {
     Builder& builder;
     error::Logger& logger;
-    const SymbolTable& st;
+    SharedScope scope;
 
-    BuildExpression(Builder& builder, const SymbolTable& st, error::Logger& logger)
-        : builder(builder), logger(logger), st(st) { }
+    BuildExpression(Builder& builder, SharedScope scope, error::Logger& logger)
+        : builder(builder), logger(logger), scope(scope) { }
 
     Expression operator()(const cst::Constant& c)
     {
@@ -34,7 +34,7 @@ struct BuildExpression : boost::static_visitor<boost::optional<Expression> >
         if (id.value == "true") return ast::Expression(ast::Constant(true));
         if (id.value == "false") return ast::Expression(ast::Constant(false));
         
-        boost::optional<SharedVariable> var = st.getVariable(id.value);
+        boost::optional<SharedVariable> var = scope->getVariable(id.value);
 
         if (!var)
         {
@@ -47,7 +47,7 @@ struct BuildExpression : boost::static_visitor<boost::optional<Expression> >
 
     boost::optional<Expression> operator()(const cst::FunctionCall& fc)
     {
-        boost::optional<FunctionCall> c = builder.buildFunctionCall(fc);
+        boost::optional<FunctionCall> c = builder.buildFunctionCall(fc, scope);
 
         if (!c) return boost::none;
 
@@ -56,7 +56,7 @@ struct BuildExpression : boost::static_visitor<boost::optional<Expression> >
 
     boost::optional<Expression> operator()(const cst::UnaryOperatorCall& oc)
     {
-        boost::optional<FunctionCall> c = builder.buildUnaryOperatorCall(oc);
+        boost::optional<FunctionCall> c = builder.buildUnaryOperatorCall(oc, scope);
 
         if (!c) return boost::none;
         
@@ -65,25 +65,25 @@ struct BuildExpression : boost::static_visitor<boost::optional<Expression> >
 
     boost::optional<Expression> operator()(const cst::ChainExpression& ce)
     {
-        return builder.buildChainExpression(ce);
+        return builder.buildChainExpression(ce, scope);
     }
 };
     
-boost::optional<Expression> Builder::buildExpression(const cst::Expression& expr)
+boost::optional<Expression> Builder::buildExpression(const cst::Expression& expr, SharedScope scope)
 {
-    BuildExpression b(*this, symbolTable_, logger_);
+    BuildExpression b(*this, scope, logger_);
     return expr.apply_visitor(b);
 }
 
-boost::optional<Expression> Builder::buildChainExpression(const cst::ChainExpression& expr)
+boost::optional<Expression> Builder::buildChainExpression(const cst::ChainExpression& expr, SharedScope scope)
 {
-    boost::optional<Expression> left = buildExpression(expr.expr);
+    boost::optional<Expression> left = buildExpression(expr.expr, scope);
 
     if (!left) return boost::none;
     
     for(std::size_t i = 0; i != expr.next.size(); ++i)
     {
-        boost::optional<Expression> right = buildExpression(expr.next[i].expr);
+        boost::optional<Expression> right = buildExpression(expr.next[i].expr, scope);
 
         if (!right) return boost::none;
 

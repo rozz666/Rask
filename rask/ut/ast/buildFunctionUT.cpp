@@ -22,9 +22,12 @@ public:
     BuilderMock(rask::error::Logger& logger, rask::ast::SymbolTable& st)
         : rask::ast::Builder(logger, st) { }
 
-    MOCK_METHOD(boost::optional<rask::ast::VariableDecl>, buildVariableDecl, (const rask::cst::VariableDecl&, vd));
-    MOCK_METHOD(boost::optional<rask::ast::FunctionCall>, buildFunctionCall, (const rask::cst::FunctionCall&, fc));
-    MOCK_METHOD(boost::optional<rask::ast::Return>, buildReturn, (const rask::cst::Return&, ret));
+    MOCK_METHOD(boost::optional<rask::ast::VariableDecl>, buildVariableDecl,
+        (const rask::cst::VariableDecl&, vd)(rask::ast::SharedScope, scope))
+    MOCK_METHOD(boost::optional<rask::ast::FunctionCall>, buildFunctionCall,
+        (const rask::cst::FunctionCall&, fc)(rask::ast::SharedScope, scope))
+    MOCK_METHOD(boost::optional<rask::ast::Return>, buildReturn,
+        (const rask::cst::Return&, ret)(rask::ast::SharedScope, scope))
 };
 
 }
@@ -40,9 +43,11 @@ struct buildFunctionAST_TestData
     rask::cst::Function cf;
     rask::ast::SharedCustomFunction f;
     rask::ast::SymbolTable st;
+    rask::ast::SharedScope scope;
     BuilderMock builder;
     
-    buildFunctionAST_TestData() : file("test.rask"), builder(logger, st)
+    buildFunctionAST_TestData()
+        : file("test.rask"), scope(new rask::ast::Scope), builder(logger, st)
     {
         cf.name = rask::cst::Identifier::create(rask::Position(file, 1, 2), "main");
         cf.type = rask::cst::Identifier::create(rask::Position(file, 1, 10), "void");
@@ -71,7 +76,7 @@ void object::test<1>()
 {
     using namespace rask;
 
-    ENSURE(builder.buildFunction(cf));
+    ENSURE(builder.buildFunction(cf, scope));
     
     ENSURE_EQUALS(logger.errors().size(), 0u);
     ENSURE_EQUALS(f->stmtCount(), 0u);
@@ -92,14 +97,14 @@ void object::test<2>()
     MOCK_RETURN(builder, buildFunctionCall, ast::FunctionCall(ast::WeakFunction(), ast::FunctionCall::Arguments(n1)));
     MOCK_RETURN(builder, buildFunctionCall, ast::FunctionCall(ast::WeakFunction(), ast::FunctionCall::Arguments(n2)));
     
-    ENSURE(builder.buildFunction(cf));
+    ENSURE(builder.buildFunction(cf, scope));
     
     ENSURE_EQUALS(logger.errors().size(), 0u);
     ENSURE_EQUALS(f->stmtCount(), 2u);
     ENSURE_EQUALS(getFunctionCall(f->stmt(0)).args().size(), n1);
     ENSURE_EQUALS(getFunctionCall(f->stmt(1)).args().size(), n2);
-    ENSURE_CALL(builder, buildFunctionCall(getFunctionCall(cf.stmts[0])));
-    ENSURE_CALL(builder, buildFunctionCall(getFunctionCall(cf.stmts[1])));
+    ENSURE_CALL(builder, buildFunctionCall(getFunctionCall(cf.stmts[0]), scope));
+    ENSURE_CALL(builder, buildFunctionCall(getFunctionCall(cf.stmts[1]), scope));
     ENSURE_NO_CALLS(builder, buildFunctionCall);
 }
 
@@ -113,9 +118,9 @@ void object::test<3>()
     
     MOCK_RETURN(builder, buildFunctionCall, boost::none);
     
-    ENSURE(!builder.buildFunction(cf));
+    ENSURE(!builder.buildFunction(cf, scope));
     ENSURE_EQUALS(logger.errors().size(), 0u);
-    ENSURE_CALL(builder, buildFunctionCall(getFunctionCall(cf.stmts[0])));
+    ENSURE_CALL(builder, buildFunctionCall(getFunctionCall(cf.stmts[0]), scope));
     ENSURE_NO_CALLS(builder, buildFunctionCall);
 }
 
@@ -133,11 +138,11 @@ void object::test<4>()
     MOCK_RETURN(builder, buildVariableDecl, varDeclFactory.create(n1));
     MOCK_RETURN(builder, buildVariableDecl, varDeclFactory.create(n2));
     
-    ENSURE(builder.buildFunction(cf));
+    ENSURE(builder.buildFunction(cf, scope));
     
     ENSURE_EQUALS(logger.errors().size(), 0u);
-    ENSURE_CALL(builder, buildVariableDecl(getVariableDecl(cf.stmts[0])));
-    ENSURE_CALL(builder, buildVariableDecl(getVariableDecl(cf.stmts[1])));
+    ENSURE_CALL(builder, buildVariableDecl(getVariableDecl(cf.stmts[0]), scope));
+    ENSURE_CALL(builder, buildVariableDecl(getVariableDecl(cf.stmts[1]), scope));
     ENSURE_NO_CALLS(builder, buildVariableDecl);
     
     ENSURE_EQUALS(f->stmtCount(), 2u);
@@ -155,10 +160,10 @@ void object::test<5>()
 
     MOCK_RETURN(builder, buildVariableDecl, boost::none);
     
-    ENSURE(!builder.buildFunction(cf));
+    ENSURE(!builder.buildFunction(cf, scope));
     
     ENSURE_EQUALS(logger.errors().size(), 0u);
-    ENSURE_CALL(builder, buildVariableDecl(boost::get<cst::VariableDecl>(cf.stmts[0])));
+    ENSURE_CALL(builder, buildVariableDecl(boost::get<cst::VariableDecl>(cf.stmts[0]), scope));
     ENSURE_NO_CALLS(builder, buildVariableDecl);
 }
 
@@ -176,11 +181,11 @@ void object::test<6>()
     MOCK_RETURN(builder, buildReturn, ast::Return(c1));
     MOCK_RETURN(builder, buildReturn, ast::Return(c2));
 
-    ENSURE(builder.buildFunction(cf));
+    ENSURE(builder.buildFunction(cf, scope));
 
     ENSURE_EQUALS(logger.errors().size(), 0u);
-    ENSURE_CALL(builder, buildReturn(getReturn(cf.stmts[0])));
-    ENSURE_CALL(builder, buildReturn(getReturn(cf.stmts[1])));
+    ENSURE_CALL(builder, buildReturn(getReturn(cf.stmts[0]), scope));
+    ENSURE_CALL(builder, buildReturn(getReturn(cf.stmts[1]), scope));
 
     ENSURE_EQUALS(f->stmtCount(), 2u);
     ENSURE(getConstant(getReturn(f->stmt(0)).expr()) == c1);
@@ -198,10 +203,10 @@ void object::test<7>()
     MOCK_RETURN(builder, buildReturn, boost::none);
     MOCK_RETURN(builder, buildReturn, boost::none);
 
-    ENSURE(!builder.buildFunction(cf));
+    ENSURE(!builder.buildFunction(cf, scope));
 
     ENSURE_EQUALS(logger.errors().size(), 0u);
-    ENSURE_CALL(builder, buildReturn(getReturn(cf.stmts[0])));
+    ENSURE_CALL(builder, buildReturn(getReturn(cf.stmts[0]), scope));
     ENSURE_NO_CALLS(builder, buildReturn);
 }
 
@@ -218,10 +223,10 @@ void object::test<8>()
     f->addArg(cf.args[0].name);
     f->addArg(cf.args[1].name);
 
-    ENSURE(builder.buildFunction(cf));
+    ENSURE(builder.buildFunction(cf, scope));
 
-    ENSURE(st.getVariable(cf.args[0].name.value) == f->arg(0));
-    ENSURE(st.getVariable(cf.args[1].name.value) == f->arg(1));
+    ENSURE(scope->getVariable(cf.args[0].name.value) == f->arg(0));
+    ENSURE(scope->getVariable(cf.args[1].name.value) == f->arg(1));
 }
 
 }

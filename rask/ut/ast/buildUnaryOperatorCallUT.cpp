@@ -23,7 +23,8 @@ public:
     BuilderMock(rask::error::Logger& logger, rask::ast::SymbolTable& st)
         : rask::ast::Builder(logger, st) { }
 
-    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildExpression, (const rask::cst::Expression&, expr));
+    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildExpression,
+        (const rask::cst::Expression&, expr)(rask::ast::SharedScope, scope))
 };
     
 }
@@ -36,8 +37,9 @@ struct buildUnaryOperatorCall_TestData
     rask::error::Logger logger;
     rask::ast::SymbolTable st;
     BuilderMock builder;
+    rask::ast::SharedScope scope;
 
-    buildUnaryOperatorCall_TestData() : builder(logger, st) { }
+    buildUnaryOperatorCall_TestData() : builder(logger, st), scope(new rask::ast::Scope) { }
 };
 
 typedef test_group<buildUnaryOperatorCall_TestData> factory;
@@ -68,12 +70,13 @@ void object::test<1>()
 
     st.add(f);
     
-    boost::optional<ast::FunctionCall> fc = builder.buildUnaryOperatorCall(oc);
+    boost::optional<ast::FunctionCall> fc = builder.buildUnaryOperatorCall(oc, scope);
 
     ENSURE(fc);
     ENSURE(fc->function().lock() == f);
     ENSURE_EQUALS(fc->args().size(), 1u);
     ENSURE(getConstant(fc->args()[0]) == retExpr);
+    ENSURE_CALL(builder, buildExpression(oc.expr, scope));
 }
 
 }

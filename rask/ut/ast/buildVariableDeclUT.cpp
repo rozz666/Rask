@@ -22,7 +22,8 @@ public:
     BuilderMock(rask::error::Logger& logger, rask::ast::SymbolTable& st)
         : rask::ast::Builder(logger, st) { }
 
-    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildExpression, (const rask::cst::Expression&, expr));
+    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildExpression,
+        (const rask::cst::Expression&, expr)(rask::ast::SharedScope, scope))
 };
     
 }
@@ -35,9 +36,10 @@ struct buildVariableDecl_TestData
     rask::cst::VariableDecl cvd;
     rask::error::Logger logger;
     rask::ast::SymbolTable st;
+    rask::ast::SharedScope scope;
     BuilderMock builder;
     
-    buildVariableDecl_TestData() : builder(logger, st)
+    buildVariableDecl_TestData() : scope(new rask::ast::Scope), builder(logger, st)
     {
         cvd.name = rask::cst::Identifier::create(rask::Position("abc", 1, 3), "x");
         cvd.value = rask::cst::ChainExpression();
@@ -67,15 +69,15 @@ void object::test<1>()
     rask::ast::Constant dummy(123);
     MOCK_RETURN(builder, buildExpression, ast::Expression(dummy));
 
-    boost::optional<ast::VariableDecl> vd = builder.buildVariableDecl(cvd);
+    boost::optional<ast::VariableDecl> vd = builder.buildVariableDecl(cvd, scope);
 
     ENSURE(vd);
     ENSURE(logger.errors().empty());
-    ENSURE_CALL(builder, buildExpression(*cvd.value));
+    ENSURE_CALL(builder, buildExpression(*cvd.value, scope));
     ENSURE_EQUALS(vd->var()->name().position, cvd.name.position);
     ENSURE_EQUALS(vd->var()->name().value, cvd.name.value);
     ENSURE(getConstant(vd->value()) == dummy);
-    ENSURE(st.getVariable(cvd.name.value) == vd->var());
+    ENSURE(scope->getVariable(cvd.name.value) == vd->var());
 }
 
 template <>
@@ -86,7 +88,7 @@ void object::test<2>()
 
     cvd.value = boost::none;
 
-    ENSURE(!builder.buildVariableDecl(cvd));
+    ENSURE(!builder.buildVariableDecl(cvd, scope));
     ENSURE_EQUALS(logger.errors().size(), 1u);
     ENSURE_EQUALS(logger.errors()[0], error::Message::uninitializedVariable(cvd.name.position, cvd.name.value));
 }
@@ -99,9 +101,9 @@ void object::test<3>()
 
     MOCK_RETURN(builder, buildExpression, boost::none);
 
-    ENSURE(!builder.buildVariableDecl(cvd));
+    ENSURE(!builder.buildVariableDecl(cvd, scope));
     ENSURE(logger.errors().empty());
-    ENSURE_CALL(builder, buildExpression(*cvd.value));
+    ENSURE_CALL(builder, buildExpression(*cvd.value, scope));
 }
 
 }

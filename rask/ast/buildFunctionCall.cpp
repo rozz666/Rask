@@ -15,7 +15,7 @@ namespace rask
 namespace ast
 {
 
-boost::optional<FunctionCall> Builder::buildFunctionCall(const cst::FunctionCall& call)
+boost::optional<FunctionCall> Builder::buildFunctionCall(const cst::FunctionCall& call, SharedScope scope)
 {
     boost::optional<SharedFunction> f = symbolTable_.getFunction(call.function.value);
 
@@ -29,7 +29,7 @@ boost::optional<FunctionCall> Builder::buildFunctionCall(const cst::FunctionCall
 
     BOOST_FOREACH(const cst::Expression& e, call.args)
     {
-        args.push_back(*buildExpression(e));
+        args.push_back(*buildExpression(e, scope));
     }
 
     if (call.args.size() != (*f)->argCount())

@@ -26,7 +26,8 @@ public:
 
     MOCK_METHOD(boost::optional<rask::ast::FunctionCall>, buildFunctionCall, (const rask::cst::FunctionCall&, fc));
     MOCK_METHOD(boost::optional<rask::ast::FunctionCall>, buildUnaryOperatorCall, (const rask::cst::UnaryOperatorCall&, oc));
-    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildExpression, (const rask::cst::Expression&, expr));
+    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildExpression,
+        (const rask::cst::Expression&, expr)(rask::ast::SharedScope, scope))
 };
 
 }
@@ -39,8 +40,9 @@ struct buildChainExpression_TestData
     rask::error::Logger logger;
     rask::ast::SymbolTable st;
     BuilderMock builder;
+    rask::ast::SharedScope scope;
 
-    buildChainExpression_TestData() : builder(logger, st) { }
+    buildChainExpression_TestData() : builder(logger, st), scope(new rask::ast::Scope) { }
 };
 
 typedef test_group<buildChainExpression_TestData> factory;
@@ -65,7 +67,7 @@ void object::test<1>()
     ast::Constant c(7);
 
     MOCK_RETURN(builder, buildExpression, ast::Expression(c));
-    boost::optional<ast::Expression> expr = builder.buildChainExpression(e);
+    boost::optional<ast::Expression> expr = builder.buildChainExpression(e, scope);
 
     ENSURE(expr);
     ENSURE(logger.errors().empty());
@@ -81,8 +83,9 @@ void object::test<2>()
     cst::ChainExpression e;
     
     MOCK_RETURN(builder, buildExpression, boost::none);
-    ENSURE(!builder.buildChainExpression(e));
+    ENSURE(!builder.buildChainExpression(e, scope));
     ENSURE(logger.errors().empty());
+    ENSURE_CALL(builder, buildExpression(e.expr, scope));
 }
 
 template <>
@@ -107,7 +110,7 @@ void object::test<3>()
     st.add(opMinus);
     st.add(opPlus);
     
-    boost::optional<ast::Expression> expr = builder.buildChainExpression(e);
+    boost::optional<ast::Expression> expr = builder.buildChainExpression(e, scope);
 
     ENSURE(expr);
     ENSURE(logger.errors().empty());
@@ -120,6 +123,9 @@ void object::test<3>()
     ENSURE(getConstant(fc2.args()[0]) == a);
     ENSURE(getConstant(fc2.args()[1]) == b);
     ENSURE(getConstant(fc1.args()[1]) == c);
+    ENSURE_CALL(builder, buildExpression(e.expr, scope));
+    ENSURE_CALL(builder, buildExpression(e.next[0].expr, scope));
+    ENSURE_CALL(builder, buildExpression(e.next[1].expr, scope));
 }
 
 template <>
@@ -133,7 +139,7 @@ void object::test<4>()
 
     MOCK_RETURN(builder, buildExpression, ast::Expression(ast::Constant(1)));
     MOCK_RETURN(builder, buildExpression, boost::none);
-    ENSURE(!builder.buildChainExpression(e));
+    ENSURE(!builder.buildChainExpression(e, scope));
     ENSURE(logger.errors().empty());
 }
 

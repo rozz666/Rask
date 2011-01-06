@@ -204,38 +204,4 @@ void object::test<5>()
     ENSURE_EQUALS(logger.errors()[0], error::Message::missingMainFunction(Position(cst.end.file)));
 }
 
-template <>
-template <>
-void object::test<6>()
-{
-    using namespace rask;
-
-    rask::ast::SymbolTable st;
-    BuilderMockBuildFunction builder(logger, st);
-
-    cst.functions.resize(2);
-    cst.functions[0].name.value = "f1";
-    cst.functions[0].args.resize(1);
-    cst.functions[0].args[0].name = cst::Identifier::create(Position(), "testArg");
-    cst.functions[1].name.value = "f2";
-    cst.functions[1].args.resize(1);
-    cst.functions[1].args[0].name = cst::Identifier::create(Position(), "testArg");
-
-    ast::FunctionDecl fd1(cst::Identifier::create(Position(), cst.functions[0].name.value), ast::VOID);
-    ast::FunctionDecl fd2(cst::Identifier::create(Position(), cst.functions[1].name.value), ast::VOID);
-    ast::SharedCustomFunction f1 = test::FunctionFactory().createShared("f1");
-    f1->addArg(cst.functions[0].args[0].name);
-    ast::SharedCustomFunction f2 = test::FunctionFactory().createShared("f2");
-    f2->addArg(cst.functions[1].args[0].name);
-    st.add(f1);
-    st.add(f2);
-    MOCK_RETURN(builder, buildFunctionDecl, fd1);
-    MOCK_RETURN(builder, buildFunctionDecl, fd2);
-
-    ast::SharedScopeFactory scopeFactory(new ast::ScopeFactory);
-    builder.buildTree(cst, scopeFactory);
-
-    ENSURE(builder.allParamsOk);
-}
-
 }

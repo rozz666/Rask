@@ -14,7 +14,7 @@ namespace rask
 namespace ast
 {
 
-boost::optional<VariableDecl> Builder::buildVariableDecl(const cst::VariableDecl& vd)
+boost::optional<VariableDecl> Builder::buildVariableDecl(const cst::VariableDecl& vd, SharedScope scope)
 {
     if (!vd.value)
     {
@@ -22,12 +22,12 @@ boost::optional<VariableDecl> Builder::buildVariableDecl(const cst::VariableDecl
         return boost::none;
     }
 
-    boost::optional<Expression> expr = buildExpression(*vd.value);
+    boost::optional<Expression> expr = buildExpression(*vd.value, scope);
 
     if (!expr) return boost::none;
     
     VariableDecl decl(vd.name, *expr);
-    symbolTable_.add(decl.var());
+    scope->addVariable(decl.var());
     
     return decl;
 }
