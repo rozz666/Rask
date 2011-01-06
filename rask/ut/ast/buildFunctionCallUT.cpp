@@ -20,8 +20,8 @@ MOCK(BuilderMock, rask::ast::Builder)
 {
 public:
 
-    BuilderMock(rask::error::Logger& logger, rask::ast::SymbolTable& st)
-    : rask::ast::Builder(logger, st) { }
+    BuilderMock(rask::error::Logger& logger, rask::ast::FunctionTable& ft)
+    : rask::ast::Builder(logger, ft) { }
 
     MOCK_METHOD(boost::optional<rask::ast::Expression>, buildExpression,
         (const rask::cst::Expression&, expr)(rask::ast::SharedScope, scope))
@@ -36,7 +36,7 @@ struct buildFunctionCall_TestData
 {
     rask::error::Logger logger;
     const std::string file;
-    rask::ast::SymbolTable st;
+    rask::ast::FunctionTable ft;
     BuilderMock builder;
     rask::cst::FunctionCall ccall;
     rask::ast::Constant dummy1;
@@ -44,7 +44,7 @@ struct buildFunctionCall_TestData
     rask::ast::SharedScope scope;
     
     buildFunctionCall_TestData()
-        : file("test.rask"), builder(logger, st), dummy1(1), dummy2(2),
+        : file("test.rask"), builder(logger, ft), dummy1(1), dummy2(2),
         scope(new rask::ast::Scope) { }
 };
 
@@ -67,7 +67,7 @@ void object::test<1>()
     using namespace rask;
 
     rask::ast::SharedBuiltinFunction f(new rask::ast::BuiltinFunction("f", ast::VOID, 0));
-    st.add(f);
+    ft.add(f);
     ccall.function = cst::Identifier::create(Position(file, 2, 4), f->name().value);
     
     boost::optional<ast::FunctionCall> call = builder.buildFunctionCall(ccall, scope);
@@ -85,7 +85,7 @@ void object::test<2>()
     using namespace rask;
     
     rask::ast::SharedBuiltinFunction f(new rask::ast::BuiltinFunction("f", ast::VOID, 2));
-    st.add(f);
+    ft.add(f);
     ccall.function = cst::Identifier::create(Position(file, 2, 4), f->name().value);
     ccall.args.resize(2);
 
@@ -125,7 +125,7 @@ void object::test<4>()
     using namespace rask;
     
     rask::ast::SharedBuiltinFunction f(new rask::ast::BuiltinFunction("abc", ast::VOID, 1));
-    st.add(f);
+    ft.add(f);
     ccall.function = cst::Identifier::create(Position(file, 2, 4), f->name().value);
     
     ENSURE(!builder.buildFunctionCall(ccall, scope));
@@ -140,7 +140,7 @@ void object::test<5>()
     using namespace rask;
 
     rask::ast::SharedBuiltinFunction f(new rask::ast::BuiltinFunction("print", ast::VOID, 1));
-    st.add(f);
+    ft.add(f);
     ccall.function = cst::Identifier::create(Position(file, 2, 4), "print");
     ccall.args.resize(2);
 

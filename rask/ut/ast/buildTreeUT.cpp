@@ -31,10 +31,10 @@ public:
 
     rask::ast::SharedCustomFunction main;
 
-    BuilderMock(rask::error::Logger& logger, rask::ast::SymbolTable& st)
-        : rask::ast::Builder(logger, st), main(rask::test::FunctionFactory().createShared("main"))
+    BuilderMock(rask::error::Logger& logger, rask::ast::FunctionTable& ft)
+        : rask::ast::Builder(logger, ft), main(rask::test::FunctionFactory().createShared("main"))
     {
-        st.add(main);
+        ft.add(main);
     }
 
     MOCK_METHOD(boost::optional<rask::ast::FunctionDecl>, buildFunctionDecl, (const rask::cst::Function&, f));
@@ -49,12 +49,12 @@ namespace tut
 struct buildAST_TestData
 {
     rask::error::Logger logger;
-    rask::ast::SymbolTable st;
+    rask::ast::FunctionTable ft;
     SharedScopeFactoryMock scopeFactory;
     BuilderMock builder;
     rask::cst::Tree cst;
 
-    buildAST_TestData() : scopeFactory(new ScopeFactoryMock), builder(logger, st)
+    buildAST_TestData() : scopeFactory(new ScopeFactoryMock), builder(logger, ft)
     {
     }
 };
@@ -171,7 +171,7 @@ void object::test<5>()
     using namespace rask;
 
     cst.end = Position("xxx", 1, 2);
-    st = ast::SymbolTable();
+    ft = ast::FunctionTable();
     
     ENSURE(!builder.buildTree(cst, scopeFactory));
     ENSURE_EQUALS(logger.errors().size(), 1u);

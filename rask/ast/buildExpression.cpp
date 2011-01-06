@@ -91,7 +91,7 @@ boost::optional<Expression> Builder::buildChainExpression(const cst::ChainExpres
         args[0] = *left;
         args[1] = *right;
 
-        left = FunctionCall(*symbolTable_.getFunction(operatorName(expr.next[i].op.tag)), args);
+        left = FunctionCall(*functionTable_.getFunction(operatorName(expr.next[i].op.tag)), args);
     }
 
     return left;

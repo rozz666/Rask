@@ -17,7 +17,7 @@ namespace ast
 
 boost::optional<FunctionCall> Builder::buildFunctionCall(const cst::FunctionCall& call, SharedScope scope)
 {
-    boost::optional<SharedFunction> f = symbolTable_.getFunction(call.function.value);
+    boost::optional<SharedFunction> f = functionTable_.getFunction(call.function.value);
 
     if (!f)
     {

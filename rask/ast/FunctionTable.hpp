@@ -6,8 +6,8 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#ifndef RASK_AST_SYMBOLTABLE_HPP
-#define RASK_AST_SYMBOLTABLE_HPP
+#ifndef RASK_AST_FUNCTIONTABLE_HPP
+#define RASK_AST_FUNCTIONTABLE_HPP
 
 #include <map>
 #include <stdexcept>
@@ -21,7 +21,7 @@ namespace rask
 namespace ast
 {
     
-class SymbolTable
+class FunctionTable
 {
 public:
 
@@ -49,4 +49,4 @@ private:
 }
 }
 
-#endif // RASK_AST_SYMBOLTABLE_HPP
+#endif // RASK_AST_FUNCTIONTABLE_HPP

@@ -19,8 +19,8 @@ MOCK(BuilderMock, rask::ast::Builder)
 {
 public:
 
-    BuilderMock(rask::error::Logger& logger, rask::ast::SymbolTable& st)
-    : rask::ast::Builder(logger, st) { }
+    BuilderMock(rask::error::Logger& logger, rask::ast::FunctionTable& ft)
+        : rask::ast::Builder(logger, ft) { }
 
     MOCK_METHOD(boost::optional<rask::ast::FunctionCall>, buildFunctionCall,
         (const rask::cst::FunctionCall&, fc)(rask::ast::SharedScope, scope))
@@ -38,11 +38,11 @@ namespace tut
 struct buildExpression_TestData
 {
     rask::error::Logger logger;
-    rask::ast::SymbolTable st;
+    rask::ast::FunctionTable ft;
     BuilderMock builder;
     rask::ast::SharedScope scope;
     
-    buildExpression_TestData() : builder(logger, st), scope(new rask::ast::Scope) { }
+    buildExpression_TestData() : builder(logger, ft), scope(new rask::ast::Scope) { }
 };
 
 typedef test_group<buildExpression_TestData> factory;

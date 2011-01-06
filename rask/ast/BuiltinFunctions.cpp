@@ -6,7 +6,7 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <rask/ast/SymbolTable.hpp>
+#include <rask/ast/FunctionTable.hpp>
 #include <rask/ast/BuiltinFunctions.hpp>
 #include <rask/Operators.hpp>
 
@@ -27,16 +27,16 @@ BuiltinFunctions::BuiltinFunctions()
 {
 }
     
-void BuiltinFunctions::declare(SymbolTable& st)
+void BuiltinFunctions::declare(FunctionTable& ft)
 {
-    st.add(print_);
-    st.add(getInt32_);
-    st.add(operatorMinusInt32_);
-    st.add(operatorMinusInt32Int32_);
-    st.add(operatorPlusInt32Int32_);
-    st.add(operatorMultInt32Int32_);
-    st.add(operatorDivInt32Int32_);
-    st.add(operatorModInt32Int32_);
+    ft.add(print_);
+    ft.add(getInt32_);
+    ft.add(operatorMinusInt32_);
+    ft.add(operatorMinusInt32Int32_);
+    ft.add(operatorPlusInt32Int32_);
+    ft.add(operatorMultInt32Int32_);
+    ft.add(operatorDivInt32Int32_);
+    ft.add(operatorModInt32Int32_);
 }
     
 }

@@ -10,7 +10,7 @@
 #include <tut/../contrib/tut_macros.h>
 #include <rask/test/TUTAssert.hpp>
 #include <rask/ast/BuiltinFunctions.hpp>
-#include <rask/ast/SymbolTable.hpp>
+#include <rask/ast/FunctionTable.hpp>
 #include <rask/Operators.hpp>
 
 namespace tut
@@ -19,18 +19,18 @@ namespace tut
 struct BuiltinFunctions_TestData
 {
     rask::ast::BuiltinFunctions bfs;
-    rask::ast::SymbolTable st;
+    rask::ast::FunctionTable ft;
 
     BuiltinFunctions_TestData()
     {
-        bfs.declare(st);
+        bfs.declare(ft);
     }
 
     void ensureBuiltinFunction(const std::string& name, rask::ast::BasicType type, unsigned argCount)
     {
         using namespace rask;
         
-        boost::optional<ast::SharedFunction> f = st.getFunction(name);
+        boost::optional<ast::SharedFunction> f = ft.getFunction(name);
         ENSURE(f);
         ENSURE(boost::dynamic_pointer_cast<ast::BuiltinFunction>(*f));
         ENSURE_EQUALS((*f)->name().position, Position());

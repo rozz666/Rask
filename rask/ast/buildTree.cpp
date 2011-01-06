@@ -40,7 +40,7 @@ boost::optional<Tree> Builder::buildTree(const cst::Tree& cst, SharedScopeFactor
 
     if (failed) return boost::none;
 
-    if (!symbolTable_.getFunction("main"))
+    if (!functionTable_.getFunction("main"))
     {
         logger_.log(error::Message::missingMainFunction(Position(cst.end.file)));
         return boost::none;

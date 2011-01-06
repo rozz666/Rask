@@ -72,7 +72,7 @@ ADD_EXECUTABLE(
     rask/ut/cg/genFunctionCallUT.cpp
     rask/ut/cg/SymbolTableUT.cpp
     rask/ut/ast/buildFunctionCallUT.cpp
-    rask/ut/ast/SymbolTableUT.cpp
+    rask/ut/ast/FunctionTableUT.cpp
     rask/ut/ast/buildFunctionDeclUT.cpp
     rask/ut/ast/TreeUT.cpp
     rask/ut/cg/declFunctionUT.cpp

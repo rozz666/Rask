@@ -9,7 +9,7 @@
 #include <tut/tut.hpp>
 #include <tut/../contrib/tut_macros.h>
 #include <rask/test/TUTAssert.hpp>
-#include <rask/ast/SymbolTable.hpp>
+#include <rask/ast/FunctionTable.hpp>
 #include <rask/test/FunctionFactory.hpp>
 
 namespace tut
@@ -17,7 +17,7 @@ namespace tut
 
 struct AstSymbolTable_TestData
 {
-    rask::ast::SymbolTable st;
+    rask::ast::FunctionTable ft;
     rask::test::FunctionFactory functionFactory;
     std::string f1Name;
     std::string f2Name;
@@ -50,26 +50,26 @@ template <>
 template <>
 void object::test<1>()
 {
-    ENSURE(st.add(f1a) == f1a);
-    ENSURE(st.add(f2) == f2);
-    ENSURE(*st.getFunction(f1Name) == f1a);
-    ENSURE(*st.getFunction(f2Name) == f2);
+    ENSURE(ft.add(f1a) == f1a);
+    ENSURE(ft.add(f2) == f2);
+    ENSURE(*ft.getFunction(f1Name) == f1a);
+    ENSURE(*ft.getFunction(f2Name) == f2);
 }
 
 template <>
 template <>
 void object::test<2>()
 {
-    ENSURE(!st.getFunction("x"));
+    ENSURE(!ft.getFunction("x"));
 }
 
 template <>
 template <>
 void object::test<3>()
 {
-    ENSURE(st.add(f1a) == f1a);
-    ENSURE(st.add(f1b) == f1a);
-    ENSURE(st.getFunction(f1Name) == f1a);
+    ENSURE(ft.add(f1a) == f1a);
+    ENSURE(ft.add(f1b) == f1a);
+    ENSURE(ft.getFunction(f1Name) == f1a);
 }
 
 }

@@ -28,7 +28,7 @@ boost::optional<FunctionDecl> Builder::buildFunctionDecl(const cst::Function& f)
     FunctionDecl fd(f.name, typeDictionary.find(f.type.value)->second);
     SharedCustomFunction cf = fd.function();
     
-    SharedFunction r = symbolTable_.add(cf);
+    SharedFunction r = functionTable_.add(cf);
 
     if (r != cf)
     {

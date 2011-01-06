@@ -80,7 +80,7 @@ int main(int argc, char **argv)
 
         if (cst)
         {
-            ast::SymbolTable symbolTable;
+            ast::FunctionTable symbolTable;
             ast::BuiltinFunctions builtinFunctions;
             builtinFunctions.declare(symbolTable);
 

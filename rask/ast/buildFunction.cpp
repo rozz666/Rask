@@ -60,7 +60,7 @@ struct StatementVisitor : boost::static_visitor<bool>
 
 bool Builder::buildFunction(const cst::Function& cf, SharedScope scope)
 {
-    SharedCustomFunction f = boost::dynamic_pointer_cast<CustomFunction>(*symbolTable_.getFunction(cf.name.value));
+    SharedCustomFunction f = boost::dynamic_pointer_cast<CustomFunction>(*functionTable_.getFunction(cf.name.value));
 
     for (unsigned short i = 0; i != f->argCount(); ++i)
     {

@@ -16,7 +16,7 @@ namespace rask
 namespace ast
 {
 
-class SymbolTable;
+class FunctionTable;
     
 class BuiltinFunctions
 {
@@ -24,7 +24,7 @@ public:
 
     BuiltinFunctions();
     
-    void declare(SymbolTable& st);
+    void declare(FunctionTable& ft);
 
 private:
 

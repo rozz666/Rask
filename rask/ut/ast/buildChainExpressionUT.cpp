@@ -21,8 +21,8 @@ MOCK(BuilderMock, rask::ast::Builder)
 {
 public:
 
-    BuilderMock(rask::error::Logger& logger, rask::ast::SymbolTable& st)
-        : rask::ast::Builder(logger, st) { }
+    BuilderMock(rask::error::Logger& logger, rask::ast::FunctionTable& ft)
+        : rask::ast::Builder(logger, ft) { }
 
     MOCK_METHOD(boost::optional<rask::ast::FunctionCall>, buildFunctionCall, (const rask::cst::FunctionCall&, fc));
     MOCK_METHOD(boost::optional<rask::ast::FunctionCall>, buildUnaryOperatorCall, (const rask::cst::UnaryOperatorCall&, oc));
@@ -38,11 +38,11 @@ namespace tut
 struct buildChainExpression_TestData
 {
     rask::error::Logger logger;
-    rask::ast::SymbolTable st;
+    rask::ast::FunctionTable ft;
     BuilderMock builder;
     rask::ast::SharedScope scope;
 
-    buildChainExpression_TestData() : builder(logger, st), scope(new rask::ast::Scope) { }
+    buildChainExpression_TestData() : builder(logger, ft), scope(new rask::ast::Scope) { }
 };
 
 typedef test_group<buildChainExpression_TestData> factory;
@@ -107,8 +107,8 @@ void object::test<3>()
     test::FunctionFactory functionFactory;
     ast::SharedCustomFunction opMinus = functionFactory.createShared(BINARY_MINUS_NAME, ast::INT32, 2);
     ast::SharedCustomFunction opPlus = functionFactory.createShared(BINARY_PLUS_NAME, ast::INT32, 2);
-    st.add(opMinus);
-    st.add(opPlus);
+    ft.add(opMinus);
+    ft.add(opPlus);
     
     boost::optional<ast::Expression> expr = builder.buildChainExpression(e, scope);
 

@@ -20,8 +20,8 @@ MOCK(BuilderMock, rask::ast::Builder)
 {
 public:
 
-    BuilderMock(rask::error::Logger& logger, rask::ast::SymbolTable& st)
-        : rask::ast::Builder(logger, st) { }
+    BuilderMock(rask::error::Logger& logger, rask::ast::FunctionTable& ft)
+        : rask::ast::Builder(logger, ft) { }
 
     MOCK_METHOD(boost::optional<rask::ast::VariableDecl>, buildVariableDecl,
         (const rask::cst::VariableDecl&, vd)(rask::ast::SharedScope, scope))
@@ -43,19 +43,19 @@ struct buildFunctionAST_TestData
     const std::string file;
     rask::cst::Function cf;
     rask::ast::SharedCustomFunction f;
-    rask::ast::SymbolTable st;
+    rask::ast::FunctionTable ft;
     rask::ast::SharedScope scope;
     BuilderMock builder;
     
     buildFunctionAST_TestData()
-        : file("test.rask"), scope(new rask::ast::Scope), builder(logger, st)
+        : file("test.rask"), scope(new rask::ast::Scope), builder(logger, ft)
     {
         cf.name = rask::cst::Identifier::create(rask::Position(file, 1, 2), "main");
         cf.type = rask::cst::Identifier::create(rask::Position(file, 1, 10), "void");
 
         f.reset(new rask::ast::CustomFunction(cf.name, rask::ast::VOID));
         
-        st.add(f);
+        ft.add(f);
     }
 };
 

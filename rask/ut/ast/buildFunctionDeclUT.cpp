@@ -17,10 +17,10 @@ namespace tut
 struct buildFunctionDecl_TestData
 {
     rask::error::Logger logger;
-    rask::ast::SymbolTable st;
+    rask::ast::FunctionTable ft;
     rask::ast::Builder builder;
 
-    buildFunctionDecl_TestData() : builder(logger, st) { } 
+    buildFunctionDecl_TestData() : builder(logger, ft) { }
 };
 
 typedef test_group<buildFunctionDecl_TestData> factory;
@@ -51,7 +51,7 @@ void object::test<1>()
     ENSURE_EQUALS(logger.errors().size(), 0u);
     
     ast::SharedFunction f = fd->function();
-    ENSURE(st.getFunction(f->name().value) == f);
+    ENSURE(ft.getFunction(f->name().value) == f);
     ENSURE_EQUALS(f->name().position, cf.name.position);
     ENSURE_EQUALS(f->name().value, cf.name.value);
 }
