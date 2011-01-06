@@ -7,6 +7,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <boost/foreach.hpp>
+#include <vector>
 #include <rask/ast/Builder.hpp>
 
 namespace rask
@@ -18,12 +19,16 @@ boost::optional<Tree> Builder::buildTree(const cst::Tree& cst, SharedScopeFactor
 {
     Tree ast;
     bool failed = false;
-    
+    typedef std::vector<std::pair<const cst::Function *, SharedCustomFunction> > Functions;
+    Functions functions;
+    functions.reserve(cst.functions.size());
+
     BOOST_FOREACH(const cst::Function& f, cst.functions)
     {
         if (boost::optional<FunctionDecl> fd = buildFunctionDecl(f))
         {
             ast.add(fd->function());
+            functions.push_back(Functions::value_type(&f, fd->function()));
         }
         else
         {
@@ -33,9 +38,9 @@ boost::optional<Tree> Builder::buildTree(const cst::Tree& cst, SharedScopeFactor
 
     if (failed) return boost::none;
 
-    BOOST_FOREACH(const cst::Function& f, cst.functions)
+    BOOST_FOREACH(const Functions::value_type& f, functions)
     {
-        if (!buildFunction(f, scopeFactory->createScope())) failed = true;
+        if (!buildFunction(*f.first, f.second, scopeFactory->createScope())) failed = true;
     }
 
     if (failed) return boost::none;
@@ -45,9 +50,9 @@ boost::optional<Tree> Builder::buildTree(const cst::Tree& cst, SharedScopeFactor
         logger_.log(error::Message::missingMainFunction(Position(cst.end.file)));
         return boost::none;
     }
-    
+
     return ast;
-}  
+}
 
 }
 }

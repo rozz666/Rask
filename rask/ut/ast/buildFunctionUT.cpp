@@ -46,7 +46,7 @@ struct buildFunctionAST_TestData
     rask::ast::FunctionTable ft;
     rask::ast::SharedScope scope;
     BuilderMock builder;
-    
+
     buildFunctionAST_TestData()
         : file("test.rask"), scope(new rask::ast::Scope), builder(logger, ft)
     {
@@ -54,8 +54,6 @@ struct buildFunctionAST_TestData
         cf.type = rask::cst::Identifier::create(rask::Position(file, 1, 10), "void");
 
         f.reset(new rask::ast::CustomFunction(cf.name, rask::ast::VOID));
-        
-        ft.add(f);
     }
 };
 
@@ -77,13 +75,13 @@ void object::test<1>()
 {
     using namespace rask;
 
-    ENSURE(builder.buildFunction(cf, scope));
-    
+    ENSURE(builder.buildFunction(cf, f, scope));
+
     ENSURE_EQUALS(logger.errors().size(), 0u);
     ENSURE_EQUALS(f->stmtCount(), 0u);
 }
-        
-        
+
+
 template <>
 template <>
 void object::test<2>()
@@ -92,14 +90,14 @@ void object::test<2>()
 
     const unsigned n1 = 1;
     const unsigned n2 = 2;
-    
+
     cf.stmts.resize(2, cst::FunctionCall());
 
     MOCK_RETURN(builder, buildFunctionCall, ast::FunctionCall(null, ast::FunctionCall::Arguments(n1)));
     MOCK_RETURN(builder, buildFunctionCall, ast::FunctionCall(null, ast::FunctionCall::Arguments(n2)));
-    
-    ENSURE(builder.buildFunction(cf, scope));
-    
+
+    ENSURE(builder.buildFunction(cf, f, scope));
+
     ENSURE_EQUALS(logger.errors().size(), 0u);
     ENSURE_EQUALS(f->stmtCount(), 2u);
     ENSURE_EQUALS(getFunctionCall(f->stmt(0)).args().size(), n1);
@@ -114,12 +112,12 @@ template <>
 void object::test<3>()
 {
     using namespace rask;
-    
+
     cf.stmts.resize(2, cst::FunctionCall());
-    
+
     MOCK_RETURN(builder, buildFunctionCall, boost::none);
-    
-    ENSURE(!builder.buildFunction(cf, scope));
+
+    ENSURE(!builder.buildFunction(cf, f, scope));
     ENSURE_EQUALS(logger.errors().size(), 0u);
     ENSURE_CALL(builder, buildFunctionCall(getFunctionCall(cf.stmts[0]), scope));
     ENSURE_NO_CALLS(builder, buildFunctionCall);
@@ -135,17 +133,17 @@ void object::test<4>()
     const std::string n2 = "b";
 
     cf.stmts.resize(2, cst::VariableDecl());
-    
+
     MOCK_RETURN(builder, buildVariableDecl, varDeclFactory.create(n1));
     MOCK_RETURN(builder, buildVariableDecl, varDeclFactory.create(n2));
-    
-    ENSURE(builder.buildFunction(cf, scope));
-    
+
+    ENSURE(builder.buildFunction(cf, f, scope));
+
     ENSURE_EQUALS(logger.errors().size(), 0u);
     ENSURE_CALL(builder, buildVariableDecl(getVariableDecl(cf.stmts[0]), scope));
     ENSURE_CALL(builder, buildVariableDecl(getVariableDecl(cf.stmts[1]), scope));
     ENSURE_NO_CALLS(builder, buildVariableDecl);
-    
+
     ENSURE_EQUALS(f->stmtCount(), 2u);
     ENSURE_EQUALS(getVariableDecl(f->stmt(0)).var()->name().value, n1);
     ENSURE_EQUALS(getVariableDecl(f->stmt(1)).var()->name().value, n2);
@@ -156,13 +154,13 @@ template <>
 void object::test<5>()
 {
     using namespace rask;
-    
+
     cf.stmts.resize(2, cst::VariableDecl());
 
     MOCK_RETURN(builder, buildVariableDecl, boost::none);
-    
-    ENSURE(!builder.buildFunction(cf, scope));
-    
+
+    ENSURE(!builder.buildFunction(cf, f, scope));
+
     ENSURE_EQUALS(logger.errors().size(), 0u);
     ENSURE_CALL(builder, buildVariableDecl(boost::get<cst::VariableDecl>(cf.stmts[0]), scope));
     ENSURE_NO_CALLS(builder, buildVariableDecl);
@@ -176,13 +174,13 @@ void object::test<6>()
 
     ast::Constant c1(1);
     ast::Constant c2(2);
-    
+
     cf.stmts.resize(2, cst::Return());
 
     MOCK_RETURN(builder, buildReturn, ast::Return(c1));
     MOCK_RETURN(builder, buildReturn, ast::Return(c2));
 
-    ENSURE(builder.buildFunction(cf, scope));
+    ENSURE(builder.buildFunction(cf, f, scope));
 
     ENSURE_EQUALS(logger.errors().size(), 0u);
     ENSURE_CALL(builder, buildReturn(getReturn(cf.stmts[0]), scope));
@@ -204,7 +202,7 @@ void object::test<7>()
     MOCK_RETURN(builder, buildReturn, boost::none);
     MOCK_RETURN(builder, buildReturn, boost::none);
 
-    ENSURE(!builder.buildFunction(cf, scope));
+    ENSURE(!builder.buildFunction(cf, f, scope));
 
     ENSURE_EQUALS(logger.errors().size(), 0u);
     ENSURE_CALL(builder, buildReturn(getReturn(cf.stmts[0]), scope));
@@ -224,7 +222,7 @@ void object::test<8>()
     f->addArg(cf.args[0].name);
     f->addArg(cf.args[1].name);
 
-    ENSURE(builder.buildFunction(cf, scope));
+    ENSURE(builder.buildFunction(cf, f, scope));
 
     ENSURE(scope->getVariable(cf.args[0].name.value) == f->arg(0));
     ENSURE(scope->getVariable(cf.args[1].name.value) == f->arg(1));

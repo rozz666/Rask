@@ -11,7 +11,6 @@
 #include <rask/test/Mock.hpp>
 #include <rask/ast/Builder.hpp>
 #include <rask/test/FunctionFactory.hpp>
-#include <boost/concept_check.hpp>
 
 namespace
 {
@@ -37,8 +36,9 @@ public:
         ft.add(main);
     }
 
-    MOCK_METHOD(boost::optional<rask::ast::FunctionDecl>, buildFunctionDecl, (const rask::cst::Function&, f));
-    MOCK_METHOD(bool, buildFunction, (const rask::cst::Function&, f)(rask::ast::SharedScope, scope));
+    MOCK_METHOD(boost::optional<rask::ast::FunctionDecl>, buildFunctionDecl, (const rask::cst::Function&, f))
+    MOCK_METHOD(bool, buildFunction,
+        (const rask::cst::Function&, cf)(rask::ast::SharedCustomFunction, f)(rask::ast::SharedScope, scope))
 };
 
 }
@@ -115,8 +115,8 @@ void object::test<2>()
     ENSURE_CALL(builder, buildFunctionDecl(cst.functions[0]));
     ENSURE_CALL(builder, buildFunctionDecl(cst.functions[1]));
     ENSURE_NO_CALLS(builder, buildFunctionDecl);
-    ENSURE_CALL(builder, buildFunction(cst.functions[0], s1));
-    ENSURE_CALL(builder, buildFunction(cst.functions[1], s2));
+    ENSURE_CALL(builder, buildFunction(cst.functions[0], fd1.function(), s1));
+    ENSURE_CALL(builder, buildFunction(cst.functions[1], fd2.function(), s2));
     ENSURE_NO_CALLS(builder, buildFunction);
 }
 
@@ -125,12 +125,12 @@ template <>
 void object::test<3>()
 {
     using namespace rask;
-    
+
     cst.functions.resize(2);
 
     MOCK_RETURN(builder, buildFunctionDecl, ast::FunctionDecl(cst::Identifier::create(Position(), "f"), ast::VOID));
     MOCK_RETURN(builder, buildFunctionDecl, boost::none);
-    
+
     ENSURE(!builder.buildTree(cst, scopeFactory));
     ENSURE_EQUALS(logger.errors().size(), 0u);
     ENSURE_CALL(builder, buildFunctionDecl(cst.functions[0]));
@@ -144,23 +144,24 @@ template <>
 void object::test<4>()
 {
     using namespace rask;
-    
+
     cst.functions.resize(2);
 
-    MOCK_RETURN(builder, buildFunctionDecl, ast::FunctionDecl(cst::Identifier::create(Position(), "f"), ast::VOID));
+    ast::FunctionDecl fd(cst::Identifier::create(Position(), "f"), ast::VOID);
+    MOCK_RETURN(builder, buildFunctionDecl, fd);
     MOCK_RETURN(builder, buildFunction, false);
     ast::SharedScope s1(new ast::Scope);
     ast::SharedScope s2(new ast::Scope);
     MOCK_RETURN(*scopeFactory, createScope, s1);
     MOCK_RETURN(*scopeFactory, createScope, s2);
-    
+
     ENSURE(!builder.buildTree(cst, scopeFactory));
     ENSURE_EQUALS(logger.errors().size(), 0u);
     ENSURE_CALL(builder, buildFunctionDecl(cst.functions[0]));
     ENSURE_CALL(builder, buildFunctionDecl(cst.functions[1]));
     ENSURE_NO_CALLS(builder, buildFunctionDecl);
-    ENSURE_CALL(builder, buildFunction(cst.functions[0], s1));
-    ENSURE_CALL(builder, buildFunction(cst.functions[1], s2));
+    ENSURE_CALL(builder, buildFunction(cst.functions[0], fd.function(), s1));
+    ENSURE_CALL(builder, buildFunction(cst.functions[1], fd.function(), s2));
     ENSURE_NO_CALLS(builder, buildFunction);
 }
 
@@ -172,7 +173,7 @@ void object::test<5>()
 
     cst.end = Position("xxx", 1, 2);
     ft = ast::FunctionTable();
-    
+
     ENSURE(!builder.buildTree(cst, scopeFactory));
     ENSURE_EQUALS(logger.errors().size(), 1u);
     ENSURE_EQUALS(logger.errors()[0], error::Message::missingMainFunction(Position(cst.end.file)));

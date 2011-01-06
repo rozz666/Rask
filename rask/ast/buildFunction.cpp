@@ -38,9 +38,9 @@ struct StatementVisitor : boost::static_visitor<bool>
     bool operator()(const cst::VariableDecl& vd)
     {
         boost::optional<ast::VariableDecl> d = b.buildVariableDecl(vd, scope);
-        
+
         if (!d) return false;
-        
+
         f.addStmt(*d);
 
         return true;
@@ -53,15 +53,13 @@ struct StatementVisitor : boost::static_visitor<bool>
         if (!r) return false;
 
         f.addStmt(*r);
-        
+
         return true;
     }
 };
 
-bool Builder::buildFunction(const cst::Function& cf, SharedScope scope)
+bool Builder::buildFunction(const cst::Function& cf, SharedCustomFunction f, SharedScope scope)
 {
-    SharedCustomFunction f = boost::dynamic_pointer_cast<CustomFunction>(*functionTable_.getFunction(cf.name.value));
-
     for (unsigned short i = 0; i != f->argCount(); ++i)
     {
         scope->addVariable(f->arg(i));
@@ -79,16 +77,16 @@ bool Builder::buildFunction(const cst::Function& cf, SharedScope scope)
 std::string Builder::functionSignature(const std::string& name, const std::vector<cst::Expression>& args)
 {
     std::ostringstream os;
-    
+
     os << name << "(";
-    
+
     if (!args.empty())
     {
         os << "int32";
 
         std::fill_n(std::ostream_iterator<std::string>(os), args.size() - 1, ", int32");
     }
-   
+
     os << ")";
     return os.str();
 }
