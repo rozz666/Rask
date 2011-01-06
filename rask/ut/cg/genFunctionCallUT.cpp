@@ -30,7 +30,7 @@ public:
 
     MOCK_METHOD(llvm::Value *, genValue, (const rask::ast::Expression&, expr)(llvm::BasicBlock&, block));
 };
-    
+
 }
 
 namespace tut
@@ -45,7 +45,7 @@ struct genFunctionCall_TestData
     CodeGeneratorMock cg;
     llvm::AllocaInst *a1;
     llvm::AllocaInst *a2;
-    
+
     genFunctionCall_TestData()
         : module(new llvm::Module("testModule", ctx)), cg(st),
         a1(new llvm::AllocaInst(llvm::IntegerType::get(ctx, 32))),
@@ -127,6 +127,8 @@ void object::test<1>()
     ENSURE(call->getArgOperand(0) == a1);
     ENSURE(call->getArgOperand(1) == a2);
     ENSURE(call->getCallingConv() == llvm::CallingConv::C);
+    ENSURE_CALL(cg, genValue(fc.args()[0], *block));
+    ENSURE_CALL(cg, genValue(fc.args()[1], *block));
 }
 
 template <>
@@ -134,12 +136,12 @@ template <>
 void object::test<2>()
 {
     using namespace rask;
-    
+
     std::string f = "dummy";
     createFunction(f, 0);
     ast::SharedBuiltinFunction dummy(new ast::BuiltinFunction(f, ast::VOID, 0));
     ast::FunctionCall fc(dummy, ast::FunctionCall::Arguments());
-    
+
     llvm::Value *value = cg.genFunctionCall(fc, *block);
 
     ENSURE(llvm::isa<llvm::CallInst>(value));
@@ -194,6 +196,7 @@ void object::test<4>()
     ENSURE(op == &*block->begin());
     ENSURE(llvm::BinaryOperator::isNeg(op));
     ENSURE(llvm::BinaryOperator::getNegArgument(op) == a1);
+    ENSURE_CALL(cg, genValue(fc.args()[0], *block));
 }
 
 template <>
