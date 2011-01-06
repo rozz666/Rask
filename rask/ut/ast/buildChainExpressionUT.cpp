@@ -41,13 +41,6 @@ struct buildChainExpression_TestData
     BuilderMock builder;
 
     buildChainExpression_TestData() : builder(logger, st) { }
-
-    rask::cst::ChainExpression createExpression(const rask::cst::Expression& u)
-    {
-        rask::cst::ChainExpression e;
-        e.expr = u;
-        return e;
-    }
 };
 
 typedef test_group<buildChainExpression_TestData> factory;
