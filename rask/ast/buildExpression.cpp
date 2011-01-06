@@ -8,7 +8,6 @@
 //
 
 #include <rask/ast/Builder.hpp>
-#include <rask/ast/operatorName.hpp>
 
 namespace rask
 {
@@ -74,29 +73,6 @@ boost::optional<Expression> Builder::buildExpression(const cst::Expression& expr
     BuildExpression b(*this, scope, logger_);
     return expr.apply_visitor(b);
 }
-
-boost::optional<Expression> Builder::buildChainExpression(const cst::ChainExpression& expr, SharedScope scope)
-{
-    boost::optional<Expression> left = buildExpression(expr.expr, scope);
-
-    if (!left) return boost::none;
-    
-    for(std::size_t i = 0; i != expr.next.size(); ++i)
-    {
-        boost::optional<Expression> right = buildExpression(expr.next[i].expr, scope);
-
-        if (!right) return boost::none;
-
-        FunctionCall::Arguments args(2);
-        args[0] = *left;
-        args[1] = *right;
-
-        left = FunctionCall(*functionTable_.getFunction(operatorName(expr.next[i].op.tag)), args);
-    }
-
-    return left;
-}
-
 
 }
 }

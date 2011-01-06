@@ -26,6 +26,7 @@ add_library(
     rask/ast/buildFunctionDecl.cpp
     rask/ast/BuiltinFunctions.cpp
     rask/ast/buildExpression.cpp
+    rask/ast/buildChainExpression.cpp
     rask/ast/buildReturn.cpp
     rask/ast/buildUnaryOperatorCall.cpp
     rask/Operators.cpp)
