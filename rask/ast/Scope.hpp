@@ -23,6 +23,15 @@ class Scope
 
 typedef boost::shared_ptr<Scope> SharedScope;
 
+class ScopeFactory
+{
+public:
+
+    virtual SharedScope createScope() { return SharedScope(new Scope); }
+};
+
+typedef boost::shared_ptr<ScopeFactory> SharedScopeFactory;
+
 }
 
 }

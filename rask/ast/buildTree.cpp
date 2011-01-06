@@ -14,7 +14,7 @@ namespace rask
 namespace ast
 {
 
-boost::optional<Tree> Builder::buildTree(const cst::Tree& cst)
+boost::optional<Tree> Builder::buildTree(const cst::Tree& cst, SharedScopeFactory scopeFactory)
 {
     Tree ast;
     bool failed = false;
@@ -36,7 +36,7 @@ boost::optional<Tree> Builder::buildTree(const cst::Tree& cst)
     BOOST_FOREACH(const cst::Function& f, cst.functions)
     {
         symbolTable_.enterScope();
-        if (!buildFunction(f)) failed = true;
+        if (!buildFunction(f, scopeFactory->createScope())) failed = true;
         //symbolTable_.exitScope();
     }
 

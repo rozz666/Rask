@@ -25,12 +25,13 @@ class Builder
 {
 public:
 
-    Builder(error::Logger& logger, SymbolTable& symbolTable) : logger_(logger), symbolTable_(symbolTable) { }
+    Builder(error::Logger& logger, SymbolTable& symbolTable)
+        : logger_(logger), symbolTable_(symbolTable) { }
     
     virtual boost::optional<FunctionCall> buildFunctionCall(const cst::FunctionCall& fc);
     virtual boost::optional<FunctionDecl> buildFunctionDecl(const cst::Function& f);
     virtual bool buildFunction(const cst::Function& f, SharedScope = SharedScope());
-    virtual boost::optional<Tree> buildTree(const cst::Tree& cst);
+    virtual boost::optional<Tree> buildTree(const cst::Tree& cst, SharedScopeFactory scopeFactory);
     virtual boost::optional<VariableDecl> buildVariableDecl(const cst::VariableDecl& vd);
     virtual boost::optional<Expression> buildExpression(const cst::Expression& expr);
     virtual boost::optional<Expression> buildChainExpression(const cst::ChainExpression& expr);
@@ -41,7 +42,7 @@ private:
 
     error::Logger& logger_;
     SymbolTable& symbolTable_;
-    
+
     std::string functionSignature(const std::string& name, const std::vector<cst::Expression>& args);
 };
 

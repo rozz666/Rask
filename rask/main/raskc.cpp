@@ -84,7 +84,8 @@ int main(int argc, char **argv)
             ast::BuiltinFunctions builtinFunctions;
             builtinFunctions.declare(symbolTable);
 
-            boost::optional<ast::Tree> ast = ast::Builder(logger, symbolTable).buildTree(*cst);
+            ast::SharedScopeFactory scopeFactory(new ast::ScopeFactory);
+            boost::optional<ast::Tree> ast = ast::Builder(logger, symbolTable).buildTree(*cst, scopeFactory);
 
             if (ast && !params.noOutput)
             {
