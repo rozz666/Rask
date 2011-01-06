@@ -139,22 +139,22 @@ retType name(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) \
 
 #define MOCK_RETURN(mock, func, value) \
 do { \
-    mock.func##__.ret.values.push_back(value); \
+    (mock).func##__.ret.values.push_back(value); \
 } while (0)
 
 #define ENSURE_CALL(mock, call) \
 do { \
-    if (mock.call__##call.calls.empty()) FAIL(#call " not called"); \
-    unsigned vi = mock.getCallVerificationIndex(); \
-    BOOST_ASSERT(mock.call__##call.calls.front().callIndex__ >= vi); \
-    if (mock.call__##call.calls.front().callIndex__ > vi) FAIL(#call " called too late"); \
-    mock.call__##call.calls.front().verify__(__FILE__, __LINE__, mock.call__##call.calls.front()).call; \
-    mock.call__##call.calls.pop_front(); \
+    if ((mock).call__##call.calls.empty()) FAIL(#call " not called"); \
+    unsigned vi = (mock).getCallVerificationIndex(); \
+    BOOST_ASSERT((mock).call__##call.calls.front().callIndex__ >= vi); \
+    if ((mock).call__##call.calls.front().callIndex__ > vi) FAIL(#call " called too late"); \
+    (mock).call__##call.calls.front().verify__(__FILE__, __LINE__, (mock).call__##call.calls.front()).call; \
+    (mock).call__##call.calls.pop_front(); \
 } while(0)
 
 #define ENSURE_NO_CALLS(mock, func) \
 do { \
-    if (!mock.func##__.calls.empty()) FAIL(#func " called"); \
+    if (!(mock).func##__.calls.empty()) FAIL(#func " called"); \
 } while (0)
  
 }

@@ -110,7 +110,7 @@ template <>
 void object::test<4>()
 {
     MOCK_RETURN(mock, testFunc4, 5);
-    MOCK_RETURN(mock, testFunc4, 6);
+    MOCK_RETURN(*&mock, testFunc4, 6);
     
     ENSURE_EQUALS(mockable.testFunc4(), 5);
     ENSURE_EQUALS(mockable.testFunc4(), 6);
@@ -134,7 +134,7 @@ template <>
 template <>
 void object::test<6>()
 {
-    ENSURE_THROWS(ENSURE_CALL(mock, testFunc(1)), tut::failure);
+    ENSURE_THROWS(ENSURE_CALL(*&mock, testFunc(1)), tut::failure);
 }
     
 template <>
@@ -144,7 +144,7 @@ void object::test<7>()
     mock.testFunc2(1, 2);
     mock.testFunc(1);
 
-    ENSURE_THROWS(ENSURE_CALL(mock, testFunc(1)), tut::failure);
+    ENSURE_THROWS(ENSURE_CALL(*&mock, testFunc(1)), tut::failure);
 }
     
 template <>
@@ -192,7 +192,7 @@ void object::test<12>()
     
     mock.testFunc3();
     
-    ENSURE_THROWS(ENSURE_NO_CALLS(mock, testFunc3), tut::failure);
+    ENSURE_THROWS(ENSURE_NO_CALLS(*&mock, testFunc3), tut::failure);
 }
 
 }
