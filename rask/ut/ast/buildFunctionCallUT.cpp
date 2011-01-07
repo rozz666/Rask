@@ -12,10 +12,11 @@
 #include <rask/test/Mock.hpp>
 #include <rask/ast/Builder.hpp>
 #include <rask/ast/BuiltinFunction.hpp>
+#include <rask/ut/ast/ScopeMock.hpp>
 
 namespace
 {
-    
+
 MOCK(BuilderMock, rask::ast::Builder)
 {
 public:
@@ -26,7 +27,7 @@ public:
     MOCK_METHOD(boost::optional<rask::ast::Expression>, buildExpression,
         (const rask::cst::Expression&, expr)(rask::ast::SharedScope, scope))
 };
-    
+
 }
 
 namespace tut
@@ -41,11 +42,11 @@ struct buildFunctionCall_TestData
     rask::cst::FunctionCall ccall;
     rask::ast::Constant dummy1;
     rask::ast::Constant dummy2;
-    rask::ast::SharedScope scope;
-    
+    rask::ast::test::SharedScopeMock scope;
+
     buildFunctionCall_TestData()
         : file("test.rask"), builder(logger, ft), dummy1(1), dummy2(2),
-        scope(new rask::ast::Scope) { }
+        scope(new rask::ast::test::ScopeMock) { }
 };
 
 typedef test_group<buildFunctionCall_TestData> factory;
@@ -69,9 +70,9 @@ void object::test<1>()
     rask::ast::SharedBuiltinFunction f(new rask::ast::BuiltinFunction("f", ast::VOID, 0));
     ft.add(f);
     ccall.function = cst::Identifier::create(Position(file, 2, 4), f->name().value);
-    
+
     boost::optional<ast::FunctionCall> call = builder.buildFunctionCall(ccall, scope);
-    
+
     ENSURE(call);
     ENSURE_EQUALS(logger.errors().size(), 0u);
     ENSURE(call->function().lock() == f);
@@ -83,7 +84,7 @@ template <>
 void object::test<2>()
 {
     using namespace rask;
-    
+
     rask::ast::SharedBuiltinFunction f(new rask::ast::BuiltinFunction("f", ast::VOID, 2));
     ft.add(f);
     ccall.function = cst::Identifier::create(Position(file, 2, 4), f->name().value);
@@ -91,9 +92,9 @@ void object::test<2>()
 
     MOCK_RETURN(builder, buildExpression, ast::Expression(dummy1));
     MOCK_RETURN(builder, buildExpression, ast::Expression(dummy2));
-    
+
     boost::optional<ast::FunctionCall> call = builder.buildFunctionCall(ccall, scope);
-    
+
     ENSURE(call);
     ENSURE_EQUALS(logger.errors().size(), 0u);
     ENSURE(call->function().lock() == f);
@@ -109,10 +110,10 @@ template <>
 void object::test<3>()
 {
     using namespace rask;
-    
+
     ccall.function = cst::Identifier::create(Position(file, 2, 4), "xxx");
     ccall.args.resize(1);
-    
+
     ENSURE(!builder.buildFunctionCall(ccall, scope));
     ENSURE_EQUALS(logger.errors().size(), 1u);
     ENSURE_EQUALS(logger.errors()[0], error::Message::unknownIdentifier(ccall.function.position, ccall.function.value));
@@ -123,11 +124,11 @@ template <>
 void object::test<4>()
 {
     using namespace rask;
-    
+
     rask::ast::SharedBuiltinFunction f(new rask::ast::BuiltinFunction("abc", ast::VOID, 1));
     ft.add(f);
     ccall.function = cst::Identifier::create(Position(file, 2, 4), f->name().value);
-    
+
     ENSURE(!builder.buildFunctionCall(ccall, scope));
     ENSURE_EQUALS(logger.errors().size(), 1u);
     ENSURE_EQUALS(logger.errors()[0], error::Message::functionNotFound(ccall.function.position, "abc()"));
@@ -146,7 +147,7 @@ void object::test<5>()
 
     MOCK_RETURN(builder, buildExpression, ast::Expression(dummy1));
     MOCK_RETURN(builder, buildExpression, ast::Expression(dummy2));
-    
+
     ENSURE(!builder.buildFunctionCall(ccall, scope));
     ENSURE_EQUALS(logger.errors().size(), 1u);
     ENSURE_EQUALS(logger.errors()[0], error::Message::functionNotFound(ccall.function.position, "print(int32, int32)"));

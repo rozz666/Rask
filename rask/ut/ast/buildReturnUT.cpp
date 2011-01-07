@@ -11,6 +11,7 @@
 #include <rask/test/TUTAssert.hpp>
 #include <rask/test/Mock.hpp>
 #include <rask/ast/Builder.hpp>
+#include <rask/ut/ast/ScopeMock.hpp>
 
 namespace
 {
@@ -36,10 +37,10 @@ struct buildReturn_TestData
     rask::cst::Return ret;
     rask::error::Logger logger;
     rask::ast::FunctionTable ft;
-    rask::ast::SharedScope scope;
+    rask::ast::test::SharedScopeMock scope;
     BuilderMock builder;
 
-    buildReturn_TestData() : scope(new rask::ast::Scope), builder(logger, ft) { }
+    buildReturn_TestData() : scope(new rask::ast::test::ScopeMock), builder(logger, ft) { }
 };
 
 typedef test_group<buildReturn_TestData> factory;

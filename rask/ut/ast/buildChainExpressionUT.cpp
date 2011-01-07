@@ -13,6 +13,7 @@
 #include <rask/ast/Builder.hpp>
 #include <rask/test/FunctionFactory.hpp>
 #include <rask/Operators.hpp>
+#include <rask/ut/ast/ScopeMock.hpp>
 
 namespace
 {
@@ -40,9 +41,9 @@ struct buildChainExpression_TestData
     rask::error::Logger logger;
     rask::ast::FunctionTable ft;
     BuilderMock builder;
-    rask::ast::SharedScope scope;
+    rask::ast::test::SharedScopeMock scope;
 
-    buildChainExpression_TestData() : builder(logger, ft), scope(new rask::ast::Scope) { }
+    buildChainExpression_TestData() : builder(logger, ft), scope(new rask::ast::test::ScopeMock) { }
 };
 
 typedef test_group<buildChainExpression_TestData> factory;
@@ -79,9 +80,9 @@ template <>
 void object::test<2>()
 {
     using namespace rask;
-    
+
     cst::ChainExpression e;
-    
+
     MOCK_RETURN(builder, buildExpression, boost::none);
     ENSURE(!builder.buildChainExpression(e, scope));
     ENSURE(logger.errors().empty());
@@ -109,7 +110,7 @@ void object::test<3>()
     ast::SharedCustomFunction opPlus = functionFactory.createShared(BINARY_PLUS_NAME, ast::INT32, 2);
     ft.add(opMinus);
     ft.add(opPlus);
-    
+
     boost::optional<ast::Expression> expr = builder.buildChainExpression(e, scope);
 
     ENSURE(expr);

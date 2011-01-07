@@ -12,10 +12,11 @@
 #include <rask/ast/Builder.hpp>
 #include <rask/test/FunctionFactory.hpp>
 #include <rask/Operators.hpp>
+#include <rask/ut/ast/ScopeMock.hpp>
 
 namespace
 {
-    
+
 MOCK(BuilderMock, rask::ast::Builder)
 {
 public:
@@ -26,7 +27,7 @@ public:
     MOCK_METHOD(boost::optional<rask::ast::Expression>, buildExpression,
         (const rask::cst::Expression&, expr)(rask::ast::SharedScope, scope))
 };
-    
+
 }
 
 namespace tut
@@ -37,9 +38,9 @@ struct buildUnaryOperatorCall_TestData
     rask::error::Logger logger;
     rask::ast::FunctionTable ft;
     BuilderMock builder;
-    rask::ast::SharedScope scope;
+    rask::ast::test::SharedScopeMock scope;
 
-    buildUnaryOperatorCall_TestData() : builder(logger, ft), scope(new rask::ast::Scope) { }
+    buildUnaryOperatorCall_TestData() : builder(logger, ft), scope(new rask::ast::test::ScopeMock) { }
 };
 
 typedef test_group<buildUnaryOperatorCall_TestData> factory;
@@ -69,7 +70,7 @@ void object::test<1>()
     MOCK_RETURN(builder, buildExpression, ast::Expression(retExpr));
 
     ft.add(f);
-    
+
     boost::optional<ast::FunctionCall> fc = builder.buildUnaryOperatorCall(oc, scope);
 
     ENSURE(fc);
