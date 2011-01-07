@@ -12,6 +12,7 @@
 #include <rask/test/VariableFactory.hpp>
 #include <rask/ast/Builder.hpp>
 #include <rask/null.hpp>
+#include <rask/ut/ast/ScopeMock.hpp>
 
 namespace
 {
@@ -41,9 +42,9 @@ struct buildExpression_TestData
     rask::error::Logger logger;
     rask::ast::FunctionTable ft;
     BuilderMock builder;
-    rask::ast::SharedScope scope;
+    rask::ast::test::SharedScopeMock scope;
 
-    buildExpression_TestData() : builder(logger, ft), scope(new rask::ast::Scope) { }
+    buildExpression_TestData() : builder(logger, ft), scope(new rask::ast::test::ScopeMock) { }
 };
 
 typedef test_group<buildExpression_TestData> factory;
@@ -79,14 +80,17 @@ void object::test<2>()
     using namespace rask;
 
     cst::Identifier id = cst::Identifier::create(Position(), "abc");
+    cst::Expression idExpr = id;
     ast::SharedVariable var(test::VariableFactory().createShared(id));
-    scope->addVariable(var);
 
-    boost::optional<ast::Expression> expr = builder.buildExpression(id, scope);
+    MOCK_RETURN(*scope, getVariable, var);
+
+    boost::optional<ast::Expression> expr = builder.buildExpression(idExpr, scope);
 
     ENSURE(expr);
     ENSURE(logger.errors().empty());
     ENSURE(getVariable(*expr).lock() == var);
+    ENSURE_CALL(*scope, getVariable(getIdentifier(idExpr).value));
 }
 
 template <>
@@ -94,6 +98,8 @@ template <>
 void object::test<3>()
 {
     using namespace rask;
+
+    MOCK_RETURN(*scope, getVariable, boost::none);
 
     cst::Identifier id = cst::Identifier::create(Position("xxx", 1, 2), "abc");
 
