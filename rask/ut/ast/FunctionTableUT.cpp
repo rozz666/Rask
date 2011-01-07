@@ -91,7 +91,9 @@ void object::test<4>()
     ENSURE(ft.add(fam11) == fam11);
     ENSURE(ft.add(fam12) == fam12);
     ENSURE(ft.add(fam13) == fam13);
-    ast::SharedFunctionFamily fam1 = ft.getFamily(name);
+    boost::optional<ast::SharedFunctionFamily> optFam1 = ft.getFamily(name);
+    ENSURE(optFam1);
+    ast::SharedFunctionFamily fam1 = *optFam1;
     ENSURE_EQUALS(fam1->name(), name);
     ENSURE(fam1->getFunction(args1));
     ENSURE(*fam1->getFunction(args1) == fam11);
@@ -99,6 +101,13 @@ void object::test<4>()
     ENSURE(*fam1->getFunction(args2) == fam12);
     ENSURE(fam1->getFunction(args3));
     ENSURE(*fam1->getFunction(args3) == fam13);
+}
+
+template <>
+template <>
+void object::test<5>()
+{
+    ENSURE(!ft.getFamily("xxx"));
 }
 
 }

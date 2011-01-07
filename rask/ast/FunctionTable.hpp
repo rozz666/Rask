@@ -84,9 +84,13 @@ public:
         return it->second->getFirstFunction();
     }
 
-    SharedFunctionFamily getFamily(const std::string& name) const
+    boost::optional<SharedFunctionFamily> getFamily(const std::string& name) const
     {
-        return families_.find(name)->second;
+        Families::const_iterator it = families_.find(name);
+
+        if (it == families_.end()) return boost::none;
+
+        return it->second;
     }
 
 private:
