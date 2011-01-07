@@ -71,24 +71,22 @@ void object::test<2>()
 {
     using namespace rask;
 
-    ast::CustomFunction f = functionFactory.create("f1");
-    f.addArg(cst::Identifier::create(Position(), "arg1"));
-    f.addArg(cst::Identifier::create(Position(), "arg2"));
+    ast::SharedCustomFunction f = functionFactory.createShared("f1", ast::VOID, 2);
 
-    cg.declFunction(f, *module);
+    cg.declFunction(*f, *module);
 
     ENSURE_EQUALS(module->getFunctionList().size(), 1u);
     llvm::Function& lf = module->getFunctionList().front();
-    ENSURE_EQUALS(lf.getNameStr(), f.name().value);
+    ENSURE_EQUALS(lf.getNameStr(), f->name().value);
     std::vector<const llvm::Type *> fArgs(2, llvm::IntegerType::get(module->getContext(), 32));
     llvm::FunctionType *fType = llvm::FunctionType::get(llvm::Type::getVoidTy(context), fArgs, false);
     ENSURE(llvm::isa<llvm::PointerType>(lf.getType()));
     ENSURE(lf.getType()->getElementType() == fType);
     ENSURE_EQUALS(lf.arg_size(), 2u);
     llvm::Function::arg_iterator arg = lf.arg_begin();
-    ENSURE_EQUALS(arg->getNameStr(), cg::ARG_PREFIX + f.arg(0)->name().value);
+    ENSURE_EQUALS(arg->getNameStr(), cg::ARG_PREFIX + f->arg(0)->name().value);
     ++arg;
-    ENSURE_EQUALS(arg->getNameStr(), cg::ARG_PREFIX + f.arg(1)->name().value);
+    ENSURE_EQUALS(arg->getNameStr(), cg::ARG_PREFIX + f->arg(1)->name().value);
     ENSURE(lf.getBasicBlockList().empty());
 }
 

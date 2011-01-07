@@ -35,12 +35,6 @@ public:
     std::size_t stmtCount() const { return stmts_.size(); }
     void addStmt(const Statement& stmt) { stmts_.push_back(stmt); }
 
-    void addArg(const cst::Identifier& name)
-    {
-        SharedVariable v(new Variable(name, INT32));
-        args_.push_back(v);
-    }
-
     void addArg(SharedVariable arg)
     {
         args_.push_back(arg);

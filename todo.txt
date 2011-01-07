@@ -1,3 +1,5 @@
+Refactor genFunctionUT
+Put mocks in separate files
 Refactor function declaration (mock FunctionTable, use FunctionFactory)
 Make operator names not global
 Refactor genFunctionCall and UTs

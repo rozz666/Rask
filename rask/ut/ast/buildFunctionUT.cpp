@@ -11,10 +11,18 @@
 #include <rask/test/Mock.hpp>
 #include <rask/ast/Builder.hpp>
 #include <rask/test/VariableDeclFactory.hpp>
+#include <rask/test/VariableFactory.hpp>
 #include <rask/null.hpp>
 
 namespace
 {
+
+MOCK(ScopeMock, rask::ast::Scope)
+{
+public:
+
+    MOCK_METHOD(rask::ast::SharedVariable, addVariable, (rask::ast::SharedVariable, var))
+};
 
 MOCK(BuilderMock, rask::ast::Builder)
 {
@@ -46,11 +54,11 @@ struct buildFunctionAST_TestData
     rask::cst::Function cf;
     rask::ast::SharedCustomFunction f;
     rask::ast::FunctionTable ft;
-    rask::ast::SharedScope scope;
+    boost::shared_ptr<ScopeMock> scope;
     BuilderMock builder;
 
     buildFunctionAST_TestData()
-        : file("test.rask"), scope(new rask::ast::Scope), builder(logger, ft)
+        : file("test.rask"), scope(new ScopeMock), builder(logger, ft)
     {
         cf.name = rask::cst::Identifier::create(rask::Position(file, 1, 2), "main");
         cf.type = rask::cst::Identifier::create(rask::Position(file, 1, 10), "void");
@@ -217,17 +225,20 @@ void object::test<8>()
 {
     using namespace rask;
 
-    cf.args.resize(2);
-    cf.args[0].name = cst::Identifier::create(Position(), "arg1");
-    cf.args[1].name = cst::Identifier::create(Position(), "arg2");
+    test::VariableFactory variableFactory;
+    ast::SharedVariable v1 = variableFactory.createShared();
+    ast::SharedVariable v2 = variableFactory.createShared();
 
-    f->addArg(cf.args[0].name);
-    f->addArg(cf.args[1].name);
+    f->addArg(v1);
+    f->addArg(v2);
+
+    MOCK_RETURN(*scope, addVariable, v1);
+    MOCK_RETURN(*scope, addVariable, v2);
 
     ENSURE(builder.buildFunction(cf, f, scope));
 
-    ENSURE(scope->getVariable(cf.args[0].name.value) == f->arg(0));
-    ENSURE(scope->getVariable(cf.args[1].name.value) == f->arg(1));
+    ENSURE_CALL(*scope, addVariable(v1));
+    ENSURE_CALL(*scope, addVariable(v2));
 }
 
 }

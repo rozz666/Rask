@@ -8,6 +8,7 @@
 //
 #include <rask/test/FunctionFactory.hpp>
 #include <boost/lexical_cast.hpp>
+#include <rask/test/VariableFactory.hpp>
 
 namespace rask {
 
@@ -39,12 +40,14 @@ ast::SharedCustomFunction FunctionFactory::createShared(const std::string& name,
 {
     ast::SharedCustomFunction f(
         new ast::CustomFunction(cst::Identifier::create(Position(), name), type));
-    
+
+    VariableFactory variableFactory;
+
     for (unsigned short i = 0; i != numArgs; ++i)
     {
-        f->addArg(cst::Identifier::create(Position(), "arg" + boost::lexical_cast<std::string>(i)));
+        f->addArg(variableFactory.createShared("arg" + boost::lexical_cast<std::string>(i)));
     }
-    
+
     return f;
 }
 

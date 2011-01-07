@@ -7,7 +7,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <tut/tut.hpp>
-#include <tut/../contrib/tut_macros.h> 
+#include <tut/../contrib/tut_macros.h>
 #include <boost/scoped_ptr.hpp>
 #include <rask/cg/CodeGenerator.hpp>
 #include <rask/cg/Prefixes.hpp>
@@ -31,7 +31,7 @@ public:
     MOCK_METHOD(llvm::AllocaInst *, genVariableDecl, (const rask::ast::VariableDecl&, vd)(llvm::BasicBlock&, block));
     MOCK_METHOD(void, genReturn, (const rask::ast::Return&, vd)(llvm::BasicBlock&, block));
 };
-    
+
 }
 
 namespace tut
@@ -46,7 +46,7 @@ struct genFunction_TestData
     rask::test::FunctionFactory functionFactory;
     rask::test::VariableDeclFactory varDeclFactory;
     rask::ast::CustomFunction f;
-    
+
     genFunction_TestData()
         : module(new llvm::Module("testModule", ctx)), cg(symbolTable),
         f(functionFactory.create("abc"))
@@ -78,7 +78,7 @@ void object::test<1>()
 
     cg.genFunction(f, *module);
     llvm::Function *gf = module->getFunction(f.name().value);
-    
+
     ENSURE_EQUALS(gf->size(), 1u);
     llvm::BasicBlock *entry = &gf->front();
     ENSURE_EQUALS(entry->getNameStr(), "entry");
@@ -94,7 +94,7 @@ void object::test<2>()
 
     f.addStmt(ast::FunctionCall(ast::WeakFunction(), ast::FunctionCall::Arguments()));
     f.addStmt(ast::FunctionCall(ast::WeakFunction(), ast::FunctionCall::Arguments()));
-    
+
     cg.genFunction(f, *module);
     llvm::Function *gf = module->getFunction(f.name().value);
 
@@ -115,10 +115,10 @@ void object::test<3>()
 
     f.addStmt(varDeclFactory.create("asia"));
     f.addStmt(varDeclFactory.create("kasia"));
-    
+
     cg.genFunction(f, *module);
     llvm::Function *gf = module->getFunction(f.name().value);
-    
+
     ENSURE_EQUALS(gf->size(), 1u);
     llvm::BasicBlock *entry = &gf->front();
     ENSURE_EQUALS(entry->getNameStr(), "entry");
@@ -134,19 +134,17 @@ void object::test<4>()
 {
     using namespace rask;
 
-    ast::CustomFunction f = functionFactory.create("xxx");
-    f.addArg(cst::Identifier::create(Position(), "asia"));
-    f.addArg(cst::Identifier::create(Position(), "kasia"));
-    cg.declFunction(f, *module);
+    ast::SharedCustomFunction f = functionFactory.createShared("xxx", ast::VOID, 2);
+    cg.declFunction(*f, *module);
 
-    llvm::Function::arg_iterator it = module->getFunction(f.name().value)->arg_begin();
+    llvm::Function::arg_iterator it = module->getFunction(f->name().value)->arg_begin();
     llvm::Argument *arg1 = &*it;
     llvm::Argument *arg2 = &*++it;
-    
-    cg.genFunction(f, *module);
-    
-    llvm::Function *gf = module->getFunction(f.name().value);
-    
+
+    cg.genFunction(*f, *module);
+
+    llvm::Function *gf = module->getFunction(f->name().value);
+
     ENSURE_EQUALS(gf->size(), 2u);
     llvm::Function::iterator block = gf->begin();
     ENSURE_EQUALS(block->getNameStr(), "args");
@@ -155,9 +153,9 @@ void object::test<4>()
 
     ENSURE(llvm::isa<llvm::AllocaInst>(*inst));
     llvm::AllocaInst *alloc = llvm::cast<llvm::AllocaInst>(&*inst);
-    ENSURE_EQUALS(alloc->getNameStr(), cg::LOCAL_ARG_PREFIX + f.arg(0)->name().value);
+    ENSURE_EQUALS(alloc->getNameStr(), cg::LOCAL_ARG_PREFIX + f->arg(0)->name().value);
     ENSURE(alloc->getAllocatedType() == llvm::IntegerType::get(ctx, 32));
-    ENSURE(symbolTable.get(f.arg(0)->name()) == alloc);
+    ENSURE(symbolTable.get(f->arg(0)->name()) == alloc);
     ++inst;
     ENSURE(llvm::isa<llvm::StoreInst>(*inst));
     llvm::StoreInst *store = llvm::cast<llvm::StoreInst>(&*inst);
@@ -166,9 +164,9 @@ void object::test<4>()
     ++inst;
     ENSURE(llvm::isa<llvm::AllocaInst>(*inst));
     alloc = llvm::cast<llvm::AllocaInst>(&*inst);
-    ENSURE_EQUALS(alloc->getNameStr(), cg::LOCAL_ARG_PREFIX + f.arg(1)->name().value);
+    ENSURE_EQUALS(alloc->getNameStr(), cg::LOCAL_ARG_PREFIX + f->arg(1)->name().value);
     ENSURE(alloc->getAllocatedType() == llvm::IntegerType::get(ctx, 32));
-    ENSURE(symbolTable.get(f.arg(1)->name()) == alloc);
+    ENSURE(symbolTable.get(f->arg(1)->name()) == alloc);
     ++inst;
     ENSURE(llvm::isa<llvm::StoreInst>(*inst));
     store = llvm::cast<llvm::StoreInst>(&*inst);
@@ -178,7 +176,7 @@ void object::test<4>()
     ENSURE(llvm::isa<llvm::BranchInst>(*inst));
     llvm::BranchInst *branch = llvm::cast<llvm::BranchInst>(&*inst);
     ENSURE(branch->isUnconditional());
-    
+
     ++block;
     ENSURE(branch->getSuccessor(0) == &*block);
     ENSURE_EQUALS(block->getNameStr(), "entry");
