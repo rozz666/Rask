@@ -18,6 +18,11 @@ ast::SharedVariable VariableFactory::createShared(const std::string& name)
     return ast::SharedVariable(new ast::Variable(cst::Identifier::create(Position(), name)));
 }
 
+ast::SharedVariable VariableFactory::createShared(const rask::cst::Identifier& name)
+{
+    return ast::SharedVariable(new ast::Variable(name, ast::INT32));
+}
+
 }
 }
 

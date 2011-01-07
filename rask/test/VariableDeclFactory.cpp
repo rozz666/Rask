@@ -7,6 +7,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <rask/test/VariableDeclFactory.hpp>
+#include <rask/test/VariableFactory.hpp>
 
 namespace rask
 {
@@ -16,7 +17,8 @@ namespace test
 
 ast::VariableDecl VariableDeclFactory::create(const std::string& name)
 {
-    return ast::VariableDecl(cst::Identifier::create(Position(), name), ast::Constant(0));
+    ast::SharedVariable var(VariableFactory().createShared(name));
+    return ast::VariableDecl(var, ast::Constant(0));
 }
 
 }

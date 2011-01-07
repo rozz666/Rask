@@ -22,8 +22,8 @@ class VariableDecl
 {
 public:
 
-    VariableDecl(const cst::Identifier& name, const ast::Expression& value) : var_(new Variable(name)), value_(value) { }
-    
+    VariableDecl(SharedVariable var, const ast::Expression& value) : var_(var), value_(value) { }
+
     SharedVariable var() const { return var_; }
     const ast::Expression& value() const { return value_; }
 
@@ -32,7 +32,7 @@ private:
     SharedVariable var_;
     ast::Expression value_;
 };
-    
+
 }
 }
 

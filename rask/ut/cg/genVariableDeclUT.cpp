@@ -13,6 +13,7 @@
 #include <rask/cg/Prefixes.hpp>
 #include <rask/test/TUTAssert.hpp>
 #include <rask/test/Mock.hpp>
+#include <rask/test/VariableFactory.hpp>
 #include <llvm/LLVMContext.h>
 #include <llvm/BasicBlock.h>
 #include <llvm/DerivedTypes.h>
@@ -20,7 +21,7 @@
 
 namespace
 {
-    
+
 MOCK(CodeGeneratorMock, rask::cg::CodeGenerator)
 {
 public:
@@ -29,7 +30,7 @@ public:
 
     MOCK_METHOD(llvm::Value *, genValue, (const rask::ast::Expression&, expr)(llvm::BasicBlock&, block));
 };
-    
+
 }
 
 namespace tut
@@ -41,7 +42,7 @@ struct genVariableDecl_TestData
     boost::scoped_ptr<llvm::BasicBlock> block;
     rask::cg::SymbolTable st;
     CodeGeneratorMock cg;
-    
+
     genVariableDecl_TestData()
         : block(llvm::BasicBlock::Create(ctx)), cg(st)
     {
@@ -68,11 +69,11 @@ void object::test<1>()
 
     cst::Identifier name;
     name.value = "asia";
-    ast::VariableDecl vd(name, ast::Constant(10));
-    
+    ast::VariableDecl vd(test::VariableFactory().createShared(name), ast::Constant(10));
+
     llvm::Value *value = llvm::ConstantInt::get(ctx, llvm::APInt(32, getConstant(vd.value()).getInt32(), true));
     MOCK_RETURN(cg, genValue, value);
-    
+
     llvm::AllocaInst *alloc = cg.genVariableDecl(vd, *block);
 
     ENSURE_EQUALS(block->size(), 2u);

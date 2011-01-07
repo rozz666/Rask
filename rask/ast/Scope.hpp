@@ -24,12 +24,12 @@ class Scope
 {
 public:
 
-    SharedVariable addVariable(SharedVariable var)
+    virtual SharedVariable addVariable(SharedVariable var)
     {
         return vars_.insert(Vars::value_type(var->name().value, var)).first->second;
     }
 
-    boost::optional<SharedVariable> getVariable(const std::string& name)
+    virtual boost::optional<SharedVariable> getVariable(const std::string& name)
     {
         Vars::const_iterator it = vars_.find(name);
 

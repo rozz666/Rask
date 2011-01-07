@@ -25,6 +25,8 @@ class Builder
 {
 public:
 
+    VariableFactory variableFactory;
+
     Builder(error::Logger& logger, FunctionTable& functionTable)
         : logger_(logger), functionTable_(functionTable) { }
 
@@ -32,7 +34,8 @@ public:
     virtual boost::optional<FunctionDecl> buildFunctionDecl(const cst::Function& f);
     virtual bool buildFunction(const cst::Function& cf, SharedCustomFunction f, SharedScope scope);
     virtual boost::optional<Tree> buildTree(const cst::Tree& cst, SharedScopeFactory scopeFactory);
-    virtual boost::optional<VariableDecl> buildVariableDecl(const cst::VariableDecl& vd, SharedScope scope);
+    virtual boost::optional<VariableDecl> buildVariableDecl(
+        const cst::VariableDecl& vd, SharedScope scope, VariableFactory& variableFactory);
     virtual boost::optional<Expression> buildExpression(const cst::Expression& expr, SharedScope scope);
     virtual boost::optional<Expression> buildChainExpression(const cst::ChainExpression& expr, SharedScope scope);
     virtual boost::optional<Return> buildReturn(const cst::Return& ret, SharedScope scope);

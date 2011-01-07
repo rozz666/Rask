@@ -22,6 +22,7 @@ class VariableFactory
 public:
 
     ast::SharedVariable createShared(const std::string& name);
+    ast::SharedVariable createShared(const cst::Identifier& name);
 };
 
 }

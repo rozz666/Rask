@@ -39,6 +39,18 @@ private:
 typedef boost::shared_ptr<Variable> SharedVariable;
 typedef boost::weak_ptr<Variable> WeakVariable;
 
+class VariableFactory
+{
+public:
+
+    virtual SharedVariable createVariable(const cst::Identifier& name, ast::BasicType type)
+    {
+        return SharedVariable(new Variable(name, type));
+    }
+};
+
+typedef boost::shared_ptr<VariableFactory> SharedVariableFactory;
+
 }
 }
 
