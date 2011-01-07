@@ -21,17 +21,6 @@ namespace cg
 
 llvm::Value *CodeGenerator::genFunctionCall(const ast::FunctionCall& fc, llvm::BasicBlock& block)
 {
-    typedef std::map<
-        std::string,
-        llvm::BinaryOperator *(*)(llvm::Value *left, llvm::Value *right, const llvm::Twine& name, llvm::BasicBlock *bb)
-    > BinaryOpMap;
-    static const BinaryOpMap binaryOpMap = boost::assign::map_list_of
-        (BINARY_MINUS_NAME, BinaryOpMap::mapped_type(llvm::BinaryOperator::CreateNSWSub))
-        (BINARY_PLUS_NAME, BinaryOpMap::mapped_type(llvm::BinaryOperator::CreateNSWAdd))
-        (BINARY_MULT_NAME, BinaryOpMap::mapped_type(llvm::BinaryOperator::CreateNSWMul))
-        (BINARY_DIV_NAME, BinaryOpMap::mapped_type(llvm::BinaryOperator::CreateSDiv))
-        (BINARY_MOD_NAME, BinaryOpMap::mapped_type(llvm::BinaryOperator::CreateSRem));
-
     ast::SharedFunction f = fc.function().lock();
 
     if (f->name().value == UNARY_MINUS_NAME)
@@ -39,9 +28,9 @@ llvm::Value *CodeGenerator::genFunctionCall(const ast::FunctionCall& fc, llvm::B
         return llvm::BinaryOperator::CreateNeg(genValue(fc.args()[0], block), "", &block);
     }
 
-    BinaryOpMap::const_iterator opGen = binaryOpMap.find(f->name().value);
+    BinaryOpMap::const_iterator opGen = binaryOpMap_.find(f->name().value);
 
-    if (opGen != binaryOpMap.end())
+    if (opGen != binaryOpMap_.end())
     {
         llvm::Value *left = genValue(fc.args()[0], block);
         llvm::Value *right = genValue(fc.args()[1], block);
@@ -64,7 +53,7 @@ llvm::Value *CodeGenerator::genFunctionCall(const ast::FunctionCall& fc, llvm::B
 
     return llvm::CallInst::Create(module.getFunction(f->name().value), args.begin(), args.end(), "", &block);
 }
-    
-    
+
+
 }
 }

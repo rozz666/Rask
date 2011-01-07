@@ -26,8 +26,8 @@ class CodeGenerator
 {
 public:
 
-    CodeGenerator(SymbolTable& symbolTable) : symbolTable_(symbolTable) { }
-    
+    CodeGenerator(SymbolTable& symbolTable);
+
     virtual llvm::Value *genFunctionCall(const ast::FunctionCall& fc, llvm::BasicBlock& block);
     virtual llvm::AllocaInst *genVariableDecl(const ast::VariableDecl& vd, llvm::BasicBlock& block);
     virtual void genFunction(const ast::CustomFunction& f, llvm::Module& module);
@@ -39,9 +39,15 @@ public:
 
 private:
 
+    typedef std::map<
+        std::string,
+        llvm::BinaryOperator *(*)(llvm::Value *left, llvm::Value *right, const llvm::Twine& name, llvm::BasicBlock *bb)
+    > BinaryOpMap;
+
+    BinaryOpMap binaryOpMap_;
     SymbolTable& symbolTable_;
 };
-    
+
 }
 }
 
