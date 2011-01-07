@@ -30,17 +30,17 @@ public:
     virtual unsigned short argCount() const { return args_.size(); }
     virtual void accept(FunctionVisitor& visitor) { visitor.visit(*this); }
     virtual BasicType type() const { return type_; }
-    
+
     const Statement& stmt(std::size_t idx) const { return stmts_[idx]; }
     std::size_t stmtCount() const { return stmts_.size(); }
     void addStmt(const Statement& stmt) { stmts_.push_back(stmt); }
 
     void addArg(const cst::Identifier& name)
     {
-        SharedVariable v(new Variable(name));
+        SharedVariable v(new Variable(name, INT32));
         args_.push_back(v);
     }
-    
+
     SharedVariable arg(unsigned short index) const { return args_[index]; }
 
 private:

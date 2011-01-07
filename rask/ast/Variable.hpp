@@ -24,7 +24,7 @@ class Variable
 {
 public:
 
-    Variable(const cst::Identifier& name, ast::BasicType type = ast::INT32)
+    Variable(const cst::Identifier& name, ast::BasicType type)
         : name_(name), type_(type) { }
 
     cst::Identifier name() const { return name_; }

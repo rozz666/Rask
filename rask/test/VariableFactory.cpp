@@ -15,7 +15,7 @@ namespace test
 
 ast::SharedVariable VariableFactory::createShared(const std::string& name)
 {
-    return ast::SharedVariable(new ast::Variable(cst::Identifier::create(Position(), name)));
+    return ast::SharedVariable(new ast::Variable(cst::Identifier::create(Position(), name), ast::INT32));
 }
 
 ast::SharedVariable VariableFactory::createShared(const rask::cst::Identifier& name)
