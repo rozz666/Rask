@@ -100,4 +100,14 @@ void object::test<5>()
     ENSURE(!(ast::Constant(boost::int32_t(0)) == ast::Constant(false)));
 }
 
+template <>
+template <>
+void object::test<6>()
+{
+    using namespace rask;
+
+    ENSURE(ast::Constant(boost::int32_t(11)).type() == ast::INT32);
+    ENSURE(ast::Constant(true).type() == ast::BOOLEAN);
+}
+
 }

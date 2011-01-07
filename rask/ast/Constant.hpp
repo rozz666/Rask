@@ -10,6 +10,7 @@
 #define RASK_AST_CONSTANT_HPP
 
 #include <boost/cstdint.hpp>
+#include <rask/ast/BasicType.hpp>
 
 namespace rask
 {
@@ -21,21 +22,23 @@ class Constant
 public:
 
     Constant() { }
-    explicit Constant(boost::int32_t value) : value_(value), isBoolean_(false) { }
-    explicit Constant(bool value) : value_(value), isBoolean_(true) { }
+    explicit Constant(boost::int32_t value) : value_(value), type_(ast::INT32) { }
+    explicit Constant(bool value) : value_(value), type_(ast::BOOLEAN) { }
 
     friend bool operator==(const Constant& left, const Constant& right)
     {
-        return left.isBoolean_ == right.isBoolean_ && left.value_ == right.value_;
+        return left.type_ == right.type_ && left.value_ == right.value_;
     }
 
     boost::int32_t getInt32() const { return value_; }
     boost::int32_t getBoolean() const { return value_; }
 
+    BasicType type() const { return type_; }
+
 private:
 
     boost::int32_t value_;
-    bool isBoolean_;
+    BasicType type_;
 };
 
 inline bool operator!=(const Constant& left, const Constant& right)
