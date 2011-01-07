@@ -21,18 +21,21 @@ class Constant
 public:
 
     Constant() { }
-    explicit Constant(boost::int32_t value) : value_(value) { }
+    explicit Constant(boost::int32_t value) : value_(value), isBoolean_(false) { }
+    explicit Constant(bool value) : value_(value), isBoolean_(true) { }
 
     friend bool operator==(const Constant& left, const Constant& right)
     {
-        return left.value_ == right.value_;
+        return left.isBoolean_ == right.isBoolean_ && left.value_ == right.value_;
     }
 
     boost::int32_t getInt32() const { return value_; }
+    boost::int32_t getBoolean() const { return value_; }
 
 private:
 
     boost::int32_t value_;
+    bool isBoolean_;
 };
 
 inline bool operator!=(const Constant& left, const Constant& right)
