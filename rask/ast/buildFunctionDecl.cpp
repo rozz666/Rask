@@ -39,7 +39,7 @@ boost::optional<FunctionDecl> Builder::buildFunctionDecl(const cst::Function& f,
 
     BOOST_FOREACH(const cst::FunctionArgument& arg, f.args)
     {
-        cf->addArg(arg.name);
+        cf->addArg(variableFactory.createVariable(arg.name, typeDictionary.find(arg.type.value)->second));
     }
 
     return fd;

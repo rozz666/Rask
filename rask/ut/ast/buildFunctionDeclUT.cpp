@@ -9,7 +9,21 @@
 #include <tut/tut.hpp>
 #include <tut/../contrib/tut_macros.h>
 #include <rask/test/Mock.hpp>
+#include <rask/test/VariableFactory.hpp>
 #include <rask/ast/Builder.hpp>
+
+namespace
+{
+
+MOCK(VariableFactoryMock, rask::ast::VariableFactory)
+{
+public:
+
+    MOCK_METHOD(rask::ast::SharedVariable, createVariable,
+        (const rask::cst::Identifier&, name)(rask::ast::BasicType, type))
+};
+
+}
 
 namespace tut
 {
@@ -19,7 +33,7 @@ struct buildFunctionDecl_TestData
     rask::error::Logger logger;
     rask::ast::FunctionTable ft;
     rask::ast::Builder builder;
-    rask::ast::VariableFactory variableFactory;
+    VariableFactoryMock variableFactory;
 
     buildFunctionDecl_TestData() : builder(logger, ft) { }
 };
@@ -90,7 +104,15 @@ void object::test<3>()
     cf.type = cst::Identifier::create(Position(), "void");
     cf.args.resize(2);
     cf.args[0].name = cst::Identifier::create(Position(), "arg1");
+    cf.args[0].type = cst::Identifier::create(Position(), "int32");
     cf.args[1].name = cst::Identifier::create(Position(), "arg2");
+    cf.args[1].type = cst::Identifier::create(Position(), "boolean");
+
+    test::VariableFactory testFactory;
+    ast::SharedVariable v1 = testFactory.createShared("x");
+    ast::SharedVariable v2 = testFactory.createShared("y");
+    MOCK_RETURN(variableFactory, createVariable, v1);
+    MOCK_RETURN(variableFactory, createVariable, v2);
 
     boost::optional<ast::FunctionDecl> fd = builder.buildFunctionDecl(cf, variableFactory);
 
@@ -99,8 +121,10 @@ void object::test<3>()
 
     ast::SharedCustomFunction f = fd->function();
     ENSURE_EQUALS(f->argCount(), 2u);
-    ENSURE_EQUALS(f->arg(0)->name().value, cf.args[0].name.value);
-    ENSURE_EQUALS(f->arg(1)->name().value, cf.args[1].name.value);
+    ENSURE(f->arg(0) == v1);
+    ENSURE(f->arg(1) == v2);
+    ENSURE_CALL(variableFactory, createVariable(cf.args[0].name, ast::INT32));
+    ENSURE_CALL(variableFactory, createVariable(cf.args[1].name, ast::BOOLEAN));
 }
 
 template <>

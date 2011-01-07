@@ -12,6 +12,7 @@
 #include <rask/test/TUTAssert.hpp>
 #include <rask/ast/CustomFunction.hpp>
 #include <rask/test/VariableDeclFactory.hpp>
+#include <rask/test/VariableFactory.hpp>
 
 namespace
 {
@@ -25,7 +26,7 @@ struct FunctionTestVisitor : public rask::ast::FunctionVisitor
     virtual void visit(rask::ast::BuiltinFunction& f) { }
     virtual void visit(rask::ast::CustomFunction& f) { this->f = &f; }
 };
-    
+
 }
 
 namespace tut
@@ -81,7 +82,7 @@ void object::test<2>()
     ast::CustomFunction cf(cst::Identifier::create(Position(), "xxx"), ast::VOID);
     ast::Function& f = cf;
     FunctionTestVisitor v;
-    
+
     f.accept(v);
     ENSURE(v.f == &cf);
 }
@@ -91,21 +92,18 @@ template <>
 void object::test<3>()
 {
     using namespace rask;
-    
-    ast::CustomFunction cf(cst::Identifier::create(Position(), "xxx"), ast::VOID);
-    cst::Identifier arg1 = cst::Identifier::create(Position("a", 1, 2), "arg1");
-    cst::Identifier arg2 = cst::Identifier::create(Position("b", 3, 4), "arg2");
 
-    cf.addArg(arg1);
+    ast::CustomFunction cf(cst::Identifier::create(Position(), "xxx"), ast::VOID);
+    test::VariableFactory variableFactory;
+    ast::SharedVariable v1 = variableFactory.createShared("a");
+    ast::SharedVariable v2 = variableFactory.createShared("b");
+
+    cf.addArg(v1);
     ENSURE_EQUALS(cf.argCount(), 1u);
-    ast::SharedVariable v1 = cf.arg(0);
-    ENSURE_EQUALS(v1->name().value, arg1.value);
-    ENSURE_EQUALS(v1->name().position, arg1.position);
-    cf.addArg(arg2);
+    ENSURE(cf.arg(0) ==  v1);
+    cf.addArg(v2);
     ENSURE_EQUALS(cf.argCount(), 2u);
-    ast::SharedVariable v2 = cf.arg(1);
-    ENSURE_EQUALS(v2->name().value, arg2.value);
-    ENSURE_EQUALS(v2->name().position, arg2.position);
+    ENSURE(cf.arg(1) ==  v2);
 }
 
 template <>
@@ -120,5 +118,5 @@ void object::test<4>()
     ENSURE(cf1.type() == ast::VOID);
     ENSURE(cf2.type() == ast::INT32);
 }
-    
+
 }

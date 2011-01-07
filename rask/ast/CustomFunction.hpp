@@ -41,6 +41,11 @@ public:
         args_.push_back(v);
     }
 
+    void addArg(SharedVariable arg)
+    {
+        args_.push_back(arg);
+    }
+
     SharedVariable arg(unsigned short index) const { return args_[index]; }
 
 private:
