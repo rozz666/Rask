@@ -19,6 +19,7 @@ add_library(
 
 add_library(
     raskast STATIC
+    rask/ast/Expression.cpp
     rask/ast/buildFunction.cpp
     rask/ast/buildTree.cpp
     rask/ast/buildVariableDecl.cpp
@@ -54,6 +55,7 @@ ADD_EXECUTABLE(rask rask/main/rask.cpp)
 ADD_EXECUTABLE(
     raskut
     rask/main/ut.cpp
+    rask/ut/ast/ExpressionUT.cpp
     rask/ut/ast/ScopeUT.cpp
     rask/ut/nullUT.cpp
     rask/ut/ast/ConstantUT.cpp

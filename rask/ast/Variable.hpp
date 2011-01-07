@@ -13,6 +13,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 #include <rask/cst/Identifier.hpp>
+#include <rask/ast/BasicType.hpp>
 
 namespace rask
 {
@@ -23,13 +24,16 @@ class Variable
 {
 public:
 
-    Variable(const cst::Identifier& name) : name_(name) { }
-    
+    Variable(const cst::Identifier& name, ast::BasicType type = ast::INT32)
+        : name_(name), type_(type) { }
+
     cst::Identifier name() const { return name_; }
-    
+    BasicType type() const { return type_; }
+
 private:
-    
+
     cst::Identifier name_;
+    BasicType type_;
 };
 
 typedef boost::shared_ptr<Variable> SharedVariable;

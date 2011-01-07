@@ -51,6 +51,8 @@ inline const WeakVariable& getVariable(const Expression& e) { return boost::get<
 inline FunctionCall& getFunctionCall(Expression& e) { return boost::get<FunctionCall>(e); }
 inline const FunctionCall& getFunctionCall(const Expression& e) { return boost::get<FunctionCall>(e); }
 
+BasicType getExpressionType(const Expression& e);
+
 }
 
 }
