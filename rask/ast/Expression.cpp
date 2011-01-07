@@ -7,15 +7,35 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <rask/ast/Expression.hpp>
+#include <stdexcept>
 
 namespace rask
 {
 namespace ast
 {
 
+struct GenExpressionType : boost::static_visitor<BasicType>
+{
+    result_type operator()(const FunctionCall& fc) const
+    {
+        return fc.function().lock()->type();
+    }
+
+    result_type operator()(const WeakVariable& v) const
+    {
+        return v.lock()->type();
+    }
+
+    result_type operator()(const Constant& c) const
+    {
+        throw std::runtime_error("result_type operator()(const Constant& c) const not implemented");
+    }
+};
+
 BasicType getExpressionType(const Expression& e)
 {
-    return getVariable(e).lock()->type();
+    GenExpressionType g;
+    return e.apply_visitor(g);
 }
 
 }
