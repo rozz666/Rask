@@ -25,6 +25,8 @@ public:
     ast::SharedCustomFunction createShared(const std::string& name);
     ast::SharedCustomFunction createShared(unsigned x, unsigned y, const std::string& name);
     ast::SharedCustomFunction createShared(const std::string& name, ast::BasicType type, unsigned short numArgs);
+    ast::SharedCustomFunction createShared(
+        const std::string& name, ast::BasicType type, const std::vector<ast::BasicType>& args);
 };
 
 }

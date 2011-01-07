@@ -9,6 +9,7 @@
 #ifndef RASK_AST_FUNCTION_HPP
 #define RASK_AST_FUNCTION_HPP
 
+#include <vector>
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 #include <rask/cst/Identifier.hpp>
@@ -24,13 +25,16 @@ class Function
 {
 public:
 
+    typedef std::vector<BasicType> ArgumentTypes;
+
     Function() { }
     virtual ~Function() { }
-    
+
     virtual cst::Identifier name() const = 0;
     virtual unsigned short argCount() const = 0;
     virtual void accept(FunctionVisitor& visitor) = 0;
     virtual BasicType type() const = 0;
+    virtual ArgumentTypes argTypes() const = 0;
 
 protected:
 

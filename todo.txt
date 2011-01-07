@@ -1,3 +1,5 @@
+REFACTOR ALL UTs TO USE MOCKS!
+Mock Function in tests
 Refactor genFunctionUT
 Put mocks in separate files
 Refactor function declaration (mock FunctionTable, use FunctionFactory)

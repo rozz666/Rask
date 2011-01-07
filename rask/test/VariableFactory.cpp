@@ -13,9 +13,9 @@ namespace rask
 namespace test
 {
 
-ast::SharedVariable VariableFactory::createShared(const std::string& name)
+ast::SharedVariable VariableFactory::createShared(const std::string& name, rask::ast::BasicType type)
 {
-    return ast::SharedVariable(new ast::Variable(cst::Identifier::create(Position(), name), ast::INT32));
+    return ast::SharedVariable(new ast::Variable(cst::Identifier::create(Position(), name), type));
 }
 
 ast::SharedVariable VariableFactory::createShared(const rask::cst::Identifier& name)

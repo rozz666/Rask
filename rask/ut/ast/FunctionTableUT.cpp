@@ -11,6 +11,7 @@
 #include <rask/test/TUTAssert.hpp>
 #include <rask/ast/FunctionTable.hpp>
 #include <rask/test/FunctionFactory.hpp>
+#include <boost/assign/list_of.hpp>
 
 namespace tut
 {
@@ -70,6 +71,34 @@ void object::test<3>()
     ENSURE(ft.add(f1a) == f1a);
     ENSURE(ft.add(f1b) == f1a);
     ENSURE(ft.getFunction(f1Name) == f1a);
+}
+
+template <>
+template <>
+void object::test<4>()
+{
+    using namespace rask;
+    using boost::assign::list_of;
+
+    std::string name("fam1");
+    ast::Function::ArgumentTypes args1 = list_of(ast::INT32)(ast::INT32);
+    ast::SharedCustomFunction fam11 = functionFactory.createShared(name, ast::VOID, args1);
+    ast::Function::ArgumentTypes args2 = list_of(ast::BOOLEAN)(ast::INT32);
+    ast::SharedCustomFunction fam12 = functionFactory.createShared(name, ast::VOID, args2);
+    ast::Function::ArgumentTypes args3 = list_of(ast::INT32)(ast::BOOLEAN);
+    ast::SharedCustomFunction fam13 = functionFactory.createShared(name, ast::VOID, args3);
+
+    ENSURE(ft.add(fam11) == fam11);
+    ENSURE(ft.add(fam12) == fam12);
+    ENSURE(ft.add(fam13) == fam13);
+    ast::SharedFunctionFamily fam1 = ft.getFamily(name);
+    ENSURE_EQUALS(fam1->name(), name);
+    ENSURE(fam1->getFunction(args1));
+    ENSURE(*fam1->getFunction(args1) == fam11);
+    ENSURE(fam1->getFunction(args2));
+    ENSURE(*fam1->getFunction(args2) == fam12);
+    ENSURE(fam1->getFunction(args3));
+    ENSURE(*fam1->getFunction(args3) == fam13);
 }
 
 }

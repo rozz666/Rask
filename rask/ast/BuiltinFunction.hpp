@@ -28,7 +28,8 @@ public:
     virtual unsigned short argCount() const { return argCount_; }
     virtual void accept(FunctionVisitor& visitor) { visitor.visit(*this); }
     virtual BasicType type() const { return type_; }
-    
+    virtual ArgumentTypes argTypes() const { return ArgumentTypes(); }
+
 private:
 
     std::string name_;

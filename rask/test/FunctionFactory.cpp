@@ -36,16 +36,23 @@ ast::SharedCustomFunction FunctionFactory::createShared(unsigned x, unsigned y, 
         new ast::CustomFunction(cst::Identifier::create(Position("", x, y), name), ast::VOID));
 }
 
-ast::SharedCustomFunction FunctionFactory::createShared(const std::string& name, ast::BasicType type, short unsigned int numArgs)
+ast::SharedCustomFunction FunctionFactory::createShared(
+    const std::string& name, ast::BasicType type, short unsigned int numArgs)
+{
+    return createShared(name, type, std::vector<ast::BasicType>(numArgs, ast::INT32));
+}
+
+ast::SharedCustomFunction FunctionFactory::createShared(
+    const std::string& name, ast::BasicType type, const std::vector<ast::BasicType>& args)
 {
     ast::SharedCustomFunction f(
         new ast::CustomFunction(cst::Identifier::create(Position(), name), type));
 
     VariableFactory variableFactory;
 
-    for (unsigned short i = 0; i != numArgs; ++i)
+    for (unsigned short i = 0; i != args.size(); ++i)
     {
-        f->addArg(variableFactory.createShared("arg" + boost::lexical_cast<std::string>(i)));
+        f->addArg(variableFactory.createShared("arg" + boost::lexical_cast<std::string>(i), args[i]));
     }
 
     return f;

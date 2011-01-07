@@ -67,6 +67,7 @@ void object::test<1>()
     ENSURE_EQUALS(f.name().position, name.position);
     ENSURE_EQUALS(f.name().value, name.value);
     ENSURE_EQUALS(f.argCount(), 0u);
+    ENSURE_EQUALS(f.argTypes().size(), 0u);
     ENSURE_EQUALS(cf.stmtCount(), 2u);
     ENSURE(getFunctionCall(cf.stmt(0)).function().lock() == dummy);
     ENSURE_EQUALS(getFunctionCall(cf.stmt(0)).args().size(), 0u);
@@ -92,16 +93,19 @@ template <>
 void object::test<3>()
 {
     using namespace rask;
+    using boost::assign::list_of;
 
     ast::CustomFunction cf(cst::Identifier::create(Position(), "xxx"), ast::VOID);
     test::VariableFactory variableFactory;
-    ast::SharedVariable v1 = variableFactory.createShared("a");
-    ast::SharedVariable v2 = variableFactory.createShared("b");
+    ast::SharedVariable v1 = variableFactory.createShared("a", ast::INT32);
+    ast::SharedVariable v2 = variableFactory.createShared("b", ast::BOOLEAN);
 
     cf.addArg(v1);
+    ENSURE(cf.argTypes() == list_of(ast::INT32));
     ENSURE_EQUALS(cf.argCount(), 1u);
     ENSURE(cf.arg(0) ==  v1);
     cf.addArg(v2);
+    ENSURE(cf.argTypes() == list_of(ast::INT32)(ast::BOOLEAN));
     ENSURE_EQUALS(cf.argCount(), 2u);
     ENSURE(cf.arg(1) ==  v2);
 }
