@@ -62,4 +62,14 @@ void object::test<2>()
     ENSURE(ast::getExpressionType(ast::Expression(fc2)) == type2);
 }
 
+template <>
+template <>
+void object::test<3>()
+{
+    using namespace rask;
+
+    ENSURE(ast::getExpressionType(ast::Expression(ast::Constant(false))) == ast::BOOLEAN);
+    ENSURE(ast::getExpressionType(ast::Expression(ast::Constant(boost::int32_t(7)))) == ast::INT32);
+}
+
 }

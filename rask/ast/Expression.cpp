@@ -7,7 +7,6 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <rask/ast/Expression.hpp>
-#include <stdexcept>
 
 namespace rask
 {
@@ -28,7 +27,7 @@ struct GenExpressionType : boost::static_visitor<BasicType>
 
     result_type operator()(const Constant& c) const
     {
-        throw std::runtime_error("result_type operator()(const Constant& c) const not implemented");
+        return c.type();
     }
 };
 
