@@ -13,16 +13,10 @@
 #include <rask/test/VariableDeclFactory.hpp>
 #include <rask/test/VariableFactory.hpp>
 #include <rask/null.hpp>
+#include <rask/ut/ast/ScopeMock.hpp>
 
 namespace
 {
-
-MOCK(ScopeMock, rask::ast::Scope)
-{
-public:
-
-    MOCK_METHOD(rask::ast::SharedVariable, addVariable, (rask::ast::SharedVariable, var))
-};
 
 MOCK(BuilderMock, rask::ast::Builder)
 {
@@ -54,11 +48,11 @@ struct buildFunctionAST_TestData
     rask::cst::Function cf;
     rask::ast::SharedCustomFunction f;
     rask::ast::FunctionTable ft;
-    boost::shared_ptr<ScopeMock> scope;
+    rask::ast::test::SharedScopeMock scope;
     BuilderMock builder;
 
     buildFunctionAST_TestData()
-        : file("test.rask"), scope(new ScopeMock), builder(logger, ft)
+        : file("test.rask"), scope(new rask::ast::test::ScopeMock), builder(logger, ft)
     {
         cf.name = rask::cst::Identifier::create(rask::Position(file, 1, 2), "main");
         cf.type = rask::cst::Identifier::create(rask::Position(file, 1, 10), "void");

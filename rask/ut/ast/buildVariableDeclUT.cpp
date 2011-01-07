@@ -12,6 +12,7 @@
 #include <rask/test/Mock.hpp>
 #include <rask/test/VariableFactory.hpp>
 #include <rask/ast/Builder.hpp>
+#include <rask/ut/ast/ScopeMock.hpp>
 
 namespace
 {
@@ -22,13 +23,6 @@ public:
 
     MOCK_METHOD(rask::ast::SharedVariable, createVariable,
         (const rask::cst::Identifier&, name)(rask::ast::BasicType, type))
-};
-
-MOCK(ScopeMock, rask::ast::Scope)
-{
-public:
-
-    MOCK_METHOD(rask::ast::SharedVariable, addVariable, (rask::ast::SharedVariable, var))
 };
 
 MOCK(BuilderMock, rask::ast::Builder)
@@ -52,12 +46,12 @@ struct buildVariableDecl_TestData
     rask::cst::VariableDecl cvd;
     rask::error::Logger logger;
     rask::ast::FunctionTable ft;
-    boost::shared_ptr<ScopeMock> scope;
+    rask::ast::test::SharedScopeMock scope;
     BuilderMock builder;
     VariableFactoryMock variableFactory;
 
     buildVariableDecl_TestData()
-        : scope(new ScopeMock), builder(logger, ft)
+        : scope(new rask::ast::test::ScopeMock), builder(logger, ft)
     {
         cvd.name = rask::cst::Identifier::create(rask::Position("abc", 1, 3), "x");
         cvd.value = rask::cst::ChainExpression();
