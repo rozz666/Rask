@@ -27,7 +27,7 @@ boost::optional<VariableDecl> Builder::buildVariableDecl(
 
     if (!expr) return boost::none;
 
-    VariableDecl decl(variableFactory.createVariable(vd.name, ast::INT32), *expr);
+    VariableDecl decl(variableFactory.createVariable(vd.name, getExpressionType(*expr)), *expr);
     scope->addVariable(decl.var());
 
     return decl;

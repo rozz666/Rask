@@ -82,8 +82,6 @@ void object::test<1>()
 {
     using namespace rask;
 
-    cvd.value = cst::ChainExpression();
-
     ast::SharedVariable v = test::VariableFactory().createShared("x");
     MOCK_RETURN(variableFactory, createVariable, v);
     MOCK_RETURN(*scope, addVariable, v);
@@ -125,6 +123,23 @@ void object::test<3>()
     ENSURE(!builder.buildVariableDecl(cvd, scope, variableFactory));
     ENSURE(logger.errors().empty());
     ENSURE_CALL(builder, buildExpression(*cvd.value, scope));
+}
+
+template <>
+template <>
+void object::test<4>()
+{
+    using namespace rask;
+
+    ast::SharedVariable v = test::VariableFactory().createShared("x");
+    MOCK_RETURN(variableFactory, createVariable, v);
+    MOCK_RETURN(*scope, addVariable, v);
+    rask::ast::Constant c(true);
+    MOCK_RETURN(builder, buildExpression, ast::Expression(c));
+
+    boost::optional<ast::VariableDecl> vd = builder.buildVariableDecl(cvd, scope, variableFactory);
+
+    ENSURE_CALL(variableFactory, createVariable(cvd.name, c.type()));
 }
 
 }
