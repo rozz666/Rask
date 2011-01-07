@@ -23,11 +23,11 @@ const TypeDictionary typeDictionary = boost::assign::map_list_of
     ("boolean", BOOLEAN)
     ("void", VOID);
 
-boost::optional<FunctionDecl> Builder::buildFunctionDecl(const cst::Function& f)
+boost::optional<FunctionDecl> Builder::buildFunctionDecl(const cst::Function& f, VariableFactory& variableFactory)
 {
     FunctionDecl fd(f.name, typeDictionary.find(f.type.value)->second);
     SharedCustomFunction cf = fd.function();
-    
+
     SharedFunction r = functionTable_.add(cf);
 
     if (r != cf)
@@ -41,7 +41,7 @@ boost::optional<FunctionDecl> Builder::buildFunctionDecl(const cst::Function& f)
     {
         cf->addArg(arg.name);
     }
-    
+
     return fd;
 }
 

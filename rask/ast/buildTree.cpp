@@ -23,7 +23,7 @@ boost::optional<Builder::Functions> Builder::buildFunctionDecls(const std::vecto
 
     BOOST_FOREACH(const cst::Function& f, cfs)
     {
-        if (boost::optional<FunctionDecl> fd = buildFunctionDecl(f))
+        if (boost::optional<FunctionDecl> fd = buildFunctionDecl(f, variableFactory))
         {
             ast.add(fd->function());
             functions.push_back(Functions::value_type(&f, fd->function()));

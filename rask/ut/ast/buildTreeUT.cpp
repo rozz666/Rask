@@ -36,7 +36,8 @@ public:
         ft.add(main);
     }
 
-    MOCK_METHOD(boost::optional<rask::ast::FunctionDecl>, buildFunctionDecl, (const rask::cst::Function&, f))
+    MOCK_METHOD(boost::optional<rask::ast::FunctionDecl>, buildFunctionDecl,
+        (const rask::cst::Function&, f)(rask::ast::VariableFactory&, variableFactory))
     MOCK_METHOD(bool, buildFunction,
         (const rask::cst::Function&, cf)(rask::ast::SharedCustomFunction, f)(rask::ast::SharedScope, scope))
 };
@@ -112,8 +113,8 @@ void object::test<2>()
     ENSURE_EQUALS(ast->functionCount(), 2u);
     ENSURE(ast->function(0) == fd1.function());
     ENSURE(ast->function(1) == fd2.function());
-    ENSURE_CALL(builder, buildFunctionDecl(cst.functions[0]));
-    ENSURE_CALL(builder, buildFunctionDecl(cst.functions[1]));
+    ENSURE_CALL(builder, buildFunctionDecl(cst.functions[0], builder.variableFactory));
+    ENSURE_CALL(builder, buildFunctionDecl(cst.functions[1], builder.variableFactory));
     ENSURE_NO_CALLS(builder, buildFunctionDecl);
     ENSURE_CALL(builder, buildFunction(cst.functions[0], fd1.function(), s1));
     ENSURE_CALL(builder, buildFunction(cst.functions[1], fd2.function(), s2));
@@ -133,8 +134,8 @@ void object::test<3>()
 
     ENSURE(!builder.buildTree(cst, scopeFactory));
     ENSURE_EQUALS(logger.errors().size(), 0u);
-    ENSURE_CALL(builder, buildFunctionDecl(cst.functions[0]));
-    ENSURE_CALL(builder, buildFunctionDecl(cst.functions[1]));
+    ENSURE_CALL(builder, buildFunctionDecl(cst.functions[0], builder.variableFactory));
+    ENSURE_CALL(builder, buildFunctionDecl(cst.functions[1], builder.variableFactory));
     ENSURE_NO_CALLS(builder, buildFunctionDecl);
     ENSURE_NO_CALLS(builder, buildFunction);
 }
@@ -157,8 +158,8 @@ void object::test<4>()
 
     ENSURE(!builder.buildTree(cst, scopeFactory));
     ENSURE_EQUALS(logger.errors().size(), 0u);
-    ENSURE_CALL(builder, buildFunctionDecl(cst.functions[0]));
-    ENSURE_CALL(builder, buildFunctionDecl(cst.functions[1]));
+    ENSURE_CALL(builder, buildFunctionDecl(cst.functions[0], builder.variableFactory));
+    ENSURE_CALL(builder, buildFunctionDecl(cst.functions[1], builder.variableFactory));
     ENSURE_NO_CALLS(builder, buildFunctionDecl);
     ENSURE_CALL(builder, buildFunction(cst.functions[0], fd.function(), s1));
     ENSURE_CALL(builder, buildFunction(cst.functions[1], fd.function(), s2));

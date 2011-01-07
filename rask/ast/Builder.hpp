@@ -31,7 +31,7 @@ public:
         : logger_(logger), functionTable_(functionTable) { }
 
     virtual boost::optional<FunctionCall> buildFunctionCall(const cst::FunctionCall& fc, SharedScope scope);
-    virtual boost::optional<FunctionDecl> buildFunctionDecl(const cst::Function& f);
+    virtual boost::optional<FunctionDecl> buildFunctionDecl(const cst::Function& f, VariableFactory& variableFactory);
     virtual bool buildFunction(const cst::Function& cf, SharedCustomFunction f, SharedScope scope);
     virtual boost::optional<Tree> buildTree(const cst::Tree& cst, SharedScopeFactory scopeFactory);
     virtual boost::optional<VariableDecl> buildVariableDecl(
