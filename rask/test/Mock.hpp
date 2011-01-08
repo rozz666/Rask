@@ -27,12 +27,12 @@ public:
 
     MockBase() : ci(0), vi(0) { }
 
-    unsigned getCallIndex() { return ++ci; }
+    unsigned getCallIndex() const { return ++ci; }
     unsigned getCallVerificationIndex() { return ++vi; }
 
 private:
 
-    unsigned ci;
+    mutable unsigned ci;
     unsigned vi;
 };
 
@@ -76,7 +76,7 @@ if (!Test<BOOST_PP_TUPLE_ELEM(2, 0, elem)>::equal(BOOST_PP_TUPLE_ELEM(2, 1, elem
 #define MOCK_TEST_ARGS(args) \
     BOOST_PP_SEQ_FOR_EACH_I(MOCK_TEST_ARG, _, args)
 
-#define MOCK_METHOD(retType, name, args) \
+#define MOCK_METHOD_Q(retType, name, args, qualifiers) \
 struct name##__type { \
     struct Call \
     { \
@@ -109,7 +109,7 @@ struct name##__type { \
             return Verifier(file, line, call); \
         } \
     }; \
-    boost::ptr_deque<Call> calls; \
+    mutable boost::ptr_deque<Call> calls; \
     template <typename T, bool dummy = true> \
     struct Return \
     { \
@@ -127,15 +127,21 @@ struct name##__type { \
     { \
         void get() { } \
     }; \
-    Return<retType> ret; \
+    mutable Return<retType> ret; \
 } name##__; \
 name##__type& call__##name(MOCK_DECL_ARG_TYPES(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) { return name##__; } \
-retType name(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) \
+retType name(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) qualifiers \
 { \
     name##__type::Call c = { getCallIndex() MOCK_ENUM_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END)) }; \
     name##__.calls.push_back(new name##__type::Call(c)); \
     return name##__.ret.get(); \
 }
+
+#define MOCK_METHOD(retType, name, args) \
+    MOCK_METHOD_Q(retType, name, args, )
+
+#define MOCK_CONST_METHOD(retType, name, args) \
+    MOCK_METHOD_Q(retType, name, args, const)
 
 #define MOCK_RETURN(mock, func, value) \
 do { \

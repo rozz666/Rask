@@ -23,15 +23,17 @@ public:
     virtual void testFunc3() = 0;
     virtual int testFunc4() = 0;
     virtual void testFunc5(int& x) = 0;
+    virtual short testConstFunc(int arg1, const float& arg2) const = 0;
 };
 
 MOCK(Mock, Mockable)
 {
-    MOCK_METHOD(void, testFunc, (int, arg));
-    MOCK_METHOD(void, testFunc2, (int, arg1)(float, arg2));
-    MOCK_METHOD(void, testFunc3, );
-    MOCK_METHOD(int, testFunc4, );
-    MOCK_METHOD(void, testFunc5, (int&, x));
+    MOCK_METHOD(void, testFunc, (int, arg))
+    MOCK_METHOD(void, testFunc2, (int, arg1)(float, arg2))
+    MOCK_METHOD(void, testFunc3, )
+    MOCK_METHOD(int, testFunc4, )
+    MOCK_METHOD(void, testFunc5, (int&, x))
+    MOCK_CONST_METHOD(short, testConstFunc, (int, arg1)(const float& , arg2))
 };
 
 
@@ -193,4 +195,19 @@ void object::test<12>()
     ENSURE_THROWS(ENSURE_NO_CALLS(*&mock, testFunc3), tut::failure);
 }
 
+template <>
+template <>
+void object::test<13>()
+{
+    ENSURE_NO_CALLS(mock, testConstFunc);
+
+    short x = 7;
+    MOCK_RETURN(mock, testConstFunc, x);
+
+    int y = 9;
+    float z;
+
+    ENSURE_EQUALS(mock.testConstFunc(y, z), x);
+    ENSURE_CALL(mock, testConstFunc(y, z));
+}
 }
