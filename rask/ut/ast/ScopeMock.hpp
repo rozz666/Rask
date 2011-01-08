@@ -20,11 +20,11 @@ namespace ast
 namespace test
 {
 
-MOCK(ScopeMock, rask::ast::Scope)
+MOCK(ScopeMock, Scope)
 {
 public:
 
-    MOCK_METHOD(rask::ast::SharedVariable, addVariable, (rask::ast::SharedVariable, var))
+    MOCK_METHOD(SharedVariable, addVariable, (SharedVariable, var))
     MOCK_METHOD(boost::optional<SharedVariable>, getVariable, (const std::string&, name))
 };
 
