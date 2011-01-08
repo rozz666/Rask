@@ -20,13 +20,11 @@ namespace
 
 MOCK(BuilderMock, rask::ast::Builder)
 {
-public:
-
     BuilderMock(rask::error::Logger& logger, rask::ast::FunctionTable& ft)
         : rask::ast::Builder(logger, ft) { }
 
-    MOCK_METHOD(boost::optional<rask::ast::FunctionCall>, buildFunctionCall, (const rask::cst::FunctionCall&, fc));
-    MOCK_METHOD(boost::optional<rask::ast::FunctionCall>, buildUnaryOperatorCall, (const rask::cst::UnaryOperatorCall&, oc));
+    MOCK_METHOD(boost::optional<rask::ast::FunctionCall>, buildFunctionCall, (const rask::cst::FunctionCall&, fc))
+    MOCK_METHOD(boost::optional<rask::ast::FunctionCall>, buildUnaryOperatorCall, (const rask::cst::UnaryOperatorCall&, oc))
     MOCK_METHOD(boost::optional<rask::ast::Expression>, buildExpression,
         (const rask::cst::Expression&, expr)(rask::ast::SharedScope, scope))
 };

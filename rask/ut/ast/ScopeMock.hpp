@@ -22,8 +22,6 @@ namespace test
 
 MOCK(ScopeMock, Scope)
 {
-public:
-
     MOCK_METHOD(SharedVariable, addVariable, (SharedVariable, var))
     MOCK_METHOD(boost::optional<SharedVariable>, getVariable, (const std::string&, name))
 };

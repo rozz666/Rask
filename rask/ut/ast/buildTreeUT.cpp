@@ -17,8 +17,6 @@ namespace
 
 MOCK(ScopeFactoryMock, rask::ast::ScopeFactory)
 {
-public:
-
     MOCK_METHOD(rask::ast::SharedScope, createScope, )
 };
 
@@ -26,8 +24,6 @@ typedef boost::shared_ptr<ScopeFactoryMock> SharedScopeFactoryMock;
 
 MOCK(BuilderMock, rask::ast::Builder)
 {
-public:
-
     rask::ast::SharedCustomFunction main;
 
     BuilderMock(rask::error::Logger& logger, rask::ast::FunctionTable& ft)

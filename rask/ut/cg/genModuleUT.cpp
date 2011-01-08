@@ -33,13 +33,11 @@ tut::factory tf("rask.cg.CodeGenerator.genModule");
 
 MOCK(CodeGeneratorMock, rask::cg::CodeGenerator)
 {
-public:
-
     CodeGeneratorMock(rask::cg::SymbolTable& st) : rask::cg::CodeGenerator(st) { }
     
-    MOCK_METHOD(void, genFunction, (const rask::ast::CustomFunction&, f)(llvm::Module&, module));
-    MOCK_METHOD(void, declFunction, (const rask::ast::CustomFunction&, f)(llvm::Module&, module));
-    MOCK_METHOD(void, declBuiltinFunctions, (llvm::Module&, module));
+    MOCK_METHOD(void, genFunction, (const rask::ast::CustomFunction&, f)(llvm::Module&, module))
+    MOCK_METHOD(void, declFunction, (const rask::ast::CustomFunction&, f)(llvm::Module&, module))
+    MOCK_METHOD(void, declBuiltinFunctions, (llvm::Module&, module))
 };
 
 }

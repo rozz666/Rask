@@ -18,8 +18,6 @@ namespace
 
 MOCK(BuilderMock, rask::ast::Builder)
 {
-public:
-
     BuilderMock(rask::error::Logger& logger, rask::ast::FunctionTable& ft)
     : rask::ast::Builder(logger, ft) { }
 

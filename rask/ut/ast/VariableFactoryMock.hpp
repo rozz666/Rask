@@ -21,8 +21,6 @@ namespace test
 
 MOCK(VariableFactoryMock, VariableFactory)
 {
-public:
-
     MOCK_METHOD(SharedVariable, createVariable, (const cst::Identifier&, name)(BasicType, type))
 };
 

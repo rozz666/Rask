@@ -21,11 +21,9 @@ namespace
 
 MOCK(CodeGeneratorMock, rask::cg::CodeGenerator)
 {
-public:
-
     CodeGeneratorMock(rask::cg::SymbolTable& st) : rask::cg::CodeGenerator(st) { }
 
-    MOCK_METHOD(llvm::Value *, genValue, (const rask::ast::Expression&, expr)(llvm::BasicBlock&, block));
+    MOCK_METHOD(llvm::Value *, genValue, (const rask::ast::Expression&, expr)(llvm::BasicBlock&, block))
 };
 
 }
