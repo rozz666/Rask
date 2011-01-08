@@ -263,9 +263,9 @@ void object::test<16>()
     int r2 = 3;
     int r3 = 9;
 
-    MOCK_MAP_RETURN(cmock, testFunc8(x1, y1, z1), r1);
-    MOCK_MAP_RETURN(cmock, testFunc8(x2, y2, z2), r2);
-    MOCK_MAP_RETURN(cmock, testFunc8(x3, y3, z3), r3);
+    MOCK_RETURN(cmock, testFunc8(x1, y1, z1), r1);
+    MOCK_RETURN(cmock, testFunc8(x2, y2, z2), r2);
+    MOCK_RETURN(cmock, testFunc8(x3, y3, z3), r3);
 
     ENSURE_EQUALS(cmock.testFunc8(x2, y2, z2), r2);
     ENSURE_EQUALS(cmock.testFunc8(x3, y3, z3), r3);
@@ -283,7 +283,7 @@ void object::test<17>()
     int i2;
 
     MOCK_RETURN(cmock, testFunc9, i1);
-    MOCK_MAP_RETURN(cmock, testFunc10(x), i2);
+    MOCK_RETURN(cmock, testFunc10(x), i2);
 
     ENSURE(&cmock.testFunc9() == &i1);
     ENSURE(&cmock.testFunc10(x) == &i2);

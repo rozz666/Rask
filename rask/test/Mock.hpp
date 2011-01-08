@@ -195,8 +195,9 @@ struct ReturnMap__##name \
             MOCK_CHECK_LESS_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END), right) \
         } \
     }; \
-    typedef std::map<Key, ::rask::test::Storage<retType> > Values; \
+    typedef std::map<Key, ::rask::test::Storage<RetType> > Values; \
     Values values; \
+    std::deque< ::rask::test::Storage<RetType> > simpleValues; \
      \
     ::rask::test::Storage<RetType>& operator()(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) \
     { \
@@ -208,10 +209,21 @@ struct ReturnMap__##name \
         Key key = { MOCK_ENUM_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END)) };\
         return values.find(key) != values.end(); \
     } \
-    retType get(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) \
+    RetType get(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) \
     { \
         Key key = { MOCK_ENUM_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END)) };\
         return values.find(key)->second.get(); \
+    } \
+    void set(RetType val) \
+    { \
+        simpleValues.push_back(val);\
+    }\
+    RetType getSimple() \
+    { \
+        if (simpleValues.empty()) tut::fail("No return value specified for " #name); \
+        ::rask::test::Storage<RetType> val = simpleValues.front(); \
+        if (simpleValues.size() > 1) simpleValues.pop_front();\
+        return val.get(); \
     } \
 }; \
 template <bool dummy> \
@@ -220,6 +232,7 @@ struct ReturnMap__##name<void, dummy> \
     void operator()(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) { }\
     bool isMapped(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) { return false; }\
     void get(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) { } \
+    void getSimple() { } \
 }; \
 mutable ReturnMap__##name<retType> map__##name; \
 name##__type& call__##name(MOCK_DECL_ARG_TYPES(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) qualifiers \
@@ -234,7 +247,7 @@ retType altName(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) qu
     } \
     name##__type::Call c = { getCallIndex(), MOCK_ENUM_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END)) }; \
     name##__.calls.push_back(new name##__type::Call(c)); \
-    return name##__.ret.get(); \
+    return map__##name.getSimple(); \
 }
 
 #define MOCK_METHOD(retType, name, args) \
@@ -256,12 +269,7 @@ retType name(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) quali
 #define MOCK_CONST_METHOD_TRANSFORM(retType, name, args, newArgs) \
     MOCK_METHOD_TRANSFORM_Q(retType, name, args, newArgs, const)
 
-#define MOCK_RETURN(mock, func, value) \
-do { \
-    (mock).func##__.ret.push_back(value); \
-} while (0)
-
-#define MOCK_MAP_RETURN(mock, call, value) \
+#define MOCK_RETURN(mock, call, value) \
 do { \
     (mock).map__##call.set(value); \
 } while (0)
