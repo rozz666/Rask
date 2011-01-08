@@ -24,11 +24,9 @@ public:
     virtual int testFunc4() = 0;
     virtual void testFunc5(int& x) = 0;
 };
-    
+
 MOCK(Mock, Mockable)
 {
-public:
-
     MOCK_METHOD(void, testFunc, (int, arg));
     MOCK_METHOD(void, testFunc2, (int, arg1)(float, arg2));
     MOCK_METHOD(void, testFunc3, );
@@ -36,7 +34,7 @@ public:
     MOCK_METHOD(void, testFunc5, (int&, x));
 };
 
-    
+
 struct Mock_TestData
 {
     Mock mock;
@@ -57,13 +55,13 @@ tut::factory tf("rask.test.Mock");
 namespace tut
 {
 
-    
+
 template <>
 template <>
 void object::test<1>()
 {
     ENSURE_EQUALS(mock.testFunc__.calls.size(), 0u);
-    
+
     mockable.testFunc(5);
 
     ENSURE_EQUALS(mock.testFunc__.calls.size(), 1u);
@@ -82,14 +80,14 @@ template <>
 void object::test<2>()
 {
     mockable.testFunc2(1, 2);
-    
+
     ENSURE_EQUALS(mock.testFunc2__.calls.size(), 1u);
     ENSURE_EQUALS(mock.testFunc2__.calls[0].callIndex__, 1u);
     ENSURE_EQUALS(mock.testFunc2__.calls[0].arg1, 1);
     ENSURE_EQUALS(mock.testFunc2__.calls[0].arg2, 2);
-    
+
     mockable.testFunc(3);
-    
+
     ENSURE_EQUALS(mock.testFunc__.calls.size(), 1u);
     ENSURE_EQUALS(mock.testFunc__.calls[0].callIndex__, 2u);
     ENSURE_EQUALS(mock.testFunc__.calls[0].arg, 3);
@@ -100,7 +98,7 @@ template <>
 void object::test<3>()
 {
     mockable.testFunc3();
-    
+
     ENSURE_EQUALS(mock.testFunc3__.calls.size(), 1u);
     ENSURE_EQUALS(mock.testFunc3__.calls[0].callIndex__, 1u);
 }
@@ -111,7 +109,7 @@ void object::test<4>()
 {
     MOCK_RETURN(mock, testFunc4, 5);
     MOCK_RETURN(*&mock, testFunc4, 6);
-    
+
     ENSURE_EQUALS(mockable.testFunc4(), 5);
     ENSURE_EQUALS(mockable.testFunc4(), 6);
     ENSURE_EQUALS(mockable.testFunc4(), 6);
@@ -136,7 +134,7 @@ void object::test<6>()
 {
     ENSURE_THROWS(ENSURE_CALL(*&mock, testFunc(1)), tut::failure);
 }
-    
+
 template <>
 template <>
 void object::test<7>()
@@ -146,13 +144,13 @@ void object::test<7>()
 
     ENSURE_THROWS(ENSURE_CALL(*&mock, testFunc(1)), tut::failure);
 }
-    
+
 template <>
 template <>
 void object::test<8>()
 {
     mock.testFunc(1);
-    
+
     ENSURE_CALL(mock, testFunc(1));
 }
 
@@ -161,7 +159,7 @@ template <>
 void object::test<9>()
 {
     mock.testFunc(1);
-    
+
     ENSURE_THROWS(ENSURE_CALL(mock, testFunc(2)), tut::failure);
 }
 
@@ -171,9 +169,9 @@ void object::test<10>()
 {
     int x = 5;
     int y = x;
-    
+
     mock.testFunc5(y);
-    
+
     ENSURE_THROWS(ENSURE_CALL(mock, testFunc5(x)), tut::failure);
 }
 
@@ -189,9 +187,9 @@ template <>
 void object::test<12>()
 {
     ENSURE_NO_CALLS(mock, testFunc3);
-    
+
     mock.testFunc3();
-    
+
     ENSURE_THROWS(ENSURE_NO_CALLS(*&mock, testFunc3), tut::failure);
 }
 

@@ -24,7 +24,7 @@ namespace test
 class MockBase
 {
 public:
-    
+
     MockBase() : ci(0), vi(0) { }
 
     unsigned getCallIndex() { return ++ci; }
@@ -36,7 +36,7 @@ private:
     unsigned vi;
 };
 
-#define MOCK(name, parent) class name : public parent, public ::rask::test::MockBase
+#define MOCK(name, parent) struct name : parent, ::rask::test::MockBase
 
 #define MOCK_METHOD_FILLER_0(X, Y) \
     ((X, Y)) MOCK_METHOD_FILLER_1
@@ -44,7 +44,7 @@ private:
     ((X, Y)) MOCK_METHOD_FILLER_0
 #define MOCK_METHOD_FILLER_0_END
 #define MOCK_METHOD_FILLER_1_END
-    
+
 #define MOCK_DECLARE_MEMBER(r, data, elem) BOOST_PP_TUPLE_ELEM(2, 0, elem) BOOST_PP_TUPLE_ELEM(2, 1, elem) ;
 #define MOCK_DECLARE_ARG(r, data, i, elem) BOOST_PP_COMMA_IF(i) BOOST_PP_TUPLE_ELEM(2, 0, elem) BOOST_PP_TUPLE_ELEM(2, 1, elem)
 #define MOCK_DECLARE_ARG_NC(r, data, elem) , BOOST_PP_TUPLE_ELEM(2, 0, elem) BOOST_PP_TUPLE_ELEM(2, 1, elem)
@@ -156,7 +156,7 @@ do { \
 do { \
     if (!(mock).func##__.calls.empty()) FAIL(#func " called"); \
 } while (0)
- 
+
 }
 }
 
