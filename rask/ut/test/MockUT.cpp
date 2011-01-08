@@ -27,6 +27,8 @@ public:
     virtual void testFunc6(int& x) = 0;
     virtual void testFunc7(const float& x) const = 0;
     virtual int testFunc8(int x, const float& y, float& z) const = 0;
+    virtual int& testFunc9() const = 0;
+    virtual int& testFunc10(int x) const = 0;
 };
 
 MOCK(Mock, Mockable)
@@ -40,6 +42,8 @@ MOCK(Mock, Mockable)
     MOCK_METHOD_TRANSFORM(void, testFunc6, (int&, x), (int, x))
     MOCK_CONST_METHOD_TRANSFORM(void, testFunc7, (const float&, x), (float, x))
     MOCK_CONST_METHOD_TRANSFORM(int, testFunc8, (int, x)(const float&, y)(float&, z), (int, x)(float, y)(float&, z))
+    MOCK_CONST_METHOD(int&, testFunc9, )
+    MOCK_CONST_METHOD(int&, testFunc10, (int, x))
 };
 
 
@@ -267,9 +271,22 @@ void object::test<16>()
     ENSURE_EQUALS(cmock.testFunc8(x3, y3, z3), r3);
     ENSURE_EQUALS(cmock.testFunc8(x1, y1, z1), r1);
 
-    ENSURE_CALL(mock, testFunc8(x2, y2, z2));
-    ENSURE_CALL(mock, testFunc8(x3, y3, z3));
-    ENSURE_CALL(mock, testFunc8(x1, y1, z1));
+    ENSURE_NO_CALLS(mock, testFunc8);
+}
+
+template <>
+template <>
+void object::test<17>()
+{
+    int x = 8;
+    int i1;
+    int i2;
+
+    MOCK_RETURN(cmock, testFunc9, i1);
+    MOCK_MAP_RETURN(cmock, testFunc10(x), i2);
+
+    ENSURE(&cmock.testFunc9() == &i1);
+    ENSURE(&cmock.testFunc10(x) == &i2);
 }
 
 }

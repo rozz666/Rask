@@ -36,6 +36,31 @@ private:
     mutable unsigned vi;
 };
 
+template <typename T>
+struct StorageType
+{
+    typedef T type;
+    static type convert(T v) { return v; }
+};
+
+template <typename T>
+struct StorageType<T&>
+{
+    typedef T *type;
+    static type convert(T& v) { return &v; }
+    static T& convert(type v) { return *v; }
+};
+
+template <typename T>
+struct Storage
+{
+    typename StorageType<T>::type value;
+    Storage() { }
+    Storage(T v) : value(StorageType<T>::convert(v)) { }
+    T get() { return StorageType<T>::convert(value); }
+    void set(T v) { value = StorageType<T>::convert(v); }
+};
+
 #define MOCK(name, parent) struct name : parent, ::rask::test::MockBase
 
 #define MOCK_METHOD_FILLER_0(X, Y) \
@@ -127,13 +152,17 @@ struct name##__type { \
     template <typename T, bool dummy = true> \
     struct Return \
     { \
-        std::deque<T> values; \
+        std::deque< ::rask::test::Storage<T> > values; \
+        void push_back(T val) \
+        { \
+            values.push_back(val);\
+        }\
         T get() \
         { \
             if (values.empty()) tut::fail("No return value specified for " #name); \
-            T val = values.front(); \
+            ::rask::test::Storage<T> val = values.front(); \
             if (values.size() > 1) values.pop_front();\
-            return val; \
+            return val.get(); \
         } \
     }; \
     template <bool dummy> \
@@ -166,9 +195,10 @@ struct ReturnMap__##name \
             MOCK_CHECK_LESS_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END), right) \
         } \
     }; \
-    typedef std::map<Key, retType> Values; \
-    Values values;\
-    RetType& operator()(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) \
+    typedef std::map<Key, ::rask::test::Storage<retType> > Values; \
+    Values values; \
+     \
+    ::rask::test::Storage<RetType>& operator()(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) \
     { \
         Key key = { MOCK_ENUM_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END)) };\
         return values[key];\
@@ -181,7 +211,7 @@ struct ReturnMap__##name \
     retType get(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) \
     { \
         Key key = { MOCK_ENUM_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END)) };\
-        return values.find(key)->second; \
+        return values.find(key)->second.get(); \
     } \
 }; \
 template <bool dummy> \
@@ -198,12 +228,12 @@ name##__type& call__##name(MOCK_DECL_ARG_TYPES(BOOST_PP_CAT(MOCK_METHOD_FILLER_0
 } \
 retType altName(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) qualifiers \
 { \
-    name##__type::Call c = { getCallIndex(), MOCK_ENUM_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END)) }; \
-    name##__.calls.push_back(new name##__type::Call(c)); \
     if (map__##name.isMapped(MOCK_ENUM_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END)))) \
     { \
         return map__##name.get(MOCK_ENUM_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))); \
     } \
+    name##__type::Call c = { getCallIndex(), MOCK_ENUM_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END)) }; \
+    name##__.calls.push_back(new name##__type::Call(c)); \
     return name##__.ret.get(); \
 }
 
@@ -228,12 +258,12 @@ retType name(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) quali
 
 #define MOCK_RETURN(mock, func, value) \
 do { \
-    (mock).func##__.ret.values.push_back(value); \
+    (mock).func##__.ret.push_back(value); \
 } while (0)
 
 #define MOCK_MAP_RETURN(mock, call, value) \
 do { \
-    (mock).map__##call = value; \
+    (mock).map__##call.set(value); \
 } while (0)
 
 #define ENSURE_CALL(mock, call) \
