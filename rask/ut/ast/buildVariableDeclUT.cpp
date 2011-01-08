@@ -13,17 +13,10 @@
 #include <rask/test/VariableFactory.hpp>
 #include <rask/ast/Builder.hpp>
 #include <rask/ut/ast/ScopeMock.hpp>
+#include <rask/ut/ast/VariableFactoryMock.hpp>
 
 namespace
 {
-
-MOCK(VariableFactoryMock, rask::ast::VariableFactory)
-{
-public:
-
-    MOCK_METHOD(rask::ast::SharedVariable, createVariable,
-        (const rask::cst::Identifier&, name)(rask::ast::BasicType, type))
-};
 
 MOCK(BuilderMock, rask::ast::Builder)
 {
@@ -48,7 +41,7 @@ struct buildVariableDecl_TestData
     rask::ast::FunctionTable ft;
     rask::ast::test::SharedScopeMock scope;
     BuilderMock builder;
-    VariableFactoryMock variableFactory;
+    rask::ast::test::VariableFactoryMock variableFactory;
 
     buildVariableDecl_TestData()
         : scope(new rask::ast::test::ScopeMock), builder(logger, ft)
