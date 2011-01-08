@@ -101,6 +101,7 @@ void object::test<2>()
     MOCK_RETURN(builder, buildFunctionDecl, fd1);
     MOCK_RETURN(builder, buildFunctionDecl, fd2);
     MOCK_RETURN(builder, buildFunction, true);
+    MOCK_RETURN(builder, buildFunction, true);
 
     ast::SharedScope s1(new ast::Scope);
     ast::SharedScope s2(new ast::Scope);
@@ -150,6 +151,8 @@ void object::test<4>()
 
     ast::FunctionDecl fd(cst::Identifier::create(Position(), "f"), ast::VOID);
     MOCK_RETURN(builder, buildFunctionDecl, fd);
+    MOCK_RETURN(builder, buildFunctionDecl, fd);
+    MOCK_RETURN(builder, buildFunction, false);
     MOCK_RETURN(builder, buildFunction, false);
     ast::SharedScope s1(new ast::Scope);
     ast::SharedScope s2(new ast::Scope);

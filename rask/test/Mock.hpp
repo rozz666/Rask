@@ -71,7 +71,7 @@ struct StorageQueue
     {
         if (values.empty()) tut::fail("No return value specified for " + name);
         Storage<T> val = values.front();
-        if (values.size() > 1) values.pop_front();
+        values.pop_front();
         return val.get();
     }
 };

@@ -17,6 +17,7 @@
 #include <llvm/DerivedTypes.h>
 #include <rask/test/FunctionFactory.hpp>
 #include <rask/test/VariableDeclFactory.hpp>
+#include <rask/null.hpp>
 
 namespace
 {
@@ -53,8 +54,6 @@ struct genFunction_TestData
     {
         cg.declBuiltinFunctions(*module);
         cg.declFunction(f, *module);
-        MOCK_RETURN(cg, genFunctionCall, 0);
-        MOCK_RETURN(cg, genVariableDecl, 0);
     }
 };
 
@@ -92,8 +91,11 @@ void object::test<2>()
 {
     using namespace rask;
 
-    f.addStmt(ast::FunctionCall(ast::WeakFunction(), ast::FunctionCall::Arguments()));
-    f.addStmt(ast::FunctionCall(ast::WeakFunction(), ast::FunctionCall::Arguments()));
+    f.addStmt(ast::FunctionCall(null, ast::FunctionCall::Arguments()));
+    f.addStmt(ast::FunctionCall(null, ast::FunctionCall::Arguments()));
+
+    MOCK_RETURN(cg, genFunctionCall, null);
+    MOCK_RETURN(cg, genFunctionCall, null);
 
     cg.genFunction(f, *module);
     llvm::Function *gf = module->getFunction(f.name().value);
@@ -115,6 +117,9 @@ void object::test<3>()
 
     f.addStmt(varDeclFactory.create("asia"));
     f.addStmt(varDeclFactory.create("kasia"));
+
+    MOCK_RETURN(cg, genVariableDecl, null);
+    MOCK_RETURN(cg, genVariableDecl, null);
 
     cg.genFunction(f, *module);
     llvm::Function *gf = module->getFunction(f.name().value);

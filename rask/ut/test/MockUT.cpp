@@ -127,7 +127,7 @@ void object::test<4>()
 
     ENSURE_EQUALS(mockable.testFunc4(), 5);
     ENSURE_EQUALS(mockable.testFunc4(), 6);
-    ENSURE_EQUALS(mockable.testFunc4(), 6);
+    ENSURE_THROWS(mockable.testFunc4(), tut::failure);
 }
 
 template <>
@@ -312,9 +312,8 @@ void object::test<18>()
     ENSURE(mock.testFunc11(x1) == v2);
     ENSURE(mock.testFunc11(100) == v4);
     ENSURE(mock.testFunc11(200) == v5);
-    ENSURE(mock.testFunc11(200) == v5);
     ENSURE(mock.testFunc11(x1) == v3);
-    ENSURE(mock.testFunc11(x1) == v3);
+    ENSURE_THROWS(mock.testFunc11(x1), tut::failure);
 }
 
 }
