@@ -26,6 +26,7 @@ public:
     virtual short testConstFunc(int arg1, const float& arg2) const = 0;
     virtual void testFunc6(int& x) = 0;
     virtual void testFunc7(const float& x) const = 0;
+    virtual int testFunc8(int x, const float& y, float& z) const = 0;
 };
 
 MOCK(Mock, Mockable)
@@ -38,15 +39,17 @@ MOCK(Mock, Mockable)
     MOCK_CONST_METHOD(short, testConstFunc, (int, arg1)(const float& , arg2))
     MOCK_METHOD_TRANSFORM(void, testFunc6, (int&, x), (int, x))
     MOCK_CONST_METHOD_TRANSFORM(void, testFunc7, (const float&, x), (float, x))
+    MOCK_CONST_METHOD_TRANSFORM(int, testFunc8, (int, x)(const float&, y)(float&, z), (int, x)(float, y)(float&, z))
 };
 
 
 struct Mock_TestData
 {
     Mock mock;
+    const Mock& cmock;
     Mockable& mockable;
 
-    Mock_TestData() : mockable(mock) { }
+    Mock_TestData() : cmock(mock), mockable(mock) { }
 };
 
 typedef test_group<Mock_TestData> factory;
@@ -234,9 +237,39 @@ void object::test<15>()
     float x = 5;
     int y = x;
 
-    mock.testFunc7(y);
+    cmock.testFunc7(y);
 
-    ENSURE_CALL(mock, testFunc7(x));
+    ENSURE_CALL(cmock, testFunc7(x));
+}
+
+template <>
+template <>
+void object::test<16>()
+{
+    int x1 = 10;
+    int x2 = 17;
+    int x3 = 19;
+    float y1 = 3.3f;
+    float y2 = 4.4f;
+    float y3 = 4.5f;
+    float z1;
+    float z2;
+    float z3;
+    int r1 = 2;
+    int r2 = 3;
+    int r3 = 9;
+
+    MOCK_MAP_RETURN(cmock, testFunc8(x1, y1, z1), r1);
+    MOCK_MAP_RETURN(cmock, testFunc8(x2, y2, z2), r2);
+    MOCK_MAP_RETURN(cmock, testFunc8(x3, y3, z3), r3);
+
+    ENSURE_EQUALS(cmock.testFunc8(x2, y2, z2), r2);
+    ENSURE_EQUALS(cmock.testFunc8(x3, y3, z3), r3);
+    ENSURE_EQUALS(cmock.testFunc8(x1, y1, z1), r1);
+
+    ENSURE_CALL(mock, testFunc8(x2, y2, z2));
+    ENSURE_CALL(mock, testFunc8(x3, y3, z3));
+    ENSURE_CALL(mock, testFunc8(x1, y1, z1));
 }
 
 }

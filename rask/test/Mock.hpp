@@ -28,12 +28,12 @@ public:
     MockBase() : ci(0), vi(0) { }
 
     unsigned getCallIndex() const { return ++ci; }
-    unsigned getCallVerificationIndex() { return ++vi; }
+    unsigned getCallVerificationIndex() const { return ++vi; }
 
 private:
 
     mutable unsigned ci;
-    unsigned vi;
+    mutable unsigned vi;
 };
 
 #define MOCK(name, parent) struct name : parent, ::rask::test::MockBase
@@ -58,6 +58,16 @@ if (!Test<BOOST_PP_TUPLE_ELEM(2, 0, elem)>::equal(BOOST_PP_TUPLE_ELEM(2, 1, elem
     tut::fail(tut::formatMessage(ss.str().c_str(), file, line)); \
 }
 
+#define MOCK_CHECK_LESS_ARG(r, data, i, elem) \
+if (Test<BOOST_PP_TUPLE_ELEM(2, 0, elem)>::less(BOOST_PP_TUPLE_ELEM(2, 1, elem), data.BOOST_PP_TUPLE_ELEM(2, 1, elem))) \
+{ \
+    return true; \
+} \
+if (Test<BOOST_PP_TUPLE_ELEM(2, 0, elem)>::less(data.BOOST_PP_TUPLE_ELEM(2, 1, elem), BOOST_PP_TUPLE_ELEM(2, 1, elem))) \
+{ \
+    return false; \
+}
+
 #define MOCK_DECL_MEMBERS(vars) \
     BOOST_PP_SEQ_FOR_EACH(MOCK_DECLARE_MEMBER, _, vars)
 
@@ -75,6 +85,10 @@ if (!Test<BOOST_PP_TUPLE_ELEM(2, 0, elem)>::equal(BOOST_PP_TUPLE_ELEM(2, 1, elem
 
 #define MOCK_TEST_ARGS(args) \
     BOOST_PP_SEQ_FOR_EACH_I(MOCK_TEST_ARG, _, args)
+
+#define MOCK_CHECK_LESS_ARGS(args, right) \
+    BOOST_PP_SEQ_FOR_EACH_I(MOCK_CHECK_LESS_ARG, right, args) \
+    return false;
 
 #define MOCK_METHOD_Q(retType, name, altName, args, qualifiers) \
 struct name##__type { \
@@ -128,12 +142,68 @@ struct name##__type { \
         void get() { } \
     }; \
     mutable Return<retType> ret; \
-} name##__; \
-name##__type& call__##name(MOCK_DECL_ARG_TYPES(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) { return name##__; } \
+} mutable name##__; \
+template <typename RetType, bool dummy = true> \
+struct ReturnMap__##name \
+{ \
+    struct Key \
+    { \
+        MOCK_DECL_MEMBERS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END)) \
+        template <typename T, bool ref = boost::is_reference<T>::value> \
+        struct Test { \
+            static bool less(const T& left, const T& right) { return std::less<T>()(left, right); } \
+        }; \
+        \
+        template <typename T> \
+        struct Test<T, true> { \
+            static bool less(T left, T right) \
+            { \
+                return std::less<typename boost::remove_reference<T>::type *>()(&left, &right); \
+            } \
+        }; \
+        bool operator<(const Key& right) const \
+        { \
+            MOCK_CHECK_LESS_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END), right) \
+        } \
+    }; \
+    typedef std::map<Key, retType> Values; \
+    Values values;\
+    RetType& operator()(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) \
+    { \
+        Key key = { MOCK_ENUM_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END)) };\
+        return values[key];\
+    } \
+    bool isMapped(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) \
+    { \
+        Key key = { MOCK_ENUM_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END)) };\
+        return values.find(key) != values.end(); \
+    } \
+    retType get(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) \
+    { \
+        Key key = { MOCK_ENUM_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END)) };\
+        return values.find(key)->second; \
+    } \
+}; \
+template <bool dummy> \
+struct ReturnMap__##name<void, dummy> \
+{ \
+    void operator()(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) { }\
+    bool isMapped(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) { return false; }\
+    void get(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) { } \
+}; \
+mutable ReturnMap__##name<retType> map__##name; \
+name##__type& call__##name(MOCK_DECL_ARG_TYPES(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) qualifiers \
+{ \
+    return name##__; \
+} \
 retType altName(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) qualifiers \
 { \
     name##__type::Call c = { getCallIndex(), MOCK_ENUM_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END)) }; \
     name##__.calls.push_back(new name##__type::Call(c)); \
+    if (map__##name.isMapped(MOCK_ENUM_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END)))) \
+    { \
+        return map__##name.get(MOCK_ENUM_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))); \
+    } \
     return name##__.ret.get(); \
 }
 
@@ -159,6 +229,11 @@ retType name(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) quali
 #define MOCK_RETURN(mock, func, value) \
 do { \
     (mock).func##__.ret.values.push_back(value); \
+} while (0)
+
+#define MOCK_MAP_RETURN(mock, call, value) \
+do { \
+    (mock).map__##call = value; \
 } while (0)
 
 #define ENSURE_CALL(mock, call) \
