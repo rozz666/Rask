@@ -14,21 +14,6 @@
 #include <rask/test/VariableDeclFactory.hpp>
 #include <rask/test/VariableFactory.hpp>
 
-namespace
-{
-
-struct FunctionTestVisitor : public rask::ast::FunctionVisitor
-{
-    rask::ast::CustomFunction *f;
-
-    FunctionTestVisitor() : f(0) { }
-
-    virtual void visit(rask::ast::BuiltinFunction& f) { }
-    virtual void visit(rask::ast::CustomFunction& f) { this->f = &f; }
-};
-
-}
-
 namespace tut
 {
 
@@ -79,20 +64,6 @@ template <>
 void object::test<2>()
 {
     using namespace rask;
-
-    ast::CustomFunction cf(cst::Identifier::create(Position(), "xxx"), ast::VOID);
-    ast::Function& f = cf;
-    FunctionTestVisitor v;
-
-    f.accept(v);
-    ENSURE(v.f == &cf);
-}
-
-template <>
-template <>
-void object::test<3>()
-{
-    using namespace rask;
     using boost::assign::list_of;
 
     ast::CustomFunction cf(cst::Identifier::create(Position(), "xxx"), ast::VOID);
@@ -112,7 +83,7 @@ void object::test<3>()
 
 template <>
 template <>
-void object::test<4>()
+void object::test<3>()
 {
     using namespace rask;
 

@@ -26,7 +26,6 @@ public:
 
     virtual cst::Identifier name() const { return cst::Identifier::create(Position(), name_); }
     virtual unsigned short argCount() const { return argCount_; }
-    virtual void accept(FunctionVisitor& visitor) { visitor.visit(*this); }
     virtual BasicType type() const { return type_; }
     virtual ArgumentTypes argTypes() const { return ArgumentTypes(); }
 

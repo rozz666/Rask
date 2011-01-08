@@ -11,21 +11,6 @@
 #include <rask/test/TUTAssert.hpp>
 #include <rask/ast/BuiltinFunction.hpp>
 
-namespace
-{
-
-struct FunctionTestVisitor : public rask::ast::FunctionVisitor
-{
-    rask::ast::BuiltinFunction *f;
-
-    FunctionTestVisitor() : f(0) { }
-
-    virtual void visit(rask::ast::BuiltinFunction& f) { this->f = &f; }
-    virtual void visit(rask::ast::CustomFunction& f) { }
-};
-
-}
-
 namespace tut
 {
 
@@ -55,9 +40,9 @@ void object::test<1>()
     ast::BuiltinFunction bf2("test2", ast::VOID, 0);
     ast::Function& f1 = bf1;
     ast::Function& f2 = bf2;
-    
+
     cst::Identifier name = f1.name();
-    
+
     ENSURE(f1.name().position == Position());
     ENSURE_EQUALS(f1.name().value, "test1");
     ENSURE_EQUALS(f1.argCount(), 2u);
@@ -69,20 +54,6 @@ void object::test<1>()
 template <>
 template <>
 void object::test<2>()
-{
-    using namespace rask;
-
-    ast::BuiltinFunction bf("xxx", ast::VOID, 0);
-    ast::Function& f = bf;
-    FunctionTestVisitor v;
-
-    f.accept(v);
-    ENSURE(v.f == &bf);
-}
-
-template <>
-template <>
-void object::test<3>()
 {
     using namespace rask;
 
