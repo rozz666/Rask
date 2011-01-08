@@ -61,6 +61,21 @@ struct Storage
     void set(T v) { value = StorageType<T>::convert(v); }
 };
 
+template <typename T>
+struct StorageQueue
+{
+    std::deque<Storage<T> > values;
+
+    void push_back(T v) { values.push_back(v); }
+    T get(std::string name)
+    {
+        if (values.empty()) tut::fail("No return value specified for " + name);
+        Storage<T> val = values.front();
+        if (values.size() > 1) values.pop_front();
+        return val.get();
+    }
+};
+
 #define MOCK(name, parent) struct name : parent, ::rask::test::MockBase
 
 #define MOCK_METHOD_FILLER_0(X, Y) \
@@ -195,11 +210,12 @@ struct ReturnMap__##name \
             MOCK_CHECK_LESS_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END), right) \
         } \
     }; \
-    typedef std::map<Key, ::rask::test::Storage<RetType> > Values; \
+    typedef ::rask::test::StorageQueue<RetType> ValueQueue; \
+    typedef std::map<Key, ValueQueue> Values; \
     Values values; \
-    std::deque< ::rask::test::Storage<RetType> > simpleValues; \
+    ValueQueue simpleValues; \
      \
-    ::rask::test::Storage<RetType>& operator()(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) \
+    ValueQueue& operator()(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) \
     { \
         Key key = { MOCK_ENUM_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END)) };\
         return values[key];\
@@ -212,18 +228,15 @@ struct ReturnMap__##name \
     RetType get(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) \
     { \
         Key key = { MOCK_ENUM_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END)) };\
-        return values.find(key)->second.get(); \
+        return values.find(key)->second.get(#name); \
     } \
-    void set(RetType val) \
+    void push_back(RetType val) \
     { \
         simpleValues.push_back(val);\
     }\
     RetType getSimple() \
     { \
-        if (simpleValues.empty()) tut::fail("No return value specified for " #name); \
-        ::rask::test::Storage<RetType> val = simpleValues.front(); \
-        if (simpleValues.size() > 1) simpleValues.pop_front();\
-        return val.get(); \
+        return simpleValues.get(#name); \
     } \
 }; \
 template <bool dummy> \
@@ -271,7 +284,7 @@ retType name(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) quali
 
 #define MOCK_RETURN(mock, call, value) \
 do { \
-    (mock).map__##call.set(value); \
+    (mock).map__##call.push_back(value); \
 } while (0)
 
 #define ENSURE_CALL(mock, call) \

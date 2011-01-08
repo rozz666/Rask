@@ -29,6 +29,7 @@ public:
     virtual int testFunc8(int x, const float& y, float& z) const = 0;
     virtual int& testFunc9() const = 0;
     virtual int& testFunc10(int x) const = 0;
+    virtual int testFunc11(int x) = 0;
 };
 
 MOCK(Mock, Mockable)
@@ -44,6 +45,7 @@ MOCK(Mock, Mockable)
     MOCK_CONST_METHOD_TRANSFORM(int, testFunc8, (int, x)(const float&, y)(float&, z), (int, x)(float, y)(float&, z))
     MOCK_CONST_METHOD(int&, testFunc9, )
     MOCK_CONST_METHOD(int&, testFunc10, (int, x))
+    MOCK_METHOD(int, testFunc11, (int, x))
 };
 
 
@@ -287,6 +289,32 @@ void object::test<17>()
 
     ENSURE(&cmock.testFunc9() == &i1);
     ENSURE(&cmock.testFunc10(x) == &i2);
+}
+
+template <>
+template <>
+void object::test<18>()
+{
+    int x1 = 8;
+    int v1 = 10;
+    int v2 = 1;
+    int v3 = 996;
+    int v4 = 47;
+    int v5 = 835;
+
+    MOCK_RETURN(mock, testFunc11(x1), v1);
+    MOCK_RETURN(mock, testFunc11(x1), v2);
+    MOCK_RETURN(mock, testFunc11(x1), v3);
+    MOCK_RETURN(mock, testFunc11, v4);
+    MOCK_RETURN(mock, testFunc11, v5);
+
+    ENSURE(mock.testFunc11(x1) == v1);
+    ENSURE(mock.testFunc11(x1) == v2);
+    ENSURE(mock.testFunc11(100) == v4);
+    ENSURE(mock.testFunc11(200) == v5);
+    ENSURE(mock.testFunc11(200) == v5);
+    ENSURE(mock.testFunc11(x1) == v3);
+    ENSURE(mock.testFunc11(x1) == v3);
 }
 
 }
