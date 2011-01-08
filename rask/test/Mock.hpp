@@ -49,7 +49,7 @@ private:
 #define MOCK_DECLARE_ARG(r, data, i, elem) BOOST_PP_COMMA_IF(i) BOOST_PP_TUPLE_ELEM(2, 0, elem) BOOST_PP_TUPLE_ELEM(2, 1, elem)
 #define MOCK_DECLARE_ARG_NC(r, data, elem) , BOOST_PP_TUPLE_ELEM(2, 0, elem) BOOST_PP_TUPLE_ELEM(2, 1, elem)
 #define MOCK_DECLARE_ARG_TYPE(r, data, i, elem) BOOST_PP_COMMA_IF(i) BOOST_PP_TUPLE_ELEM(2, 0, elem)
-#define MOCK_ENUM_ARG(r, data, elem) , BOOST_PP_TUPLE_ELEM(2, 1, elem)
+#define MOCK_ENUM_ARG(r, data, i, elem) BOOST_PP_COMMA_IF(i) BOOST_PP_TUPLE_ELEM(2, 1, elem)
 #define MOCK_TEST_ARG(r, data, i, elem) \
 if (!Test<BOOST_PP_TUPLE_ELEM(2, 0, elem)>::equal(BOOST_PP_TUPLE_ELEM(2, 1, elem), call.BOOST_PP_TUPLE_ELEM(2, 1, elem))) \
 { \
@@ -71,12 +71,12 @@ if (!Test<BOOST_PP_TUPLE_ELEM(2, 0, elem)>::equal(BOOST_PP_TUPLE_ELEM(2, 1, elem
     BOOST_PP_SEQ_FOR_EACH(MOCK_DECLARE_ARG_NC, _, args)
 
 #define MOCK_ENUM_ARGS(args) \
-    BOOST_PP_SEQ_FOR_EACH(MOCK_ENUM_ARG, _, args)
+    BOOST_PP_SEQ_FOR_EACH_I(MOCK_ENUM_ARG, _, args)
 
 #define MOCK_TEST_ARGS(args) \
     BOOST_PP_SEQ_FOR_EACH_I(MOCK_TEST_ARG, _, args)
 
-#define MOCK_METHOD_Q(retType, name, args, qualifiers) \
+#define MOCK_METHOD_Q(retType, name, altName, args, qualifiers) \
 struct name##__type { \
     struct Call \
     { \
@@ -130,18 +130,31 @@ struct name##__type { \
     mutable Return<retType> ret; \
 } name##__; \
 name##__type& call__##name(MOCK_DECL_ARG_TYPES(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) { return name##__; } \
-retType name(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) qualifiers \
+retType altName(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) qualifiers \
 { \
-    name##__type::Call c = { getCallIndex() MOCK_ENUM_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END)) }; \
+    name##__type::Call c = { getCallIndex(), MOCK_ENUM_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END)) }; \
     name##__.calls.push_back(new name##__type::Call(c)); \
     return name##__.ret.get(); \
 }
 
 #define MOCK_METHOD(retType, name, args) \
-    MOCK_METHOD_Q(retType, name, args, )
+    MOCK_METHOD_Q(retType, name, name, args, )
 
 #define MOCK_CONST_METHOD(retType, name, args) \
-    MOCK_METHOD_Q(retType, name, args, const)
+    MOCK_METHOD_Q(retType, name, name, args, const)
+
+#define MOCK_METHOD_TRANSFORM_Q(retType, name, args, newArgs, qualifiers) \
+MOCK_METHOD_Q(retType, name, transformed__##name, newArgs, qualifiers) \
+retType name(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) qualifiers \
+{ \
+    return transformed__##name(MOCK_ENUM_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 newArgs,_END))); \
+}
+
+#define MOCK_METHOD_TRANSFORM(retType, name, args, newArgs) \
+    MOCK_METHOD_TRANSFORM_Q(retType, name, args, newArgs, )
+
+#define MOCK_CONST_METHOD_TRANSFORM(retType, name, args, newArgs) \
+    MOCK_METHOD_TRANSFORM_Q(retType, name, args, newArgs, const)
 
 #define MOCK_RETURN(mock, func, value) \
 do { \

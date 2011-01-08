@@ -24,6 +24,8 @@ public:
     virtual int testFunc4() = 0;
     virtual void testFunc5(int& x) = 0;
     virtual short testConstFunc(int arg1, const float& arg2) const = 0;
+    virtual void testFunc6(int& x) = 0;
+    virtual void testFunc7(const float& x) const = 0;
 };
 
 MOCK(Mock, Mockable)
@@ -34,6 +36,8 @@ MOCK(Mock, Mockable)
     MOCK_METHOD(int, testFunc4, )
     MOCK_METHOD(void, testFunc5, (int&, x))
     MOCK_CONST_METHOD(short, testConstFunc, (int, arg1)(const float& , arg2))
+    MOCK_METHOD_TRANSFORM(void, testFunc6, (int&, x), (int, x))
+    MOCK_CONST_METHOD_TRANSFORM(void, testFunc7, (const float&, x), (float, x))
 };
 
 
@@ -210,4 +214,29 @@ void object::test<13>()
     ENSURE_EQUALS(mock.testConstFunc(y, z), x);
     ENSURE_CALL(mock, testConstFunc(y, z));
 }
+
+template <>
+template <>
+void object::test<14>()
+{
+    int x = 5;
+    int y = x;
+
+    mock.testFunc6(y);
+
+    ENSURE_CALL(mock, testFunc6(x));
+}
+
+template <>
+template <>
+void object::test<15>()
+{
+    float x = 5;
+    int y = x;
+
+    mock.testFunc7(y);
+
+    ENSURE_CALL(mock, testFunc7(x));
+}
+
 }
