@@ -11,8 +11,8 @@
 
 #include <boost/ptr_container/ptr_deque.hpp>
 #include <deque>
+#include <map>
 #include <boost/preprocessor.hpp>
-#include <boost/mpl/if.hpp>
 #include <boost/assert.hpp>
 #include <rask/test/TUTAssert.hpp>
 
@@ -143,13 +143,13 @@ struct name##__type { \
             Call& call; \
             Verifier(const char *file, int line, Call& call) : file(file), line(line), call(call) { } \
             \
-            template <typename T, bool ref = boost::is_reference<T>::value> \
+            template <typename T> \
             struct Test { \
                 static bool equal(const T& left, const T& right) { return left == right; } \
             }; \
             \
             template <typename T> \
-            struct Test<T, true> { \
+            struct Test<T&> { \
                 static bool equal(const T& left, const T& right) { return &left == &right; } \
             }; \
             \
@@ -164,28 +164,6 @@ struct name##__type { \
         } \
     }; \
     mutable boost::ptr_deque<Call> calls; \
-    template <typename T, bool dummy = true> \
-    struct Return \
-    { \
-        std::deque< ::rask::test::Storage<T> > values; \
-        void push_back(T val) \
-        { \
-            values.push_back(val);\
-        }\
-        T get() \
-        { \
-            if (values.empty()) tut::fail("No return value specified for " #name); \
-            ::rask::test::Storage<T> val = values.front(); \
-            if (values.size() > 1) values.pop_front();\
-            return val.get(); \
-        } \
-    }; \
-    template <bool dummy> \
-    struct Return<void, dummy> \
-    { \
-        void get() { } \
-    }; \
-    mutable Return<retType> ret; \
 } mutable name##__; \
 template <typename RetType, bool dummy = true> \
 struct ReturnMap__##name \
