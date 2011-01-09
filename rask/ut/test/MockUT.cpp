@@ -359,4 +359,34 @@ void object::test<21>()
     MOCK_VERIFY(mock);
 }
 
+template <>
+template <>
+void object::test<22>()
+{
+    MOCK_RETURN(mock, testFunc11, 1);
+    MOCK_ALWAYS_RETURN(mock, testFunc11, 2);
+    ENSURE_THROWS_WITH_MESSAGE(MOCK_VERIFY(mock), tut::failure, "testFunc11 not called");
+    ENSURE_EQUALS(mock.testFunc11(33), 1);
+    ENSURE_THROWS_WITH_MESSAGE(MOCK_VERIFY(mock), tut::failure, "testFunc11 not called");
+    ENSURE_EQUALS(mock.testFunc11(35), 2);
+    MOCK_VERIFY(mock);
+    ENSURE_EQUALS(mock.testFunc11(67), 2);
+    MOCK_VERIFY(mock);
+}
+
+template <>
+template <>
+void object::test<23>()
+{
+    MOCK_RETURN(mock, testFunc11(9), 1);
+    MOCK_ALWAYS_RETURN(mock, testFunc11(9), 2);
+    ENSURE_THROWS_WITH_MESSAGE(MOCK_VERIFY(mock), tut::failure, "testFunc11(9) not called");
+    ENSURE_EQUALS(mock.testFunc11(9), 1);
+    ENSURE_THROWS_WITH_MESSAGE(MOCK_VERIFY(mock), tut::failure, "testFunc11(9) not called");
+    ENSURE_EQUALS(mock.testFunc11(9), 2);
+    MOCK_VERIFY(mock);
+    ENSURE_EQUALS(mock.testFunc11(9), 2);
+    MOCK_VERIFY(mock);
+}
+
 }

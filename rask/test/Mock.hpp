@@ -87,19 +87,25 @@ struct StorageQueue
     struct StorageWithExpectHandle
     {
         Storage<T> value;
+        bool always;
         ExpectHandle__ handle;
         StorageWithExpectHandle() { }
-        StorageWithExpectHandle(T value, ExpectHandle__ handle) : value(value), handle(handle) { }
+        StorageWithExpectHandle(T value, bool always, ExpectHandle__ handle)
+            : value(value), always(always), handle(handle) { }
     };
 
     std::deque<StorageWithExpectHandle> values;
 
-    void push_back(T v, ExpectHandle__ handle) { values.push_back(StorageWithExpectHandle(v, handle)); }
+    void push_back(T v, bool always, ExpectHandle__ handle)
+    {
+        values.push_back(StorageWithExpectHandle(v, always, handle));
+
+    }
     StorageWithExpectHandle get(std::string name)
     {
         if (values.empty()) tut::fail("No return value specified for " + name);
         StorageWithExpectHandle val = values.front();
-        values.pop_front();
+        if (!val.always) values.pop_front();
         return val;
     }
 };
@@ -243,9 +249,9 @@ struct ReturnMap__##name \
         mock.called__(sh.handle); \
         return sh.value.get(); \
     } \
-    void push_back(RetType val, ::rask::test::ExpectHandle__ handle) \
+    void push_back(RetType val, bool always, ::rask::test::ExpectHandle__ handle) \
     { \
-        simpleValues.push_back(val, handle);\
+        simpleValues.push_back(val, always, handle);\
     }\
     RetType getSimple(const ::rask::test::MockBase& mock) \
     { \
@@ -299,7 +305,12 @@ retType name(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) quali
 
 #define MOCK_RETURN(mock, call, value) \
 do { \
-    (mock).map__##call.push_back(value, (mock).expect__(#call)); \
+    (mock).map__##call.push_back(value, false, (mock).expect__(#call)); \
+} while (0)
+
+#define MOCK_ALWAYS_RETURN(mock, call, value) \
+do { \
+    (mock).map__##call.push_back(value, true, (mock).expect__(#call)); \
 } while (0)
 
 #define ENSURE_CALL(mock, call) \
