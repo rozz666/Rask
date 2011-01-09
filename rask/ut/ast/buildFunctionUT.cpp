@@ -201,14 +201,12 @@ void object::test<7>()
 
     cf.stmts.resize(2, cst::Return());
 
-    MOCK_RETURN(builder, buildReturn, boost::none);
-    MOCK_RETURN(builder, buildReturn, boost::none);
+    MOCK_RETURN(builder, buildReturn(getReturn(cf.stmts[0]), scope), boost::none);
 
     ENSURE(!builder.buildFunction(cf, f, scope));
 
     ENSURE_EQUALS(logger.errors().size(), 0u);
-    ENSURE_CALL(builder, buildReturn(getReturn(cf.stmts[0]), scope));
-    ENSURE_NO_CALLS(builder, buildReturn);
+    MOCK_VERIFY(*scope);
 }
 
 template <>
@@ -224,13 +222,12 @@ void object::test<8>()
     f->addArg(v1);
     f->addArg(v2);
 
-    MOCK_RETURN(*scope, addVariable, v1);
-    MOCK_RETURN(*scope, addVariable, v2);
+    MOCK_RETURN(*scope, addVariable(v1), v1);
+    MOCK_RETURN(*scope, addVariable(v2), v2);
 
     ENSURE(builder.buildFunction(cf, f, scope));
 
-    ENSURE_CALL(*scope, addVariable(v1));
-    ENSURE_CALL(*scope, addVariable(v2));
+    MOCK_VERIFY(*scope);
 }
 
 }
