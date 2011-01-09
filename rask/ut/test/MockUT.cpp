@@ -54,8 +54,9 @@ struct Mock_TestData
     Mock mock;
     const Mock& cmock;
     Mockable& mockable;
+    const Mockable& cmockable;
 
-    Mock_TestData() : cmock(mock), mockable(mock) { }
+    Mock_TestData() : cmock(mock), mockable(mock), cmockable(mock) { }
 };
 
 typedef test_group<Mock_TestData> factory;
@@ -154,8 +155,8 @@ template <>
 template <>
 void object::test<7>()
 {
-    mock.testFunc2(1, 2);
-    mock.testFunc(1);
+    mockable.testFunc2(1, 2);
+    mockable.testFunc(1);
 
     ENSURE_THROWS(ENSURE_CALL(*&mock, testFunc(1)), tut::failure);
 }
@@ -164,7 +165,7 @@ template <>
 template <>
 void object::test<8>()
 {
-    mock.testFunc(1);
+    mockable.testFunc(1);
 
     ENSURE_CALL(mock, testFunc(1));
 }
@@ -173,7 +174,7 @@ template <>
 template <>
 void object::test<9>()
 {
-    mock.testFunc(1);
+    mockable.testFunc(1);
 
     ENSURE_THROWS(ENSURE_CALL(mock, testFunc(2)), tut::failure);
 }
@@ -185,7 +186,7 @@ void object::test<10>()
     int x = 5;
     int y = x;
 
-    mock.testFunc5(y);
+    mockable.testFunc5(y);
 
     ENSURE_THROWS(ENSURE_CALL(mock, testFunc5(x)), tut::failure);
 }
@@ -203,7 +204,7 @@ void object::test<12>()
 {
     ENSURE_NO_CALLS(mock, testFunc3);
 
-    mock.testFunc3();
+    mockable.testFunc3();
 
     ENSURE_THROWS(ENSURE_NO_CALLS(*&mock, testFunc3), tut::failure);
 }
@@ -220,7 +221,7 @@ void object::test<13>()
     int y = 9;
     float z;
 
-    ENSURE_EQUALS(mock.testConstFunc(y, z), x);
+    ENSURE_EQUALS(mockable.testConstFunc(y, z), x);
     ENSURE_CALL(mock, testConstFunc(y, z));
 }
 
@@ -231,7 +232,7 @@ void object::test<14>()
     int x = 5;
     int y = x;
 
-    mock.testFunc6(y);
+    mockable.testFunc6(y);
 
     ENSURE_CALL(mock, testFunc6(x));
 }
@@ -243,7 +244,7 @@ void object::test<15>()
     float x = 5;
     int y = x;
 
-    cmock.testFunc7(y);
+    cmockable.testFunc7(y);
 
     ENSURE_CALL(cmock, testFunc7(x));
 }
@@ -269,9 +270,9 @@ void object::test<16>()
     MOCK_RETURN(cmock, testFunc8(x2, y2, z2), r2);
     MOCK_RETURN(cmock, testFunc8(x3, y3, z3), r3);
 
-    ENSURE_EQUALS(cmock.testFunc8(x2, y2, z2), r2);
-    ENSURE_EQUALS(cmock.testFunc8(x3, y3, z3), r3);
-    ENSURE_EQUALS(cmock.testFunc8(x1, y1, z1), r1);
+    ENSURE_EQUALS(cmockable.testFunc8(x2, y2, z2), r2);
+    ENSURE_EQUALS(cmockable.testFunc8(x3, y3, z3), r3);
+    ENSURE_EQUALS(cmockable.testFunc8(x1, y1, z1), r1);
 
     ENSURE_NO_CALLS(mock, testFunc8);
 }
@@ -287,8 +288,8 @@ void object::test<17>()
     MOCK_RETURN(cmock, testFunc9, i1);
     MOCK_RETURN(cmock, testFunc10(x), i2);
 
-    ENSURE(&cmock.testFunc9() == &i1);
-    ENSURE(&cmock.testFunc10(x) == &i2);
+    ENSURE(&cmockable.testFunc9() == &i1);
+    ENSURE(&cmockable.testFunc10(x) == &i2);
 }
 
 template <>
@@ -308,12 +309,12 @@ void object::test<18>()
     MOCK_RETURN(mock, testFunc11, v4);
     MOCK_RETURN(mock, testFunc11, v5);
 
-    ENSURE(mock.testFunc11(x1) == v1);
-    ENSURE(mock.testFunc11(x1) == v2);
-    ENSURE(mock.testFunc11(100) == v4);
-    ENSURE(mock.testFunc11(200) == v5);
-    ENSURE(mock.testFunc11(x1) == v3);
-    ENSURE_THROWS(mock.testFunc11(x1), tut::failure);
+    ENSURE(mockable.testFunc11(x1) == v1);
+    ENSURE(mockable.testFunc11(x1) == v2);
+    ENSURE(mockable.testFunc11(100) == v4);
+    ENSURE(mockable.testFunc11(200) == v5);
+    ENSURE(mockable.testFunc11(x1) == v3);
+    ENSURE_THROWS(mockable.testFunc11(x1), tut::failure);
 }
 
 template <>
@@ -322,7 +323,7 @@ void object::test<19>()
 {
     int arg = 8;
     MOCK_RETURN(mock, testFunc11(arg), 1);
-    mock.testFunc11(arg);
+    mockable.testFunc11(arg);
     MOCK_VERIFY(mock);
 }
 
@@ -335,11 +336,11 @@ void object::test<20>()
     MOCK_RETURN(mock, testFunc11(arg2), 2);
     MOCK_RETURN(mock, testFunc11(arg2), 3);
     ENSURE_THROWS_WITH_MESSAGE(MOCK_VERIFY(mock), tut::failure, "testFunc11(arg1) not called");
-    mock.testFunc11(arg1);
+    mockable.testFunc11(arg1);
     ENSURE_THROWS_WITH_MESSAGE(MOCK_VERIFY(mock), tut::failure, "testFunc11(arg2) not called");
-    mock.testFunc11(arg2);
+    mockable.testFunc11(arg2);
     ENSURE_THROWS_WITH_MESSAGE(MOCK_VERIFY(mock), tut::failure, "testFunc11(arg2) not called");
-    mock.testFunc11(arg2);
+    mockable.testFunc11(arg2);
     MOCK_VERIFY(mock);
 }
 
@@ -351,11 +352,11 @@ void object::test<21>()
     MOCK_RETURN(mock, testFunc4, 2);
     MOCK_RETURN(mock, testFunc4, 3);
     ENSURE_THROWS_WITH_MESSAGE(MOCK_VERIFY(mock), tut::failure, "testFunc4 not called");
-    mock.testFunc4();
+    mockable.testFunc4();
     ENSURE_THROWS_WITH_MESSAGE(MOCK_VERIFY(mock), tut::failure, "testFunc4 not called");
-    mock.testFunc4();
+    mockable.testFunc4();
     ENSURE_THROWS_WITH_MESSAGE(MOCK_VERIFY(mock), tut::failure, "testFunc4 not called");
-    mock.testFunc4();
+    mockable.testFunc4();
     MOCK_VERIFY(mock);
 }
 
@@ -366,11 +367,11 @@ void object::test<22>()
     MOCK_RETURN(mock, testFunc11, 1);
     MOCK_ALWAYS_RETURN(mock, testFunc11, 2);
     ENSURE_THROWS_WITH_MESSAGE(MOCK_VERIFY(mock), tut::failure, "testFunc11 not called");
-    ENSURE_EQUALS(mock.testFunc11(33), 1);
+    ENSURE_EQUALS(mockable.testFunc11(33), 1);
     ENSURE_THROWS_WITH_MESSAGE(MOCK_VERIFY(mock), tut::failure, "testFunc11 not called");
-    ENSURE_EQUALS(mock.testFunc11(35), 2);
+    ENSURE_EQUALS(mockable.testFunc11(35), 2);
     MOCK_VERIFY(mock);
-    ENSURE_EQUALS(mock.testFunc11(67), 2);
+    ENSURE_EQUALS(mockable.testFunc11(67), 2);
     MOCK_VERIFY(mock);
 }
 
@@ -381,11 +382,11 @@ void object::test<23>()
     MOCK_RETURN(mock, testFunc11(9), 1);
     MOCK_ALWAYS_RETURN(mock, testFunc11(9), 2);
     ENSURE_THROWS_WITH_MESSAGE(MOCK_VERIFY(mock), tut::failure, "testFunc11(9) not called");
-    ENSURE_EQUALS(mock.testFunc11(9), 1);
+    ENSURE_EQUALS(mockable.testFunc11(9), 1);
     ENSURE_THROWS_WITH_MESSAGE(MOCK_VERIFY(mock), tut::failure, "testFunc11(9) not called");
-    ENSURE_EQUALS(mock.testFunc11(9), 2);
+    ENSURE_EQUALS(mockable.testFunc11(9), 2);
     MOCK_VERIFY(mock);
-    ENSURE_EQUALS(mock.testFunc11(9), 2);
+    ENSURE_EQUALS(mockable.testFunc11(9), 2);
     MOCK_VERIFY(mock);
 }
 
