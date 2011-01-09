@@ -247,9 +247,11 @@ struct ReturnMap__##name \
     { \
         simpleValues.push_back(val, handle);\
     }\
-    RetType getSimple() \
+    RetType getSimple(const ::rask::test::MockBase& mock) \
     { \
-        return simpleValues.get(#name).value.get(); \
+        StorageWithExpectHandle sh = simpleValues.get(#name); \
+        mock.called__(sh.handle); \
+        return sh.value.get(); \
     } \
 }; \
 template <bool dummy> \
@@ -258,7 +260,7 @@ struct ReturnMap__##name<void, dummy> \
     void operator()(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) { }\
     bool isMapped(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) { return false; }\
     void get(const ::rask::test::MockBase& mock MOCK_DECL_ARGS_NC(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) { } \
-    void getSimple() { } \
+    void getSimple(const ::rask::test::MockBase& mock) { } \
 }; \
 mutable ReturnMap__##name<retType> map__##name; \
 name##__type& call__##name(MOCK_DECL_ARG_TYPES(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) qualifiers \
@@ -273,7 +275,7 @@ retType altName(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) qu
     } \
     name##__type::Call c = { getCallIndex(), MOCK_ENUM_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END)) }; \
     name##__.calls.push_back(new name##__type::Call(c)); \
-    return map__##name.getSimple(); \
+    return map__##name.getSimple(*this); \
 }
 
 #define MOCK_METHOD(retType, name, args) \

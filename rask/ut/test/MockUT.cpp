@@ -343,4 +343,20 @@ void object::test<20>()
     MOCK_VERIFY(mock);
 }
 
+template <>
+template <>
+void object::test<21>()
+{
+    MOCK_RETURN(mock, testFunc4, 1);
+    MOCK_RETURN(mock, testFunc4, 2);
+    MOCK_RETURN(mock, testFunc4, 3);
+    ENSURE_THROWS_WITH_MESSAGE(MOCK_VERIFY(mock), tut::failure, "testFunc4 not called");
+    mock.testFunc4();
+    ENSURE_THROWS_WITH_MESSAGE(MOCK_VERIFY(mock), tut::failure, "testFunc4 not called");
+    mock.testFunc4();
+    ENSURE_THROWS_WITH_MESSAGE(MOCK_VERIFY(mock), tut::failure, "testFunc4 not called");
+    mock.testFunc4();
+    MOCK_VERIFY(mock);
+}
+
 }
