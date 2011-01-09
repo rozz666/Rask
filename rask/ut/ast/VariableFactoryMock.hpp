@@ -19,7 +19,7 @@ namespace ast
 namespace test
 {
 
-MOCK(VariableFactoryMock, VariableFactory)
+CLASS_MOCK(VariableFactoryMock, VariableFactory)
 {
     MOCK_METHOD(SharedVariable, createVariable, (const cst::Identifier&, name)(BasicType, type))
 };

@@ -34,7 +34,7 @@ void ensure_contains(const M& msg, Cont& cont, typename Cont::iterator::pointer 
     {
         if (&*it == what) return;
     }
-    
+
     fail(msg);
 }
 
@@ -100,6 +100,20 @@ inline std::string formatMessage(const char *what, const char *file, int line)
         } \
         catch (const ex& ) \
         { \
+            break; \
+        } \
+        fail(formatMessage(#expr " has not thrown", __FILE__, __LINE__)); \
+    } while (0)
+
+#define ENSURE_THROWS_WITH_MESSAGE(expr, ex, msg) \
+    do { \
+        try \
+        { \
+            expr; \
+        } \
+        catch (const ex& e) \
+        { \
+            ensure_equals(formatMessage(#expr, __FILE__, __LINE__), std::string(e.what()), msg); \
             break; \
         } \
         fail(formatMessage(#expr " has not thrown", __FILE__, __LINE__)); \

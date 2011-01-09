@@ -32,7 +32,7 @@ public:
     virtual int testFunc11(int x) = 0;
 };
 
-MOCK(Mock, Mockable)
+CLASS_MOCK(Mock, Mockable)
 {
     MOCK_METHOD(void, testFunc, (int, arg))
     MOCK_METHOD(void, testFunc2, (int, arg1)(float, arg2))
@@ -314,6 +314,33 @@ void object::test<18>()
     ENSURE(mock.testFunc11(200) == v5);
     ENSURE(mock.testFunc11(x1) == v3);
     ENSURE_THROWS(mock.testFunc11(x1), tut::failure);
+}
+
+template <>
+template <>
+void object::test<19>()
+{
+    int arg = 8;
+    MOCK_RETURN(mock, testFunc11(arg), 1);
+    mock.testFunc11(arg);
+    MOCK_VERIFY(mock);
+}
+
+template <>
+template <>
+void object::test<20>()
+{
+    int arg1 = 8, arg2 = 19;
+    MOCK_RETURN(mock, testFunc11(arg1), 1);
+    MOCK_RETURN(mock, testFunc11(arg2), 2);
+    MOCK_RETURN(mock, testFunc11(arg2), 3);
+    ENSURE_THROWS_WITH_MESSAGE(MOCK_VERIFY(mock), tut::failure, "testFunc11(arg1) not called");
+    mock.testFunc11(arg1);
+    ENSURE_THROWS_WITH_MESSAGE(MOCK_VERIFY(mock), tut::failure, "testFunc11(arg2) not called");
+    mock.testFunc11(arg2);
+    ENSURE_THROWS_WITH_MESSAGE(MOCK_VERIFY(mock), tut::failure, "testFunc11(arg2) not called");
+    mock.testFunc11(arg2);
+    MOCK_VERIFY(mock);
 }
 
 }

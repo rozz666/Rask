@@ -21,7 +21,7 @@
 namespace
 {
 
-MOCK(CodeGeneratorMock, rask::cg::CodeGenerator)
+CLASS_MOCK(CodeGeneratorMock, rask::cg::CodeGenerator)
 {
     CodeGeneratorMock(rask::cg::SymbolTable& symbolTable) : rask::cg::CodeGenerator(symbolTable) { }
 

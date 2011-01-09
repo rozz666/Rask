@@ -31,7 +31,7 @@ namespace
 {
 tut::factory tf("rask.cg.CodeGenerator.genModule");
 
-MOCK(CodeGeneratorMock, rask::cg::CodeGenerator)
+CLASS_MOCK(CodeGeneratorMock, rask::cg::CodeGenerator)
 {
     CodeGeneratorMock(rask::cg::SymbolTable& st) : rask::cg::CodeGenerator(st) { }
     

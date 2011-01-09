@@ -16,7 +16,7 @@
 namespace
 {
 
-MOCK(BuilderMock, rask::ast::Builder)
+CLASS_MOCK(BuilderMock, rask::ast::Builder)
 {
     BuilderMock(rask::error::Logger& logger, rask::ast::FunctionTable& ft)
     : rask::ast::Builder(logger, ft) { }

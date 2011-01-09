@@ -21,19 +21,39 @@ namespace rask
 namespace test
 {
 
+typedef unsigned ExpectHandle__;
+
 class MockBase
 {
 public:
 
-    MockBase() : ci(0), vi(0) { }
+    MockBase() : ci(0), vi(0), expectHandle(0) { }
 
     unsigned getCallIndex() const { return ++ci; }
     unsigned getCallVerificationIndex() const { return ++vi; }
+    void verify__() const
+    {
+        if (!expect.empty())
+        {
+            tut::fail(expect.begin()->second + " not called");
+        }
+    }
+    ExpectHandle__ expect__(std::string what) const
+    {
+        expect[expectHandle] = what;
+        return expectHandle++;
+    }
+    void called__(ExpectHandle__ handle__) const
+    {
+        expect.erase(handle__);
+    }
 
 private:
 
     mutable unsigned ci;
     mutable unsigned vi;
+    mutable ExpectHandle__ expectHandle;
+    mutable std::map<ExpectHandle__, std::string> expect;
 };
 
 template <typename T>
@@ -64,19 +84,27 @@ struct Storage
 template <typename T>
 struct StorageQueue
 {
-    std::deque<Storage<T> > values;
+    struct StorageWithExpectHandle
+    {
+        Storage<T> value;
+        ExpectHandle__ handle;
+        StorageWithExpectHandle() { }
+        StorageWithExpectHandle(T value, ExpectHandle__ handle) : value(value), handle(handle) { }
+    };
 
-    void push_back(T v) { values.push_back(v); }
-    T get(std::string name)
+    std::deque<StorageWithExpectHandle> values;
+
+    void push_back(T v, ExpectHandle__ handle) { values.push_back(StorageWithExpectHandle(v, handle)); }
+    StorageWithExpectHandle get(std::string name)
     {
         if (values.empty()) tut::fail("No return value specified for " + name);
-        Storage<T> val = values.front();
+        StorageWithExpectHandle val = values.front();
         values.pop_front();
-        return val.get();
+        return val;
     }
 };
 
-#define MOCK(name, parent) struct name : parent, ::rask::test::MockBase
+#define CLASS_MOCK(name, parent) struct name : parent, ::rask::test::MockBase
 
 #define MOCK_METHOD_FILLER_0(X, Y) \
     ((X, Y)) MOCK_METHOD_FILLER_1
@@ -90,6 +118,7 @@ struct StorageQueue
 #define MOCK_DECLARE_ARG_NC(r, data, elem) , BOOST_PP_TUPLE_ELEM(2, 0, elem) BOOST_PP_TUPLE_ELEM(2, 1, elem)
 #define MOCK_DECLARE_ARG_TYPE(r, data, i, elem) BOOST_PP_COMMA_IF(i) BOOST_PP_TUPLE_ELEM(2, 0, elem)
 #define MOCK_ENUM_ARG(r, data, i, elem) BOOST_PP_COMMA_IF(i) BOOST_PP_TUPLE_ELEM(2, 1, elem)
+#define MOCK_ENUM_ARG_NC(r, data, elem) , BOOST_PP_TUPLE_ELEM(2, 1, elem)
 #define MOCK_TEST_ARG(r, data, i, elem) \
 if (!Test<BOOST_PP_TUPLE_ELEM(2, 0, elem)>::equal(BOOST_PP_TUPLE_ELEM(2, 1, elem), call.BOOST_PP_TUPLE_ELEM(2, 1, elem))) \
 { \
@@ -122,6 +151,9 @@ if (Test<BOOST_PP_TUPLE_ELEM(2, 0, elem)>::less(data.BOOST_PP_TUPLE_ELEM(2, 1, e
 
 #define MOCK_ENUM_ARGS(args) \
     BOOST_PP_SEQ_FOR_EACH_I(MOCK_ENUM_ARG, _, args)
+
+#define MOCK_ENUM_ARGS_NC(args) \
+    BOOST_PP_SEQ_FOR_EACH(MOCK_ENUM_ARG_NC, _, args)
 
 #define MOCK_TEST_ARGS(args) \
     BOOST_PP_SEQ_FOR_EACH_I(MOCK_TEST_ARG, _, args)
@@ -189,6 +221,7 @@ struct ReturnMap__##name \
         } \
     }; \
     typedef ::rask::test::StorageQueue<RetType> ValueQueue; \
+    typedef typename ValueQueue::StorageWithExpectHandle StorageWithExpectHandle; \
     typedef std::map<Key, ValueQueue> Values; \
     Values values; \
     ValueQueue simpleValues; \
@@ -203,18 +236,20 @@ struct ReturnMap__##name \
         Key key = { MOCK_ENUM_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END)) };\
         return values.find(key) != values.end(); \
     } \
-    RetType get(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) \
+    RetType get(const ::rask::test::MockBase& mock MOCK_DECL_ARGS_NC(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) \
     { \
         Key key = { MOCK_ENUM_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END)) };\
-        return values.find(key)->second.get(#name); \
+        StorageWithExpectHandle sh = values.find(key)->second.get(#name); \
+        mock.called__(sh.handle); \
+        return sh.value.get(); \
     } \
-    void push_back(RetType val) \
+    void push_back(RetType val, ::rask::test::ExpectHandle__ handle) \
     { \
-        simpleValues.push_back(val);\
+        simpleValues.push_back(val, handle);\
     }\
     RetType getSimple() \
     { \
-        return simpleValues.get(#name); \
+        return simpleValues.get(#name).value.get(); \
     } \
 }; \
 template <bool dummy> \
@@ -222,7 +257,7 @@ struct ReturnMap__##name<void, dummy> \
 { \
     void operator()(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) { }\
     bool isMapped(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) { return false; }\
-    void get(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) { } \
+    void get(const ::rask::test::MockBase& mock MOCK_DECL_ARGS_NC(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) { } \
     void getSimple() { } \
 }; \
 mutable ReturnMap__##name<retType> map__##name; \
@@ -234,7 +269,7 @@ retType altName(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) qu
 { \
     if (map__##name.isMapped(MOCK_ENUM_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END)))) \
     { \
-        return map__##name.get(MOCK_ENUM_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))); \
+        return map__##name.get(*this MOCK_ENUM_ARGS_NC(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))); \
     } \
     name##__type::Call c = { getCallIndex(), MOCK_ENUM_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END)) }; \
     name##__.calls.push_back(new name##__type::Call(c)); \
@@ -262,7 +297,7 @@ retType name(MOCK_DECL_ARGS(BOOST_PP_CAT(MOCK_METHOD_FILLER_0 args,_END))) quali
 
 #define MOCK_RETURN(mock, call, value) \
 do { \
-    (mock).map__##call.push_back(value); \
+    (mock).map__##call.push_back(value, (mock).expect__(#call)); \
 } while (0)
 
 #define ENSURE_CALL(mock, call) \
@@ -278,6 +313,11 @@ do { \
 #define ENSURE_NO_CALLS(mock, func) \
 do { \
     if (!(mock).func##__.calls.empty()) FAIL(#func " called"); \
+} while (0)
+
+#define MOCK_VERIFY(mock) \
+do { \
+    (mock).verify__(); \
 } while (0)
 
 }

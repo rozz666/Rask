@@ -15,14 +15,14 @@
 namespace
 {
 
-MOCK(ScopeFactoryMock, rask::ast::ScopeFactory)
+CLASS_MOCK(ScopeFactoryMock, rask::ast::ScopeFactory)
 {
     MOCK_METHOD(rask::ast::SharedScope, createScope, )
 };
 
 typedef boost::shared_ptr<ScopeFactoryMock> SharedScopeFactoryMock;
 
-MOCK(BuilderMock, rask::ast::Builder)
+CLASS_MOCK(BuilderMock, rask::ast::Builder)
 {
     rask::ast::SharedCustomFunction main;
 

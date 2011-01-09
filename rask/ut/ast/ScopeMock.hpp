@@ -20,7 +20,7 @@ namespace ast
 namespace test
 {
 
-MOCK(ScopeMock, Scope)
+CLASS_MOCK(ScopeMock, Scope)
 {
     MOCK_METHOD(SharedVariable, addVariable, (SharedVariable, var))
     MOCK_METHOD(boost::optional<SharedVariable>, getVariable, (const std::string&, name))
