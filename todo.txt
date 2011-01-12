@@ -1,3 +1,6 @@
+Use a DI library
+Use Google Mock
+Switch to Google Test
 REFACTOR ALL UTs TO USE MOCKS!
 Mock Function in tests
 Refactor genFunctionUT
