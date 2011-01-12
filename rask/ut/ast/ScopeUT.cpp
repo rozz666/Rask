@@ -6,15 +6,11 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <tut/tut.hpp>
-#include <rask/test/TUTAssert.hpp>
+#include <gtest/gtest.h>
 #include <rask/ast/Scope.hpp>
 #include <rask/test/VariableFactory.hpp>
 
-namespace tut
-{
-
-struct Scope_TestData
+struct rask_ast_Scope : testing::Test
 {
     rask::test::VariableFactory variableFactory;
     std::string var1Name;
@@ -24,7 +20,7 @@ struct Scope_TestData
     rask::ast::SharedVariable var2;
     rask::ast::Scope scope;
 
-    Scope_TestData()
+    rask_ast_Scope()
         : var1Name("asia"), var2Name("kasia"),
         var1a(variableFactory.createShared(var1Name)),
         var1b(variableFactory.createShared(var1Name)),
@@ -32,42 +28,22 @@ struct Scope_TestData
 
 };
 
-typedef test_group<Scope_TestData> factory;
-typedef factory::object object;
+TEST_F(rask_ast_Scope, addTwoVariables)
+{
+    ASSERT_TRUE(scope.addVariable(var1a) == var1a);
+    ASSERT_TRUE(scope.addVariable(var2) == var2);
+    ASSERT_TRUE(*scope.getVariable(var1Name) == var1a);
+    ASSERT_TRUE(*scope.getVariable(var2Name) == var2);
 }
 
-namespace
+TEST_F(rask_ast_Scope, getBadVariable)
 {
-tut::factory tf("rask.ast.Scope");
+    ASSERT_TRUE(!scope.getVariable("x"));
 }
 
-namespace tut
+TEST_F(rask_ast_Scope, addTwoVariablesWithSameName)
 {
-
-template <>
-template <>
-void object::test<1>()
-{
-    ENSURE(scope.addVariable(var1a) == var1a);
-    ENSURE(scope.addVariable(var2) == var2);
-    ENSURE(*scope.getVariable(var1Name) == var1a);
-    ENSURE(*scope.getVariable(var2Name) == var2);
-}
-
-template <>
-template <>
-void object::test<2>()
-{
-    ENSURE(!scope.getVariable("x"));
-}
-
-template <>
-template <>
-void object::test<3>()
-{
-    ENSURE(scope.addVariable(var1a) == var1a);
-    ENSURE(scope.addVariable(var1b) == var1a);
-    ENSURE(*scope.getVariable(var1Name) == var1a);
-}
-
+    ASSERT_TRUE(scope.addVariable(var1a) == var1a);
+    ASSERT_TRUE(scope.addVariable(var1b) == var1a);
+    ASSERT_TRUE(*scope.getVariable(var1Name) == var1a);
 }
