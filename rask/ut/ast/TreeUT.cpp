@@ -6,56 +6,35 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <tut/tut.hpp>
-#include <tut/../contrib/tut_macros.h>
+#include <gtest/gtest.h>
 #include <rask/ast/Tree.hpp>
 #include <rask/test/FunctionFactory.hpp>
 
-namespace tut
-{
-
-struct Tree_TestData
+struct rask_ast_Tree : ::testing::Test
 {
     rask::test::FunctionFactory functionFactory;
 };
 
-typedef test_group<Tree_TestData> factory;
-typedef factory::object object;
-}
-
-namespace
-{
-tut::factory tf("rask.ast.Tree");
-}
-
-namespace tut
-{
-
-template <>
-template <>
-void object::test<1>()
+TEST_F(rask_ast_Tree, emptyTree)
 {
     using namespace rask;
-    ensure_equals("empty", ast::Tree().functionCount(), 0u);
+    ASSERT_EQ(0u, ast::Tree().functionCount());
 }
 
-template <>
-template <>
-void object::test<2>()
+TEST_F(rask_ast_Tree, twoFunctions)
 {
     using namespace rask;
 
     ast::Tree tree;
     ast::SharedCustomFunction f1 = functionFactory.createShared("abc");
     ast::SharedCustomFunction f2 = functionFactory.createShared("def");
-    
+
     tree.add(f1);
-    ensure("f1", tree.function(0) == f1);
-    ensure_equals("count 1", tree.functionCount(), 1u);
-    
+    ASSERT_TRUE(tree.function(0) == f1);
+    ASSERT_EQ(1u, tree.functionCount());
+
     tree.add(f2);
-    ensure("f2", tree.function(1) == f2);
-    ensure_equals("count 2", tree.functionCount(), 2u);
+    ASSERT_TRUE(tree.function(1) == f2);
+    ASSERT_EQ(2u, tree.functionCount());
 }
 
-}

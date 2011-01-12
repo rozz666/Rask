@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 2.8)
 
 set( EXECUTABLE_OUTPUT_PATH ../bin/${CMAKE_BUILD_TYPE} )
 
-include_directories("." "tut-2009-08-30")
+include_directories("." "tut-2009-08-30" "gmock-1.5.0/fused-src")
 execute_process(COMMAND llvm-config --cppflags OUTPUT_VARIABLE LLVM_CXX_FLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process(COMMAND llvm-config --ldflags OUTPUT_VARIABLE LLVM_LIB_FLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process(COMMAND llvm-config --libs all OUTPUT_VARIABLE LLVM_LIBS OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -50,11 +50,16 @@ add_library(
     rask/cg/Prefixes.cpp
     rask/Operators.cpp)
 
+add_library(
+    gmock STATIC
+    gmock-1.5.0/fused-src/gmock-gtest-all.cc
+)
 
 ADD_EXECUTABLE(rask rask/main/rask.cpp)
 ADD_EXECUTABLE(
     raskut
     rask/main/ut.cpp
+    rask/test/GTestPrinter.cpp
     rask/ut/ast/ExpressionUT.cpp
     rask/ut/ast/ScopeUT.cpp
     rask/ut/nullUT.cpp
@@ -97,6 +102,6 @@ ADD_EXECUTABLE(
 ADD_EXECUTABLE(raskc rask/main/raskc.cpp)
 
 target_link_libraries(raskc raskcore raskast raskcst raskcg boost_program_options pthread ${LLVM_LIBS})
-target_link_libraries(raskut raskcore raskast raskcst raskcg pthread ${LLVM_LIBS})
+target_link_libraries(raskut raskcore raskast raskcst raskcg gmock pthread ${LLVM_LIBS})
 target_link_libraries(rask ${LLVM_LIBS})
 
