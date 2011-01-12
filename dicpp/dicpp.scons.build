@@ -1,0 +1,8 @@
+Import("env")
+
+dicpp = env.StaticLibrary('dicpp',
+                          env.Glob('lib/src/*.cpp') + env.Glob('lib/src/scopes/*.cpp'))
+
+ut = env.UnitTest('dicpp_test',
+                  env.Glob('lib/tests/*.cpp'))
+

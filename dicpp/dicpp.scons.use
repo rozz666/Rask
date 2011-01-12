@@ -1,0 +1,10 @@
+Import("env")
+Export("env")
+
+env.AppendUnique(CPPPATH=[Dir('include').srcnode()],
+                 LIBPATH=[Dir('.')])
+env.Append(LIBS=['dicpp'])
+
+env.SConscript('#vendor/boost/core.scons.use')
+
+

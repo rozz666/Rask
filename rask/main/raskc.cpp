@@ -9,7 +9,7 @@
 #include <iostream>
 #include <iterator>
 #include <fstream>
-#include <boost/program_options.hpp> 
+#include <boost/program_options.hpp>
 #include <rask/cst/parseFile.hpp>
 #include <rask/ast/Builder.hpp>
 #include <rask/ast/BuiltinFunctions.hpp>
@@ -17,6 +17,8 @@
 #include <llvm/LLVMContext.h>
 #include <llvm/Bitcode/BitstreamWriter.h>
 #include <llvm/Bitcode/ReaderWriter.h>
+#include <di/injector.hpp>
+#include <boost/concept_check.hpp>
 
 struct Parameters
 {
@@ -57,6 +59,51 @@ Parameters parseCommandLine(int argc, char **argv)
     return params;
 }
 
+class Parser
+{
+public:
+
+    DI_CONSTRUCTOR(Parser, (rask::error::Logger& logger)) : logger(logger) { }
+
+    boost::optional<rask::cst::Tree> parseFile(rask::InputStream& is)
+    {
+        return rask::cst::parseFile(is, logger);
+    }
+
+private:
+
+    rask::error::Logger& logger;
+};
+
+struct CompilerModule
+{
+    rask::ast::BuiltinFunctions builtinFunctions;
+
+    void operator()(di::registry& r)
+    {
+        std::auto_ptr<rask::ast::FunctionTable> ft(new rask::ast::FunctionTable);
+        builtinFunctions.declare(*ft);
+
+        r.add(
+            r.type<Parser>()
+            .in_scope<di::scopes::singleton>()
+        );
+        r.add(
+            r.type<rask::ast::Builder>()
+            .in_scope<di::scopes::singleton>()
+        );
+        r.add(
+            r.type<rask::error::Logger>()
+            .in_scope<di::scopes::singleton>()
+        );
+        r.add(
+            r.type<rask::ast::FunctionTable>()
+            .in_scope<di::scopes::singleton>()
+            .instance(ft.release())
+        );
+    }
+};
+
 int main(int argc, char **argv)
 {
     using namespace rask;
@@ -74,18 +121,20 @@ int main(int argc, char **argv)
 
         std::ifstream f(params.inputFiles[0].c_str());
         InputStream is(params.inputFiles[0], f);
-        error::Logger logger;
 
-        boost::optional<cst::Tree> cst = cst::parseFile(is, logger);
+        di::injector injector;
+        CompilerModule compilerModule;
+        injector.install(compilerModule);
+
+        Parser& parser = injector.construct<Parser& >();
+        boost::optional<cst::Tree> cst = parser.parseFile(is);
 
         if (cst)
         {
-            ast::FunctionTable symbolTable;
-            ast::BuiltinFunctions builtinFunctions;
-            builtinFunctions.declare(symbolTable);
+            ast::Builder& builder = injector.construct<ast::Builder&>();
 
             ast::SharedScopeFactory scopeFactory(new ast::ScopeFactory);
-            boost::optional<ast::Tree> ast = ast::Builder(logger, symbolTable).buildTree(*cst, scopeFactory);
+            boost::optional<ast::Tree> ast = builder.buildTree(*cst, scopeFactory);
 
             if (ast && !params.noOutput)
             {
@@ -105,6 +154,7 @@ int main(int argc, char **argv)
             }
         }
 
+        error::Logger& logger = injector.construct<error::Logger& >();
         std::copy(logger.errors().begin(), logger.errors().end(), std::ostream_iterator<rask::error::Message>(std::cerr, "\n"));
     }
     catch (const std::exception& e)

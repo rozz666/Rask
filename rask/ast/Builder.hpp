@@ -15,6 +15,7 @@
 #include <rask/ast/Scope.hpp>
 #include <rask/cst/Tree.hpp>
 #include <rask/error/Logger.hpp>
+#include <di/constructor.hpp>
 
 namespace rask
 {
@@ -27,7 +28,7 @@ public:
 
     VariableFactory variableFactory;
 
-    Builder(error::Logger& logger, FunctionTable& functionTable)
+    DI_CONSTRUCTOR(Builder, (error::Logger& logger, FunctionTable& functionTable))
         : logger_(logger), functionTable_(functionTable) { }
 
     virtual boost::optional<FunctionCall> buildFunctionCall(const cst::FunctionCall& fc, SharedScope scope);

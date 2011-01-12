@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 2.8)
 
 set( EXECUTABLE_OUTPUT_PATH ../bin/${CMAKE_BUILD_TYPE} )
 
-include_directories("." "tut-2009-08-30" "gmock-1.5.0/fused-src")
+include_directories("." "tut-2009-08-30" "gmock-1.5.0/fused-src" "dicpp/include")
 execute_process(COMMAND llvm-config --cppflags OUTPUT_VARIABLE LLVM_CXX_FLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process(COMMAND llvm-config --ldflags OUTPUT_VARIABLE LLVM_LIB_FLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process(COMMAND llvm-config --libs all OUTPUT_VARIABLE LLVM_LIBS OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -55,6 +55,20 @@ add_library(
     gmock-1.5.0/fused-src/gmock-gtest-all.cc
 )
 
+add_library(
+    dicpp STATIC
+    dicpp/lib/src/type_info.cpp
+    dicpp/lib/src/scope.cpp
+    dicpp/lib/src/scopes
+    dicpp/lib/src/scopes/thread_local_singleton.cpp
+    dicpp/lib/src/scopes/no_scope.cpp
+    dicpp/lib/src/scopes/singleton.cpp
+    dicpp/lib/src/demangle.cpp
+    dicpp/lib/src/registry.cpp
+    dicpp/lib/src/empty.cpp
+    dicpp/lib/src/type_provider.cpp
+)
+
 ADD_EXECUTABLE(rask rask/main/rask.cpp)
 ADD_EXECUTABLE(
     raskut
@@ -101,7 +115,7 @@ ADD_EXECUTABLE(
 
 ADD_EXECUTABLE(raskc rask/main/raskc.cpp)
 
-target_link_libraries(raskc raskcore raskast raskcst raskcg boost_program_options pthread ${LLVM_LIBS})
+target_link_libraries(raskc raskcore raskast raskcst raskcg dicpp boost_program_options pthread ${LLVM_LIBS})
 target_link_libraries(raskut raskcore raskast raskcst raskcg gmock pthread ${LLVM_LIBS})
 target_link_libraries(rask ${LLVM_LIBS})
 
