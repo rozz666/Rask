@@ -7,169 +7,119 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <rask/error/Message.hpp>
-#include <boost/lexical_cast.hpp>
-#include <tut/tut.hpp>
-#include <tut/../contrib/tut_macros.h> 
+#include <sstream>
+#include <gtest/gtest.h>
 
-namespace tut
-{
+using namespace rask;
+using error::Message;
 
-struct Message_TestData
+struct rask_error_Message : testing::Test
 {
-    rask::Position pos;
-    
-    Message_TestData() : pos("sample.rask", 1, 2) { }
+    Position pos;
+
+    rask_error_Message() : pos("sample.rask", 1, 2) { }
+
+    void assertMessage(const std::string& expected, const Message& msg)
+    {
+        ASSERT_EQ(Message(pos, expected), msg);
+    }
 };
 
-typedef test_group<Message_TestData> factory;
-typedef factory::object object;
+
+TEST_F(rask_error_Message, messagePositionAndText)
+{
+    Position pos("abc", 123, 456);
+    std::string text = "This is an error";
+    Message msg(pos, text);
+
+    ASSERT_EQ(pos, msg.position());
+    ASSERT_EQ(text, msg.text());
 }
 
-namespace
+TEST_F(rask_error_Message, equality)
 {
-tut::factory tf("rask.error.Message");
+    Message msg1(Position("asia", 1, 2), "error");
+    Message msg2(Position("kasia", 1, 2), "error");
+    Message msg3(Position("asia", 1, 2), "xxx");
+
+    ASSERT_TRUE(msg1 == msg1);
+    ASSERT_FALSE(msg1 != msg1);
+    ASSERT_TRUE(msg1 != msg2);
+    ASSERT_FALSE(msg1 == msg2);
+    ASSERT_TRUE(msg1 != msg3);
+    ASSERT_FALSE(msg1 == msg3);
 }
 
-namespace tut
+TEST_F(rask_error_Message, shiftToStream)
 {
-
-template <>
-template <>
-void object::test<1>()
-{
-    const rask::Position pos("abc", 123, 456);
-    const std::string text = "This is an error";
-    rask::error::Message msg(pos, text);
-
-    ensure_equals("pos", msg.position(), pos);
-    ensure_equals("text", msg.text(), text);
+    std::ostringstream ss1, ss2;
+    std::string msg = "xxx";
+    ss1 << Message(pos, msg);
+    ss2 << pos << ": error: " << msg;
+    ASSERT_EQ(ss2.str(), ss1.str());
 }
 
-template <>
-template <>
-void object::test<3>()
+TEST_F(rask_error_Message, missingMainFunction)
 {
-    rask::error::Message msg1(rask::Position("asia", 1, 2), "error");
-    rask::error::Message msg2(rask::Position("kasia", 1, 2), "error");
-    rask::error::Message msg3(rask::Position("asia", 1, 2), "xxx");
-
-    ensure("1", msg1 == msg1);
-    ensure_not("2", msg1 != msg1);
-    ensure("3", msg1 != msg2);
-    ensure_not("4", msg1 == msg2);
-    ensure("5", msg1 != msg3);
-    ensure_not("6", msg1 == msg3);
+    assertMessage("missing main function", Message::missingMainFunction(pos));
 }
 
-template <>
-template <>
-void object::test<4>()
+TEST_F(rask_error_Message, missingReturnType)
 {
-    ensure_equals(boost::lexical_cast<std::string>(rask::error::Message(pos, "xxx")), boost::lexical_cast<std::string>(pos) + ": error: xxx");
+    assertMessage("missing return type", Message::missingReturnType(pos));
 }
 
-template <>
-template <>
-void object::test<5>()
+TEST_F(rask_error_Message, missingOpeningBrace)
 {
-    using namespace rask;
-    ensure_equals(error::Message::missingMainFunction(pos), error::Message(pos, "missing main function"));
+    assertMessage("missing opening brace \'{\'", Message::missingOpeningBrace(pos));
 }
 
-template <>
-template <>
-void object::test<6>()
+TEST_F(rask_error_Message, missingClosingBrace)
 {
-    using namespace rask;
-    ensure_equals(error::Message::missingReturnType(pos), error::Message(pos, "missing return type"));
+    assertMessage("missing closing brace \'}\'", Message::missingClosingBrace(pos));
 }
 
-template <>
-template <>
-void object::test<7>()
+TEST_F(rask_error_Message, missingOpeningParen)
 {
-    using namespace rask;
-    ensure_equals(error::Message::missingOpeningBrace(pos), error::Message(pos, "missing opening brace \'{\'"));
+    assertMessage("missing opening parenthesis \'(\'", Message::missingOpeningParen(pos));
 }
 
-template <>
-template <>
-void object::test<8>()
+TEST_F(rask_error_Message, missingClosingParen)
 {
-    using namespace rask;
-    ensure_equals(error::Message::missingClosingBrace(pos), error::Message(pos, "missing closing brace \'}\'"));
+    assertMessage("missing closing parenthesis \')\'", Message::missingClosingParen(pos));
 }
 
-template <>
-template <>
-void object::test<9>()
+TEST_F(rask_error_Message, missingRightArrow)
 {
-    using namespace rask;
-    ensure_equals(error::Message::missingOpeningParen(pos), error::Message(pos, "missing opening parenthesis \'(\'"));
+    assertMessage("missing \'->\'", Message::missingRightArrow(pos));
 }
 
-template <>
-template <>
-void object::test<10>()
+TEST_F(rask_error_Message, unknownIdentifier)
 {
-    using namespace rask;
-    ensure_equals(error::Message::missingClosingParen(pos), error::Message(pos, "missing closing parenthesis \')\'"));
+    assertMessage("unknown identifier \'abcd\'", Message::unknownIdentifier(pos, "abcd"));
 }
 
-template <>
-template <>
-void object::test<11>()
+TEST_F(rask_error_Message, functionNotFound)
 {
-    using namespace rask;
-    ensure_equals(error::Message::missingRightArrow(pos), error::Message(pos, "missing \'->\'"));
+    assertMessage("function abcd not found", Message::functionNotFound(pos, "abcd"));
 }
 
-template <>
-template <>
-void object::test<12>()
+TEST_F(rask_error_Message, missingSemicolon)
 {
-    using namespace rask;
-    ensure_equals(error::Message::unknownIdentifier(pos, "abcd"), error::Message(pos, "unknown identifier \'abcd\'"));
+    assertMessage("missing \';\'", Message::missingSemicolon(pos));
 }
 
-template <>
-template <>
-void object::test<13>()
+TEST_F(rask_error_Message, uninitializedVariable)
 {
-    using namespace rask;
-    ensure_equals(error::Message::functionNotFound(pos, "abcd"), error::Message(pos, "function abcd not found"));
+    assertMessage("uninitialized variable 'abc'", Message::uninitializedVariable(pos, "abc"));
 }
 
-template <>
-template <>
-void object::test<14>()
+TEST_F(rask_error_Message, redefinition)
 {
-    using namespace rask;
-    ensure_equals(error::Message::missingSemicolon(pos), error::Message(pos, "missing \';\'"));
+    assertMessage("redefinition of abc", Message::redefinition(pos, "abc"));
 }
 
-template <>
-template <>
-void object::test<15>()
+TEST_F(rask_error_Message, previousDefinition)
 {
-    using namespace rask;
-    ensure_equals(error::Message::uninitializedVariable(pos, "abc"), error::Message(pos, "uninitialized variable 'abc'"));
-}
-    
-template <>
-template <>
-void object::test<16>()
-{
-    using namespace rask;
-    ensure_equals(error::Message::redefinition(pos, "abc"), error::Message(pos, "redefinition of abc"));
-}
-
-template <>
-template <>
-void object::test<17>()
-{
-    using namespace rask;
-    ensure_equals(error::Message::previousDefinition(pos, "abc"), error::Message(pos, "abc previously defined here"));
-}
-
+    assertMessage("abc previously defined here", Message::previousDefinition(pos, "abc"));
 }
