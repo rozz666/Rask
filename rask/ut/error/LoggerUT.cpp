@@ -7,49 +7,30 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <rask/error/Logger.hpp>
-#include <tut/tut.hpp>
-#include <tut/../contrib/tut_macros.h> 
+#include <gtest/gtest.h>
 
-namespace tut
-{
+using namespace rask;
 
-struct Logger_TestData
+struct rask_error_Logger : testing::Test
 {
+    error::Logger logger;
 };
 
-typedef test_group<Logger_TestData> factory;
-typedef factory::object object;
-}
-
-namespace
+TEST_F(rask_error_Logger, empty)
 {
-tut::factory tf("rask.error.Logger");
+    ASSERT_TRUE(logger.errors().empty());
 }
 
-namespace tut
+TEST_F(rask_error_Logger, twoMessages)
 {
+    error::Message msg1(Position("xxx", 3, 4), "Asia");
+    error::Message msg2(Position("yyy", 7, 8), "Kasia");
 
-template <>
-template <>
-void object::test<1>()
-{
-    rask::error::Logger logger;
+    logger.log(msg1);
+    logger.log(msg2);
 
-    ensure("no errors", logger.errors().empty());
+    ASSERT_EQ(2u, logger.errors().size());
+    ASSERT_EQ(msg1, logger.errors()[0]);
+    ASSERT_EQ(msg2, logger.errors()[1]);
 }
 
-template <>
-template <>
-void object::test<2>()
-{
-    rask::error::Logger logger;
-    rask::Position pos("xxx", 3, 4);
-
-    logger.log(rask::error::Message(pos, "Asia"));
-
-    ensure_equals("errors", logger.errors().size(), 1u);
-    ensure_equals("pos", logger.errors()[0].position(), pos);
-    ensure_equals("text", logger.errors()[0].text(), "Asia");
-}
-
-}
