@@ -8,7 +8,6 @@
 //
 #include <rask/Position.hpp>
 #include <sstream>
-#include <boost/lexical_cast.hpp>
 #include <gtest/gtest.h>
 
 using namespace rask;
