@@ -6,121 +6,96 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
+#include <rask/Position.hpp>
 #include <sstream>
 #include <boost/lexical_cast.hpp>
-#include <rask/Position.hpp>
-#include <tut/tut.hpp>
-#include <tut/../contrib/tut_macros.h> 
+#include <gtest/gtest.h>
 
-namespace tut
-{
+using namespace rask;
 
-struct IdPosition_TestData
+struct rask_Position : testing::Test
 {
+    void assertString(std::string str, Position pos)
+    {
+        std::ostringstream ss;
+        ss << pos;
+        ASSERT_EQ(str, ss.str());
+    }
 };
 
-typedef test_group<IdPosition_TestData> factory;
-typedef factory::object object;
-}
-
-namespace
+TEST_F(rask_Position, defaultPosition)
 {
-tut::factory tf("rask.Position");
+    Position p;
+
+    ASSERT_EQ("", p.file);
+    ASSERT_EQ(0u, p.row);
+    ASSERT_EQ(0u, p.column);
 }
 
-namespace tut
+TEST_F(rask_Position, constructFromFileRowColumn)
 {
+    Position p("asia", 7, 19);
 
-template <>
-template <>
-void object::test<1>()
+    ASSERT_EQ("asia", p.file);
+    ASSERT_EQ(7u, p.row);
+    ASSERT_EQ(19u, p.column);
+}
+
+TEST_F(rask_Position, equality)
 {
-    rask::Position p;
-
-    ensure_equals("file", p.file, "");
-    ensure_equals("row", p.row, 0u);
-    ensure_equals("column", p.column, 0u);
+    ASSERT_TRUE(Position("abc", 123, 456) == Position("abc", 123, 456));
+    ASSERT_FALSE(Position("abc", 5123, 274) == Position("abc", 123, 456));
+    ASSERT_FALSE(Position("abc", 5123, 274) == Position("abc", 123, 274));
+    ASSERT_FALSE(Position("abc", 5123, 274) == Position("abc", 5123, 456));
+    ASSERT_FALSE(Position("abc", 123, 456) == Position("xxx", 123, 456));
 }
 
-template <>
-template <>
-void object::test<2>()
+
+TEST_F(rask_Position, inequality)
 {
-    rask::Position p("asia", 7, 19);
-
-    ensure_equals("file", p.file, "asia");
-    ensure_equals("row", p.row, 7u);
-    ensure_equals("column", p.column, 19u);
+    ASSERT_FALSE(Position("abc", 123, 456) != Position("abc", 123, 456));
+    ASSERT_TRUE(Position("abc", 5123, 274) != Position("abc", 123, 456));
+    ASSERT_TRUE(Position("abc", 5123, 274) != Position("abc", 123, 274));
+    ASSERT_TRUE(Position("abc", 5123, 274) != Position("abc", 5123, 456));
+    ASSERT_TRUE(Position("abc", 123, 456) != Position("xxx", 123, 456));
 }
 
-template <>
-template <> 
-void object::test<3>()
+TEST_F(rask_Position, less)
 {
-    ensure("equal", rask::Position("abc", 123, 456) == rask::Position("abc", 123, 456));
-    ensure_not("unequal 1", rask::Position("abc", 5123, 274) == rask::Position("abc", 123, 456));
-    ensure_not("unequal 2", rask::Position("abc", 5123, 274) == rask::Position("abc", 123, 274));
-    ensure_not("unequal 3", rask::Position("abc", 5123, 274) == rask::Position("abc", 5123, 456));
-    ensure_not("unequal 4", rask::Position("abc", 123, 456) == rask::Position("xxx", 123, 456)); 
+    ASSERT_FALSE(Position("abc", 123, 456) < Position("abc", 123, 456));
+    ASSERT_FALSE(Position("abc", 123, 456) < Position("abc", 123, 450));
+    ASSERT_FALSE(Position("abc", 123, 456) < Position("abc", 120, 450));
+    ASSERT_FALSE(Position("zzz", 123, 456) < Position("abc", 123, 456));
+    ASSERT_TRUE(Position("abc", 123, 456) < Position("abc", 123, 457));
+    ASSERT_TRUE(Position("abc", 123, 456) < Position("abc", 124, 457));
+    ASSERT_TRUE(Position("abc", 123, 456) < Position("zzz", 123, 456));
 }
 
-
-template <>
-template <>
-void object::test<4>()
+TEST_F(rask_Position, shiftToStream)
 {
-    ensure_not("equal", rask::Position("abc", 123, 456) != rask::Position("abc", 123, 456));
-    ensure("unequal 1", rask::Position("abc", 5123, 274) != rask::Position("abc", 123, 456));
-    ensure("unequal 2", rask::Position("abc", 5123, 274) != rask::Position("abc", 123, 274));
-    ensure("unequal 3", rask::Position("abc", 5123, 274) != rask::Position("abc", 5123, 456));
-    ensure("unequal 4", rask::Position("abc", 123, 456) != rask::Position("xxx", 123, 456)); 
+    assertString("abc:123:456", Position("abc", 123, 456));
+    assertString("", Position());
+    assertString("abc:100", Position("abc", 100, 0));
+    assertString("abc:100", Position("abc", 100));
+    assertString("abc", Position("abc", 0, 0));
+    assertString("abc", Position("abc"));
 }
 
-template <>
-template <>
-void object::test<5>()
+TEST_F(rask_Position, constructFromFile)
 {
-    ensure_not("not less 1", rask::Position("abc", 123, 456) < rask::Position("abc", 123, 456));
-    ensure_not("not less 2", rask::Position("abc", 123, 456) < rask::Position("abc", 123, 450));
-    ensure_not("not less 3", rask::Position("abc", 123, 456) < rask::Position("abc", 120, 450));
-    ensure_not("not less 4", rask::Position("zzz", 123, 456) < rask::Position("abc", 123, 456));
-    ensure("less 1", rask::Position("abc", 123, 456) < rask::Position("abc", 123, 457));
-    ensure("less 2", rask::Position("abc", 123, 456) < rask::Position("abc", 124, 457));
-    ensure("less 3", rask::Position("abc", 123, 456) < rask::Position("zzz", 123, 456)); 
+    Position p("asia");
+
+    ASSERT_EQ("asia", p.file);
+    ASSERT_EQ(0u, p.row);
+    ASSERT_EQ(0u, p.column);
 }
 
-template <>
-template <>
-void object::test<6>()
+TEST_F(rask_Position, constructFromFileRow)
 {
-    ensure_equals(boost::lexical_cast<std::string>(rask::Position("abc", 123, 456)), "abc:123:456"); 
-    ensure_equals(boost::lexical_cast<std::string>(rask::Position()), "");
-    ensure_equals(boost::lexical_cast<std::string>(rask::Position("abc", 100, 0)), "abc:100"); 
-    ensure_equals(boost::lexical_cast<std::string>(rask::Position("abc", 100)), "abc:100"); 
-    ensure_equals(boost::lexical_cast<std::string>(rask::Position("abc", 0, 0)), "abc"); 
-    ensure_equals(boost::lexical_cast<std::string>(rask::Position("abc")), "abc"); 
+    Position p("asia", 10);
+
+    ASSERT_EQ("asia", p.file);
+    ASSERT_EQ(10u, p.row);
+    ASSERT_EQ(0u, p.column);
 }
 
-template <>
-template <>
-void object::test<7>()
-{
-    rask::Position p("asia");
-
-    ensure_equals("file", p.file, "asia");
-    ensure_equals("row", p.row, 0u);
-    ensure_equals("column", p.column, 0u);
-}
-
-template <>
-template <>
-void object::test<8>()
-{
-    rask::Position p("asia", 10);
-
-    ensure_equals("file", p.file, "asia");
-    ensure_equals("row", p.row, 10u);
-    ensure_equals("column", p.column, 0u);
-}
-
-}
