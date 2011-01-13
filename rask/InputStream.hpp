@@ -11,6 +11,8 @@
 
 #include <string>
 #include <iosfwd>
+#include <vector>
+#include <iterator>
 
 namespace rask
 {
@@ -19,15 +21,18 @@ class InputStream
 {
 public:
 
-    InputStream(const std::string& file, std::istream& stream) : file_(file), stream_(stream) { }
+    typedef std::vector<char>::const_iterator const_iterator;
+
+    InputStream(const std::string& file, std::istream& stream);
 
     const std::string file() const { return file_; }
-    std::istream& stream() { return stream_; }
+    const_iterator begin() const { return buffer_.begin(); }
+    const_iterator end() const { return buffer_.end(); }
 
 private:
 
     std::string file_;
-    std::istream& stream_;
+    std::vector<char> buffer_;
 };
 
 }

@@ -13,6 +13,7 @@
 #include <rask/InputStream.hpp>
 #include <rask/error/Logger.hpp>
 #include <rask/cst/Tree.hpp>
+#include <di/constructor.hpp>
 
 namespace rask
 {
@@ -23,7 +24,7 @@ class Parser
 {
 public:
 
-    Parser(error::Logger& logger) : logger_(logger) { }
+    DI_CONSTRUCTOR(Parser, (error::Logger& logger)) : logger_(logger) { }
     boost::optional<Tree> parseFile(InputStream& is);
 
 private:

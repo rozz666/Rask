@@ -37,11 +37,11 @@ struct parseMain_TestData
 {
     std::stringstream source;
     rask::error::Logger errorLogger;
-    rask::InputStream sourceStream;
+    std::string file;
     rask::cst::Parser parser;
 
     parseMain_TestData()
-        : sourceStream("test.rask", source), parser(errorLogger) { }
+        : file("test.rask"), parser(errorLogger) { }
 
     void ensureErrorCountEquals(unsigned n)
     {
@@ -59,11 +59,12 @@ struct parseMain_TestData
 
     rask::Position at(unsigned row, unsigned line)
     {
-        return rask::Position(sourceStream.file(), row, line);
+        return rask::Position(file, row, line);
     }
 
     boost::optional<rask::cst::Tree> parseFile()
     {
+        rask::InputStream sourceStream(file, source);
         return parser.parseFile(sourceStream);
     }
 };
@@ -74,7 +75,7 @@ typedef factory::object object;
 
 namespace
 {
-tut::factory tf("rask.cst.parseFile");
+tut::factory tf("rask.cst.Parser");
 }
 
 namespace tut
@@ -104,7 +105,7 @@ void object::test<2>()
 
     ENSURE(!parseFile());
     ensureErrorCountEquals(1);
-    ensureError(error::Message::missingMainFunction(Position(sourceStream.file())));
+    ensureError(error::Message::missingMainFunction(Position(file)));
 }
 
 template <>

@@ -10,7 +10,7 @@
 #include <iterator>
 #include <fstream>
 #include <boost/program_options.hpp>
-#include <rask/cst/parseFile.hpp>
+#include <rask/cst/Parser.hpp>
 #include <rask/ast/Builder.hpp>
 #include <rask/ast/BuiltinFunctions.hpp>
 #include <rask/cg/CodeGenerator.hpp>
@@ -18,7 +18,6 @@
 #include <llvm/Bitcode/BitstreamWriter.h>
 #include <llvm/Bitcode/ReaderWriter.h>
 #include <di/injector.hpp>
-#include <boost/concept_check.hpp>
 
 struct Parameters
 {
@@ -59,22 +58,6 @@ Parameters parseCommandLine(int argc, char **argv)
     return params;
 }
 
-class Parser
-{
-public:
-
-    DI_CONSTRUCTOR(Parser, (rask::error::Logger& logger)) : logger(logger) { }
-
-    boost::optional<rask::cst::Tree> parseFile(rask::InputStream& is)
-    {
-        return rask::cst::parseFile(is, logger);
-    }
-
-private:
-
-    rask::error::Logger& logger;
-};
-
 struct CompilerModule
 {
     rask::ast::BuiltinFunctions builtinFunctions;
@@ -85,7 +68,7 @@ struct CompilerModule
         builtinFunctions.declare(*ft);
 
         r.add(
-            r.type<Parser>()
+            r.type<rask::cst::Parser>()
             .in_scope<di::scopes::singleton>()
         );
         r.add(
@@ -126,7 +109,7 @@ int main(int argc, char **argv)
         CompilerModule compilerModule;
         injector.install(compilerModule);
 
-        Parser& parser = injector.construct<Parser& >();
+        cst::Parser& parser = injector.construct<cst::Parser& >();
         boost::optional<cst::Tree> cst = parser.parseFile(is);
 
         if (cst)

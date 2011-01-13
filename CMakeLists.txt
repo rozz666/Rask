@@ -14,6 +14,7 @@ set( CMAKE_EXE_LINKER_FLAGS "${LLVM_LIB_FLAGS}" )
 
 add_library(
     raskcore STATIC
+    rask/InputStream.cpp
     rask/Position.cpp
     rask/error/Message.cpp)
 
@@ -34,8 +35,7 @@ add_library(
 
 add_library(
     raskcst STATIC
-    rask/cst/Parser.cpp
-    rask/cst/parseFile.cpp)
+    rask/cst/Parser.cpp)
 
 add_library(
     raskcg STATIC
