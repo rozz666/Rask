@@ -6,69 +6,41 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <tut/tut.hpp>
-#include <rask/test/TUTAssert.hpp>
 #include <rask/ast/operatorName.hpp>
+#include <gtest/gtest.h>
 
-namespace tut
+using namespace rask;
+using ast::operatorName;
+using cst::BinaryOperator;
+using cst::UnaryOperator;
+
+
+TEST(rask_ast_operatorName, binaryMinus)
 {
-
-struct Operators_TestData
-{
-};
-
-typedef test_group<Operators_TestData> factory;
-typedef factory::object object;
+    ASSERT_EQ(BINARY_MINUS_NAME, operatorName(BinaryOperator::MINUS));
 }
 
-namespace
+TEST(rask_ast_operatorName, binaryPlus)
 {
-tut::factory tf("rask.ast.operatorName");
+    ASSERT_EQ(BINARY_PLUS_NAME, operatorName(BinaryOperator::PLUS));
 }
 
-namespace tut
+TEST(rask_ast_operatorName, unaryMinus)
 {
-
-template <>
-template <>
-void object::test<1>()
-{
-    ENSURE_EQUALS(rask::ast::operatorName(rask::cst::BinaryOperator::MINUS), rask::BINARY_MINUS_NAME);
+    ASSERT_EQ(UNARY_MINUS_NAME, operatorName(UnaryOperator::MINUS));
 }
 
-template <>
-template <>
-void object::test<2>()
+TEST(rask_ast_operatorName, binaryMult)
 {
-    ENSURE_EQUALS(rask::ast::operatorName(rask::cst::BinaryOperator::PLUS), rask::BINARY_PLUS_NAME);
+    ASSERT_EQ(BINARY_MULT_NAME, operatorName(BinaryOperator::MULT));
 }
 
-template <>
-template <>
-void object::test<3>()
+TEST(rask_ast_operatorName, binaryDiv)
 {
-    ENSURE_EQUALS(rask::ast::operatorName(rask::cst::UnaryOperator::MINUS), rask::UNARY_MINUS_NAME);
+    ASSERT_EQ(BINARY_DIV_NAME, operatorName(BinaryOperator::DIV));
 }
 
-template <>
-template <>
-void object::test<4>()
+TEST(rask_ast_operatorName, binaryMod)
 {
-    ENSURE_EQUALS(rask::ast::operatorName(rask::cst::BinaryOperator::MULT), rask::BINARY_MULT_NAME);
-}
-
-template <>
-template <>
-void object::test<5>()
-{
-    ENSURE_EQUALS(rask::ast::operatorName(rask::cst::BinaryOperator::DIV), rask::BINARY_DIV_NAME);
-}
-
-template <>
-template <>
-void object::test<6>()
-{
-    ENSURE_EQUALS(rask::ast::operatorName(rask::cst::BinaryOperator::MOD), rask::BINARY_MOD_NAME);
-}
-
+    ASSERT_EQ(BINARY_MOD_NAME, operatorName(BinaryOperator::MOD));
 }
