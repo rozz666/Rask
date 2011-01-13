@@ -10,12 +10,12 @@
 #include <tut/tut.hpp>
 #include <tut/../contrib/tut_macros.h>
 #include <rask/test/TUTAssert.hpp>
-#include <rask/cst/parseFile.hpp>
+#include <rask/cst/Parser.hpp>
 
 #define ENSURE_IDENTIFIER(actual, expectedValue, expectedPosition) \
     ENSURE_EQUALS((actual).value, expectedValue); \
     ENSURE_EQUALS((actual).position, expectedPosition)
-    
+
 #define ENSURE_CONST(actual, expectedValue, expectedPosition) \
     ENSURE_EQUALS(getConstant(actual).value, expectedValue); \
     ENSURE_EQUALS(getConstant(actual).position, expectedPosition)
@@ -38,8 +38,10 @@ struct parseMain_TestData
     std::stringstream source;
     rask::error::Logger errorLogger;
     rask::InputStream sourceStream;
+    rask::cst::Parser parser;
 
-    parseMain_TestData() : sourceStream("test.rask", source) { }
+    parseMain_TestData()
+        : sourceStream("test.rask", source), parser(errorLogger) { }
 
     void ensureErrorCountEquals(unsigned n)
     {
@@ -62,7 +64,7 @@ struct parseMain_TestData
 
     boost::optional<rask::cst::Tree> parseFile()
     {
-        return rask::cst::parseFile(sourceStream, errorLogger);
+        return parser.parseFile(sourceStream);
     }
 };
 
@@ -209,7 +211,7 @@ void object::test<10>()
     ENSURE(tree);
     ENSURE_NO_ERRORS();
     ENSURE_EQUALS(tree->functions.size(), 1u);
-    cst::Function& f = tree->functions[0]; 
+    cst::Function& f = tree->functions[0];
     ENSURE_IDENTIFIER(f.name, "main", at(1, 1));
     ENSURE_EQUALS(f.stmts.size(), 3u);
 
@@ -277,7 +279,7 @@ void object::test<14>()
     source << "main() -> void\n{\n    var x;\n    var y = -2;\n}";
 
     boost::optional<cst::Tree> tree = parseFile();
-    
+
     ENSURE(tree);
     ENSURE_NO_ERRORS();
     ENSURE_EQUALS(tree->functions.size(), 1u);
@@ -325,11 +327,11 @@ template <>
 void object::test<16>()
 {
     using namespace rask;
-    
+
     source << "f1() -> void\n{\n}\nf2() -> void\n{\n}\n";
-    
+
     boost::optional<cst::Tree> tree = parseFile();
-    
+
     ENSURE(tree);
     ENSURE_NO_ERRORS();
     ENSURE_EQUALS(tree->functions.size(), 2u);
@@ -337,7 +339,7 @@ void object::test<16>()
     cst::Function& f1 = tree->functions[0];
     ENSURE_IDENTIFIER(f1.name, "f1", at(1, 1));
     ENSURE_EQUALS(f1.stmts.size(), 0u);
-    
+
     cst::Function& f2 = tree->functions[1];
     ENSURE_IDENTIFIER(f2.name, "f2", at(4, 1));
     ENSURE_EQUALS(f2.stmts.size(), 0u);
@@ -348,15 +350,15 @@ template <>
 void object::test<17>()
 {
     using namespace rask;
-    
+
     source << "main() -> void\n{\n    var a = b;\n}";
-    
+
     boost::optional<cst::Tree> tree = parseFile();
-    
+
     ENSURE(tree);
     ENSURE_NO_ERRORS();
     ENSURE_EQUALS(tree->functions.size(), 1u);
-    
+
     cst::Function& f = tree->functions[0];
     ENSURE_EQUALS(f.stmts.size(), 1u);
 
@@ -371,15 +373,15 @@ template <>
 void object::test<18>()
 {
     using namespace rask;
-    
+
     source << "f(Type1 x, Type2 y, Type3 z) -> void\n{ }";
-    
+
     boost::optional<cst::Tree> tree = parseFile();
-    
+
     ENSURE(tree);
     ENSURE_NO_ERRORS();
     ENSURE_EQUALS(tree->functions.size(), 1u);
-    
+
     cst::Function& f = tree->functions[0];
     ENSURE_IDENTIFIER(f.name, "f", at(1, 1));
     ENSURE_EQUALS(f.args.size(), 3u);
@@ -397,11 +399,11 @@ template <>
 void object::test<19>()
 {
     using namespace rask;
-    
+
     source << "f() -> abcd123\n{ }";
-    
+
     boost::optional<cst::Tree> tree = parseFile();
-    
+
     ENSURE(tree);
     ENSURE_NO_ERRORS();
     ENSURE_EQUALS(tree->functions.size(), 1u);
@@ -413,15 +415,15 @@ template <>
 void object::test<20>()
 {
     using namespace rask;
-    
+
     source << "f() -> abcd123\n{\n    return 10;\n    return x;\n}";
-    
+
     boost::optional<cst::Tree> tree = parseFile();
-    
+
     ENSURE(tree);
     ENSURE_NO_ERRORS();
     ENSURE_EQUALS(tree->functions.size(), 1u);
-    
+
     cst::Function& f = tree->functions[0];
     ENSURE_IDENTIFIER(tree->functions[0].type, "abcd123", at(1, 8));
     ENSURE_EQUALS(f.stmts.size(), 2u);
@@ -438,15 +440,15 @@ template <>
 void object::test<21>()
 {
     using namespace rask;
-    
+
     source << "f() -> abcd123\n{\n    var a = g(10, x);\n}";
 
     boost::optional<cst::Tree> tree = parseFile();
-    
+
     ENSURE(tree);
     ENSURE_NO_ERRORS();
     ENSURE_EQUALS(tree->functions.size(), 1u);
-    
+
     cst::Function& f = tree->functions[0];
     ENSURE_EQUALS(f.stmts.size(), 1u);
     const cst::FunctionCall& fc = getFunctionCall(*getVariableDecl(f.stmts[0]).value);
@@ -461,15 +463,15 @@ template <>
 void object::test<22>()
 {
     using namespace rask;
-    
+
     source << "f() -> abcd123\n{\n    h(g(5));\n}";
-    
+
     boost::optional<cst::Tree> tree = parseFile();
-    
+
     ENSURE(tree);
     ENSURE_NO_ERRORS();
     ENSURE_EQUALS(tree->functions.size(), 1u);
-    
+
     cst::Function& f = tree->functions[0];
     ENSURE_EQUALS(f.stmts.size(), 1u);
     cst::FunctionCall& fc1 = getFunctionCall(f.stmts[0]);
@@ -485,11 +487,11 @@ template <>
 void object::test<23>()
 {
     using namespace rask;
-    
+
     source << "f() -> abcd123\n{\n    return g();\n}";
-    
+
     boost::optional<cst::Tree> tree = parseFile();
-    
+
     ENSURE(tree);
     ENSURE_NO_ERRORS();
     ENSURE_EQUALS(tree->functions.size(), 1u);
@@ -508,11 +510,11 @@ template <>
 void object::test<24>()
 {
     using namespace rask;
-    
+
     source << "f() -> abcd123\n{\n    return -x;\n}";
-    
+
     boost::optional<cst::Tree> tree = parseFile();
-    
+
     ENSURE(tree);
     ENSURE_NO_ERRORS();
     ENSURE_EQUALS(tree->functions.size(), 1u);
@@ -629,15 +631,15 @@ template <>
 void object::test<29>()
 {
     using namespace rask;
-    
+
     source << "f() -> abcd123\n{\n    f(x / y / 7);\n}";
-    
+
     boost::optional<cst::Tree> tree = parseFile();
-    
+
     ENSURE(tree);
     ENSURE_NO_ERRORS();
     ENSURE_EQUALS(tree->functions.size(), 1u);
-    
+
     cst::Function& f = tree->functions[0];
     ENSURE_EQUALS(f.stmts.size(), 1u);
     const cst::ChainExpression& expr = getChainExpression(getFunctionCall(f.stmts[0]).args[0]);

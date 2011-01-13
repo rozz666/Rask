@@ -34,6 +34,7 @@ add_library(
 
 add_library(
     raskcst STATIC
+    rask/cst/Parser.cpp
     rask/cst/parseFile.cpp)
 
 add_library(
@@ -81,7 +82,7 @@ ADD_EXECUTABLE(
     rask/ut/ast/operatorNameUT.cpp
     rask/ut/ast/CustomFunctionUT.cpp
     rask/ut/ast/buildFunctionUT.cpp
-    rask/ut/cst/parseFileUT.cpp
+    rask/ut/cst/ParserUT.cpp
     rask/ut/error/LoggerUT.cpp
     rask/ut/error/MessageUT.cpp
     rask/ut/InputStreamUT.cpp
