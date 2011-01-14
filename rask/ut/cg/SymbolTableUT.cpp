@@ -6,111 +6,68 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <tut/tut.hpp>
-#include <tut/../contrib/tut_macros.h>
-#include <rask/test/TUTAssert.hpp>
 #include <rask/cg/SymbolTable.hpp>
 #include <llvm/LLVMContext.h>
 #include <llvm/Instructions.h>
+#include <gtest/gtest.h>
 
-namespace tut
-{
+using namespace rask;
 
-struct SymbolTable_TestData
+struct rask_cg_SymbolTable : testing::Test
 {
     llvm::LLVMContext ctx;
-    llvm::AllocaInst *a1;
-    llvm::AllocaInst *a2;
-    rask::cg::SymbolTable st;
-    
-    SymbolTable_TestData()
-        : a1(new llvm::AllocaInst(llvm::IntegerType::get(ctx, 32))),
-        a2(new llvm::AllocaInst(llvm::IntegerType::get(ctx, 64))) { }
+    llvm::AllocaInst *val1;
+    llvm::AllocaInst *val2;
+    llvm::AllocaInst *val3;
+    cg::SymbolTable table;
+    cst::Identifier id1;
+
+    rask_cg_SymbolTable()
+        : val1(new llvm::AllocaInst(llvm::IntegerType::get(ctx, 32))),
+        val2(new llvm::AllocaInst(llvm::IntegerType::get(ctx, 64))),
+        val3(new llvm::AllocaInst(llvm::IntegerType::get(ctx, 128))),
+        id1(cst::Identifier::create(Position(), "x")) { }
 };
 
-typedef test_group<SymbolTable_TestData> factory;
-typedef factory::object object;
-}
-
-namespace
+TEST_F(rask_cg_SymbolTable, addThreeSymbols)
 {
-tut::factory tf("rask.cg.SymbolTable");
-}
-
-namespace tut
-{
-
-template <>
-template <>
-void object::test<1>()
-{
-    using namespace rask;
-
-    cst::Identifier id1 = cst::Identifier::create(Position(), "x");
     cst::Identifier id2 = cst::Identifier::create(Position(), "y");
-    st.add(id1, a1);
-    st.add(id2, a2);
-    
-    ENSURE(st.get(id1) == a1);
-    ENSURE(st.get(id2) == a2);
+    cst::Identifier id3 = cst::Identifier::create(Position("", 2, 3), "y");
+    table.add(id1, val1);
+    table.add(id2, val2);
+    table.add(id3, val3);
+
+    ASSERT_TRUE(table.get(id1) == val1);
+    ASSERT_TRUE(table.get(id2) == val2);
+    ASSERT_TRUE(table.get(id3) == val3);
 }
 
-template <>
-template <>
-void object::test<2>()
+TEST_F(rask_cg_SymbolTable, duplicatedSymbol)
 {
-    using namespace rask;
-    
-    cst::Identifier id1 = cst::Identifier::create(Position(), "x");
-   
-    st.add(id1, a1);
+    table.add(id1, val1);
 
     try
     {
-        st.add(id1, a2);
-        FAIL("expected SymbolTableError");
+        table.add(id1, val2);
+        FAIL() << "expected SymbolTableError";
     }
     catch (const cg::SymbolTableError& e)
     {
-        ENSURE_EQUALS(e.what(), std::string("Duplicated identifier"));
+        ASSERT_STREQ(e.what(), "Duplicated identifier");
     }
-    
-    ENSURE(st.get(id1) == a1);
+
+    ASSERT_TRUE(table.get(id1) == val1);
 }
 
-template <>
-template <>
-void object::test<3>()
+TEST_F(rask_cg_SymbolTable, badSymbol)
 {
-    using namespace rask;
-    
-    cst::Identifier id1 = cst::Identifier::create(Position(), "x");
-    
     try
     {
-        st.get(id1);
-        FAIL("expected SymbolTableError");
+        table.get(id1);
+        FAIL() << "expected SymbolTableError";
     }
     catch (const cg::SymbolTableError& e)
     {
-        ENSURE_EQUALS(e.what(), std::string("Symbol \'x\' not found"));
+        ASSERT_STREQ(e.what(), "Symbol \'x\' not found");
     }
-}
-
-template <>
-template <>
-void object::test<4>()
-{
-    using namespace rask;
-
-    cst::Identifier id1 = cst::Identifier::create(Position("xxx", 1, 2), "x");
-    cst::Identifier id2 = cst::Identifier::create(Position("xxx", 3, 4), "x");
-
-    st.add(id1, a1);
-    st.add(id2, a2);
-
-    ENSURE(st.get(id1) == a1);
-    ENSURE(st.get(id2) == a2);
-}
-
 }
