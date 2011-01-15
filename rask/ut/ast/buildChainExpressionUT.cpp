@@ -41,21 +41,21 @@ struct rask_ast_Builder_buildChainExpression : testing::Test
     ast::FunctionTable ft;
     BuilderMock builder;
     ast::SharedScope scope;
-    cst::ChainExpression e;
+    cst::ChainExpression chainExpr;
     boost::optional<ast::Expression> expr;
 
     rask_ast_Builder_buildChainExpression() : builder(logger, ft), scope(new ast::ScopeMock) { }
 
     void assertBuildChainExpression()
     {
-        expr = builder.buildChainExpression(e, scope);
+        expr = builder.buildChainExpression(chainExpr, scope);
         ASSERT_TRUE(expr);
         ASSERT_TRUE(logger.errors().empty());
     }
 
     void assertFailedBuildChainExpression()
     {
-        ASSERT_FALSE(builder.buildChainExpression(e, scope));
+        ASSERT_FALSE(builder.buildChainExpression(chainExpr, scope));
         ASSERT_TRUE(logger.errors().empty());
     }
 };
@@ -64,7 +64,7 @@ TEST_F(rask_ast_Builder_buildChainExpression, expression)
 {
     ast::Constant c(7);
 
-    EXPECT_CALL(builder, buildExpression(Ref(e.expr), scope))
+    EXPECT_CALL(builder, buildExpression(Ref(chainExpr.expr), scope))
         .WillOnce(Return(ast::Expression(c)));
 
     ASSERT_NO_FATAL_FAILURE(assertBuildChainExpression());
@@ -81,15 +81,15 @@ TEST_F(rask_ast_Builder_buildChainExpression, buildExpressionFails)
 TEST_F(rask_ast_Builder_buildChainExpression, operators)
 {
     ast::Constant a(1), b(2), c(3);
-    e.next.resize(2);
-    e.next[0].op.tag = cst::BinaryOperator::MINUS;
-    e.next[1].op.tag = cst::BinaryOperator::PLUS;
+    chainExpr.next.resize(2);
+    chainExpr.next[0].op.tag = cst::BinaryOperator::MINUS;
+    chainExpr.next[1].op.tag = cst::BinaryOperator::PLUS;
 
-    EXPECT_CALL(builder, buildExpression(Ref(e.expr), _))
+    EXPECT_CALL(builder, buildExpression(Ref(chainExpr.expr), _))
         .WillOnce(Return(ast::Expression(a)));
-    EXPECT_CALL(builder, buildExpression(Ref(e.next[0].expr), _))
+    EXPECT_CALL(builder, buildExpression(Ref(chainExpr.next[0].expr), _))
         .WillOnce(Return(ast::Expression(b)));
-    EXPECT_CALL(builder, buildExpression(Ref(e.next[1].expr), _))
+    EXPECT_CALL(builder, buildExpression(Ref(chainExpr.next[1].expr), _))
         .WillOnce(Return(ast::Expression(c)));
 
     test::FunctionFactory functionFactory;
@@ -113,11 +113,11 @@ TEST_F(rask_ast_Builder_buildChainExpression, operators)
 
 TEST_F(rask_ast_Builder_buildChainExpression, buildExpressionSecondFails)
 {
-    e.next.resize(1);
+    chainExpr.next.resize(1);
 
     EXPECT_CALL(builder, buildExpression(_, _))
         .WillOnce(Return(ast::Expression()));
-    EXPECT_CALL(builder, buildExpression(Ref(e.next[0].expr), _))
+    EXPECT_CALL(builder, buildExpression(Ref(chainExpr.next[0].expr), _))
         .WillOnce(Return(boost::none));
     assertFailedBuildChainExpression();
 }
