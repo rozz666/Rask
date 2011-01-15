@@ -10,7 +10,7 @@
 #include <tut/tut_restartable.hpp>
 #include <tut/tut.hpp>
 #include <rask/ut/tut_color_console_reporter.hpp>
-#include <rask/test/GTestPrinter.hpp>
+#include <rask/test/GTestController.hpp>
 #include <gtest/gtest.h>
 
 namespace tut
@@ -26,7 +26,7 @@ int main(int argc, char **argv)
     testing::UnitTest& unitTest = *testing::UnitTest::GetInstance();
     testing::TestEventListeners& listeners = unitTest.listeners();
     delete listeners.Release(listeners.default_result_printer());
-    listeners.Append(new rask::test::GTestPrinter);
+    listeners.Append(new rask::test::GTestController);
     int ret = RUN_ALL_TESTS();
 
     try

@@ -73,6 +73,7 @@ add_library(
 ADD_EXECUTABLE(rask rask/main/rask.cpp)
 ADD_EXECUTABLE(
     raskut
+    rask/test/GTestController.cpp
     rask/main/ut.cpp
     rask/test/GTestPrinter.cpp
     rask/ut/ast/ExpressionUT.cpp
