@@ -6,87 +6,62 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <tut/tut.hpp>
-#include <tut/../contrib/tut_macros.h>
-#include <rask/test/Mock.hpp>
 #include <rask/ast/Builder.hpp>
 #include <rask/test/FunctionFactory.hpp>
+#include <gmock/gmock.h>
+
+using namespace rask;
+using namespace testing;
 
 namespace
 {
 
-CLASS_MOCK(ScopeFactoryMock, rask::ast::ScopeFactory)
+struct ScopeFactoryMock : ast::ScopeFactory
 {
-    MOCK_METHOD(rask::ast::SharedScope, createScope, )
+    MOCK_METHOD0(createScope, ast::SharedScope());
 };
 
 typedef boost::shared_ptr<ScopeFactoryMock> SharedScopeFactoryMock;
 
-CLASS_MOCK(BuilderMock, rask::ast::Builder)
+struct BuilderMock : ast::Builder
 {
-    rask::ast::SharedCustomFunction main;
+    ast::SharedCustomFunction main;
 
-    BuilderMock(rask::error::Logger& logger, rask::ast::FunctionTable& ft)
-        : rask::ast::Builder(logger, ft), main(rask::test::FunctionFactory().createShared("main"))
+    BuilderMock(error::Logger& logger, ast::FunctionTable& ft)
+        : ast::Builder(logger, ft), main(test::FunctionFactory().createShared("main"))
     {
         ft.add(main);
     }
 
-    MOCK_METHOD(boost::optional<rask::ast::FunctionDecl>, buildFunctionDecl,
-        (const rask::cst::Function&, f)(rask::ast::VariableFactory&, variableFactory))
-    MOCK_METHOD(bool, buildFunction,
-        (const rask::cst::Function&, cf)(rask::ast::SharedCustomFunction, f)(rask::ast::SharedScope, scope))
+    MOCK_METHOD2(buildFunctionDecl, boost::optional<ast::FunctionDecl>(const cst::Function&, ast::VariableFactory& ));
+    MOCK_METHOD3(buildFunction, bool(const cst::Function&, ast::SharedCustomFunction, ast::SharedScope));
 };
 
 }
 
-namespace tut
+struct rask_ast_Builder_buildTree : testing::Test
 {
-
-struct buildAST_TestData
-{
-    rask::error::Logger logger;
-    rask::ast::FunctionTable ft;
+    error::Logger logger;
+    ast::FunctionTable ft;
     SharedScopeFactoryMock scopeFactory;
     BuilderMock builder;
-    rask::cst::Tree cst;
+    cst::Tree cst;
 
-    buildAST_TestData() : scopeFactory(new ScopeFactoryMock), builder(logger, ft)
-    {
-    }
+    rask_ast_Builder_buildTree() : scopeFactory(new ScopeFactoryMock), builder(logger, ft) { }
 };
 
-typedef test_group<buildAST_TestData> factory;
-typedef factory::object object;
-}
-
-namespace
-{
-tut::factory tf("rask.ast.Builder.buildTree");
-
-}
-
-namespace tut
-{
-
-template <>
-template <>
-void object::test<1>()
+TEST_F(rask_ast_Builder_buildTree, empty)
 {
     using namespace rask;
 
     boost::optional<ast::Tree> ast = builder.buildTree(cst, scopeFactory);
 
-    ENSURE(ast);
-    ENSURE_EQUALS(logger.errors().size(), 0u);
-    ENSURE_EQUALS(ast->functionCount(), 0u);
-    ENSURE_NO_CALLS(builder, buildFunctionDecl);
-    ENSURE_NO_CALLS(builder, buildFunction);
+    ASSERT_TRUE(ast);
+    ASSERT_EQ(0u, logger.errors().size());
+    ASSERT_EQ(0u, ast->functionCount());
 }
 
-template <>
-template <>
-void object::test<2>()
+TEST_F(rask_ast_Builder_buildTree, twoFunctions)
 {
     using namespace rask;
 
@@ -94,89 +69,74 @@ void object::test<2>()
 
     ast::FunctionDecl fd1(cst::Identifier::create(Position(), "f1"), ast::VOID);
     ast::FunctionDecl fd2(cst::Identifier::create(Position(), "f2"), ast::VOID);
-    MOCK_RETURN(builder, buildFunctionDecl, fd1);
-    MOCK_RETURN(builder, buildFunctionDecl, fd2);
-    MOCK_RETURN(builder, buildFunction, true);
-    MOCK_RETURN(builder, buildFunction, true);
-
     ast::SharedScope s1(new ast::Scope);
     ast::SharedScope s2(new ast::Scope);
-    MOCK_RETURN(*scopeFactory, createScope, s1);
-    MOCK_RETURN(*scopeFactory, createScope, s2);
+
+    EXPECT_CALL(*scopeFactory, createScope())
+        .WillOnce(Return(s1))
+        .WillOnce(Return(s2));
+    {
+        InSequence s;
+        EXPECT_CALL(builder, buildFunctionDecl(Ref(cst.functions[0]), Ref(builder.variableFactory)))
+            .WillOnce(Return(fd1));
+        EXPECT_CALL(builder, buildFunctionDecl(Ref(cst.functions[1]), _))
+            .WillOnce(Return(fd2));
+        EXPECT_CALL(builder, buildFunction(Ref(cst.functions[0]), fd1.function(), s1))
+            .WillOnce(Return(true));
+        EXPECT_CALL(builder, buildFunction(Ref(cst.functions[1]), fd2.function(), s2))
+            .WillOnce(Return(true));
+    }
+
     boost::optional<ast::Tree> ast = builder.buildTree(cst, scopeFactory);
 
-    ENSURE(ast);
-    ENSURE_EQUALS(logger.errors().size(), 0u);
-    ENSURE_EQUALS(ast->functionCount(), 2u);
-    ENSURE(ast->function(0) == fd1.function());
-    ENSURE(ast->function(1) == fd2.function());
-    ENSURE_CALL(builder, buildFunctionDecl(cst.functions[0], builder.variableFactory));
-    ENSURE_CALL(builder, buildFunctionDecl(cst.functions[1], builder.variableFactory));
-    ENSURE_NO_CALLS(builder, buildFunctionDecl);
-    ENSURE_CALL(builder, buildFunction(cst.functions[0], fd1.function(), s1));
-    ENSURE_CALL(builder, buildFunction(cst.functions[1], fd2.function(), s2));
-    ENSURE_NO_CALLS(builder, buildFunction);
+    ASSERT_TRUE(ast);
+    ASSERT_EQ(0u, logger.errors().size());
+    ASSERT_EQ(2u, ast->functionCount());
+    ASSERT_TRUE(ast->function(0) == fd1.function());
+    ASSERT_TRUE(ast->function(1) == fd2.function());
 }
 
-template <>
-template <>
-void object::test<3>()
+TEST_F(rask_ast_Builder_buildTree, twoFunctionsSecondDeclarationFails)
 {
-    using namespace rask;
-
     cst.functions.resize(2);
 
-    MOCK_RETURN(builder, buildFunctionDecl, ast::FunctionDecl(cst::Identifier::create(Position(), "f"), ast::VOID));
-    MOCK_RETURN(builder, buildFunctionDecl, boost::none);
+    EXPECT_CALL(builder, buildFunctionDecl(Ref(cst.functions[0]), _))
+        .WillOnce(Return(ast::FunctionDecl(cst::Identifier(), ast::VOID)));
+    EXPECT_CALL(builder, buildFunctionDecl(Ref(cst.functions[1]), _))
+        .WillOnce(Return(boost::none));
 
-    ENSURE(!builder.buildTree(cst, scopeFactory));
-    ENSURE_EQUALS(logger.errors().size(), 0u);
-    ENSURE_CALL(builder, buildFunctionDecl(cst.functions[0], builder.variableFactory));
-    ENSURE_CALL(builder, buildFunctionDecl(cst.functions[1], builder.variableFactory));
-    ENSURE_NO_CALLS(builder, buildFunctionDecl);
-    ENSURE_NO_CALLS(builder, buildFunction);
+    ASSERT_FALSE(builder.buildTree(cst, scopeFactory));
+    ASSERT_EQ(0u, logger.errors().size());
 }
 
-template <>
-template <>
-void object::test<4>()
+TEST_F(rask_ast_Builder_buildTree, twoFunctionsSecondDefinitionFails)
 {
-    using namespace rask;
-
     cst.functions.resize(2);
 
     ast::FunctionDecl fd(cst::Identifier::create(Position(), "f"), ast::VOID);
-    MOCK_RETURN(builder, buildFunctionDecl, fd);
-    MOCK_RETURN(builder, buildFunctionDecl, fd);
-    MOCK_RETURN(builder, buildFunction, false);
-    MOCK_RETURN(builder, buildFunction, false);
-    ast::SharedScope s1(new ast::Scope);
-    ast::SharedScope s2(new ast::Scope);
-    MOCK_RETURN(*scopeFactory, createScope, s1);
-    MOCK_RETURN(*scopeFactory, createScope, s2);
+    ast::SharedScope(new ast::Scope);
 
-    ENSURE(!builder.buildTree(cst, scopeFactory));
-    ENSURE_EQUALS(logger.errors().size(), 0u);
-    ENSURE_CALL(builder, buildFunctionDecl(cst.functions[0], builder.variableFactory));
-    ENSURE_CALL(builder, buildFunctionDecl(cst.functions[1], builder.variableFactory));
-    ENSURE_NO_CALLS(builder, buildFunctionDecl);
-    ENSURE_CALL(builder, buildFunction(cst.functions[0], fd.function(), s1));
-    ENSURE_CALL(builder, buildFunction(cst.functions[1], fd.function(), s2));
-    ENSURE_NO_CALLS(builder, buildFunction);
+    EXPECT_CALL(builder, buildFunctionDecl(_, _))
+        .Times(2)
+        .WillRepeatedly(Return(fd));
+    EXPECT_CALL(builder, buildFunction(_, _, _))
+        .Times(2)
+        .WillRepeatedly(Return(false));
+    EXPECT_CALL(*scopeFactory, createScope())
+        .Times(2)
+        .WillRepeatedly(Return(ast::SharedScope(new ast::Scope)));
+
+    ASSERT_FALSE(builder.buildTree(cst, scopeFactory));
+    ASSERT_EQ(0u, logger.errors().size());
 }
 
-template <>
-template <>
-void object::test<5>()
+TEST_F(rask_ast_Builder_buildTree, noMain)
 {
-    using namespace rask;
-
     cst.end = Position("xxx", 1, 2);
     ft = ast::FunctionTable();
 
-    ENSURE(!builder.buildTree(cst, scopeFactory));
-    ENSURE_EQUALS(logger.errors().size(), 1u);
-    ENSURE_EQUALS(logger.errors()[0], error::Message::missingMainFunction(Position(cst.end.file)));
+    ASSERT_FALSE(builder.buildTree(cst, scopeFactory));
+    ASSERT_EQ(1u, logger.errors().size());
+    ASSERT_EQ(error::Message::missingMainFunction(Position(cst.end.file)), logger.errors()[0]);
 }
 
-}
