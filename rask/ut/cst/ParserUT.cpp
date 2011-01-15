@@ -61,7 +61,7 @@ struct rask_cst_Parser : testing::Test
 
     void parseOneFunctionWithStmts(unsigned numStmts)
     {
-        parseOneFunction();
+        ASSERT_NO_FATAL_FAILURE(parseOneFunction());
         ASSERT_EQ(numStmts, function.stmts.size());
     }
 
@@ -81,7 +81,7 @@ TEST_F(rask_cst_Parser, onlyMain)
 {
     source << "main() -> void\n{\n}";
 
-    parseOneFunction();
+    ASSERT_NO_FATAL_FAILURE(parseOneFunction());
     ASSERT_IDENTIFIER("main", at(1, 1), function.name);
 }
 
@@ -143,7 +143,7 @@ TEST_F(rask_cst_Parser, functionCallsInMain)
 {
     source << "main() -> void\n{\n    abcd();\n    efgh(-2);\n    ijkl(2, 3);\n}";
 
-    parseOneFunctionWithStmts(3);
+    ASSERT_NO_FATAL_FAILURE(parseOneFunctionWithStmts(3));
     ASSERT_IDENTIFIER("main", at(1, 1), function.name);
 
     cst::FunctionCall& fc1 = getFunctionCall(function.stmts[0]);
@@ -187,7 +187,7 @@ TEST_F(rask_cst_Parser, variableDeclarations)
 {
     source << "main() -> void\n{\n    var x;\n    var y = -2;\n}";
 
-    parseOneFunctionWithStmts(2);
+    ASSERT_NO_FATAL_FAILURE(parseOneFunctionWithStmts(2));
 
     cst::VariableDecl& decl1 = getVariableDecl(function.stmts[0]);
     ASSERT_IDENTIFIER("x", at(3, 9), decl1.name);
@@ -203,7 +203,7 @@ TEST_F(rask_cst_Parser, functionCallsWithVariables)
 {
     source << "main() -> void\n{\n    f(x, 1, y);\n}";
 
-    parseOneFunctionWithStmts(1);
+    ASSERT_NO_FATAL_FAILURE(parseOneFunctionWithStmts(1));
 
     cst::FunctionCall& call = getFunctionCall(function.stmts[0]);
     ASSERT_IDENTIFIER("f", at(3, 5), call.function);
@@ -236,7 +236,7 @@ TEST_F(rask_cst_Parser, variableInitializedByVariable)
 {
     source << "main() -> void\n{\n    var a = b;\n}";
 
-    parseOneFunctionWithStmts(1);
+    ASSERT_NO_FATAL_FAILURE(parseOneFunctionWithStmts(1));
 
     cst::VariableDecl& decl = getVariableDecl(function.stmts[0]);
     ASSERT_IDENTIFIER("a", at(3, 9), decl.name);
@@ -248,7 +248,7 @@ TEST_F(rask_cst_Parser, functionDeclarationWithArguments)
 {
     source << "f(Type1 x, Type2 y, Type3 z) -> void\n{ }";
 
-    parseOneFunction();
+    ASSERT_NO_FATAL_FAILURE(parseOneFunction());
 
     ASSERT_IDENTIFIER("f", at(1, 1), function.name);
     ASSERT_EQ(3u, function.args.size());
@@ -265,7 +265,7 @@ TEST_F(rask_cst_Parser, functionDeclarationWithReturnType)
 {
     source << "f() -> abcd123\n{ }";
 
-    parseOneFunction();
+    ASSERT_NO_FATAL_FAILURE(parseOneFunction());
     ASSERT_IDENTIFIER("abcd123", at(1, 8), function.type);
 }
 
@@ -273,7 +273,7 @@ TEST_F(rask_cst_Parser, returnStatements)
 {
     source << "f() -> abcd123\n{\n    return 10;\n    return x;\n}";
 
-    parseOneFunctionWithStmts(2);
+    ASSERT_NO_FATAL_FAILURE(parseOneFunctionWithStmts(2));
 
     cst::Return& ret1 = getReturn(function.stmts[0]);
     ASSERT_EQ(at(3, 5), ret1.position);
@@ -287,7 +287,7 @@ TEST_F(rask_cst_Parser, variableInitializedByFunctionCall)
 {
     source << "f() -> abcd123\n{\n    var a = g(10, x);\n}";
 
-    parseOneFunctionWithStmts(1);
+    ASSERT_NO_FATAL_FAILURE(parseOneFunctionWithStmts(1));
 
     const cst::FunctionCall& fc = getFunctionCall(*getVariableDecl(function.stmts[0]).value);
     ASSERT_IDENTIFIER("g", at(3, 13), fc.function);
@@ -300,7 +300,7 @@ TEST_F(rask_cst_Parser, functionCallWithFunctionCallAsArgument)
 {
     source << "f() -> abcd123\n{\n    h(g(5));\n}";
 
-    parseOneFunctionWithStmts(1);
+    ASSERT_NO_FATAL_FAILURE(parseOneFunctionWithStmts(1));
 
     cst::FunctionCall& fc1 = getFunctionCall(function.stmts[0]);
     ASSERT_EQ(1u, fc1.args.size());
@@ -314,7 +314,7 @@ TEST_F(rask_cst_Parser, returnWithFunctionCall)
 {
     source << "f() -> abcd123\n{\n    return g();\n}";
 
-    parseOneFunctionWithStmts(1);
+    ASSERT_NO_FATAL_FAILURE(parseOneFunctionWithStmts(1));
 
     const cst::Return& ret = getReturn(function.stmts[0]);
     ASSERT_EQ(at(3, 5), ret.position);
@@ -327,7 +327,7 @@ TEST_F(rask_cst_Parser, unaryMinusOnVariable)
 {
     source << "f() -> abcd123\n{\n    return -x;\n}";
 
-    parseOneFunctionWithStmts(1);
+    ASSERT_NO_FATAL_FAILURE(parseOneFunctionWithStmts(1));
 
     const cst::UnaryOperatorCall& e = getUnaryOperatorCall(getReturn(function.stmts[0]).value);
     ASSERT_OPERATOR(cst::UnaryOperator::MINUS, at(3, 12), e);
@@ -338,7 +338,7 @@ TEST_F(rask_cst_Parser, returnAdditionAndSubtraction)
 {
     source << "f() -> abcd123\n{\n    return x + y - 5;\n}";
 
-    parseOneFunctionWithStmts(1);
+    ASSERT_NO_FATAL_FAILURE(parseOneFunctionWithStmts(1));
 
     const cst::ChainExpression& expr = getChainExpression(getReturn(function.stmts[0]).value);
     ASSERT_VARIABLE("x", at(3, 12), expr.expr);
@@ -353,7 +353,7 @@ TEST_F(rask_cst_Parser, variableInitializationByAdditionAndSubtraction)
 {
     source << "f() -> abcd123\n{\n    var z = x + y - 5;\n}";
 
-    parseOneFunctionWithStmts(1);
+    ASSERT_NO_FATAL_FAILURE(parseOneFunctionWithStmts(1));
 
     const cst::ChainExpression& expr = getChainExpression(*getVariableDecl(function.stmts[0]).value);
     ASSERT_VARIABLE("x", at(3, 13), expr.expr);
@@ -368,7 +368,7 @@ TEST_F(rask_cst_Parser, functionCallWithAdditionAndSubtraction)
 {
     source << "f() -> abcd123\n{\n    f(x + y - 5);\n}";
 
-    parseOneFunctionWithStmts(1);
+    ASSERT_NO_FATAL_FAILURE(parseOneFunctionWithStmts(1));
 
     const cst::ChainExpression& expr = getChainExpression(getFunctionCall(function.stmts[0]).args[0]);
     ASSERT_VARIABLE("x", at(3, 7), expr.expr);
@@ -383,7 +383,7 @@ TEST_F(rask_cst_Parser, functionCallWithMultiplication)
 {
     source << "f() -> abcd123\n{\n    f(x * y * 7);\n}";
 
-    parseOneFunctionWithStmts(1);
+    ASSERT_NO_FATAL_FAILURE(parseOneFunctionWithStmts(1));
 
     const cst::ChainExpression& expr = getChainExpression(getFunctionCall(function.stmts[0]).args[0]);
     ASSERT_VARIABLE("x", at(3, 7), expr.expr);
@@ -398,7 +398,7 @@ TEST_F(rask_cst_Parser, functionCallWithDivision)
 {
     source << "f() -> abcd123\n{\n    f(x / y / 7);\n}";
 
-    parseOneFunctionWithStmts(1);
+    ASSERT_NO_FATAL_FAILURE(parseOneFunctionWithStmts(1));
 
     const cst::ChainExpression& expr = getChainExpression(getFunctionCall(function.stmts[0]).args[0]);
     ASSERT_VARIABLE("x", at(3, 7), expr.expr);
@@ -413,7 +413,7 @@ TEST_F(rask_cst_Parser, functionCallWithModulo)
 {
     source << "f() -> abcd123\n{\n    f(x % y % 7);\n}";
 
-    parseOneFunctionWithStmts(1);
+    ASSERT_NO_FATAL_FAILURE(parseOneFunctionWithStmts(1));
 
     const cst::ChainExpression& expr = getChainExpression(getFunctionCall(function.stmts[0]).args[0]);
     ASSERT_VARIABLE("x", at(3, 7), expr.expr);
@@ -428,7 +428,7 @@ TEST_F(rask_cst_Parser, operatorPriorities)
 {
     source << "f() -> abcd123\n{\n    f(x + y * 7 / 9 % 3 - z);\n}";
 
-    parseOneFunctionWithStmts(1);
+    ASSERT_NO_FATAL_FAILURE(parseOneFunctionWithStmts(1));
 
     const cst::ChainExpression& expr = getChainExpression(getFunctionCall(function.stmts[0]).args[0]);
     ASSERT_VARIABLE("x", at(3, 7), expr.expr);
@@ -453,7 +453,7 @@ TEST_F(rask_cst_Parser, parensInArithmeicExpression)
 {
     source << "f() -> abcd123\n{\n    f((x + y) * (u - v) / (a * b));\n}";
 
-    parseOneFunctionWithStmts(1);
+    ASSERT_NO_FATAL_FAILURE(parseOneFunctionWithStmts(1));
 
     const cst::ChainExpression& expr = getChainExpression(getFunctionCall(function.stmts[0]).args[0]);
     const cst::ChainExpression& left = getChainExpression(expr.expr);
