@@ -46,54 +46,58 @@ struct rask_ast_Builder_buildTree : testing::Test
     SharedScopeFactoryMock scopeFactory;
     BuilderMock builder;
     cst::Tree cst;
+    boost::optional<ast::Tree> ast;
 
     rask_ast_Builder_buildTree() : scopeFactory(new ScopeFactoryMock), builder(logger, ft) { }
+
+    void assertBuildTree()
+    {
+        ast = builder.buildTree(cst, scopeFactory);
+        ASSERT_TRUE(ast);
+        ASSERT_EQ(0u, logger.errors().size());
+    }
+
+    void assertBuildTreeFails(unsigned numErrors = 0)
+    {
+        ASSERT_FALSE(builder.buildTree(cst, scopeFactory));
+        ASSERT_EQ(numErrors, logger.errors().size());
+    }
 };
 
 TEST_F(rask_ast_Builder_buildTree, empty)
 {
-    using namespace rask;
-
-    boost::optional<ast::Tree> ast = builder.buildTree(cst, scopeFactory);
-
-    ASSERT_TRUE(ast);
-    ASSERT_EQ(0u, logger.errors().size());
+    ASSERT_NO_FATAL_FAILURE(assertBuildTree());
     ASSERT_EQ(0u, ast->functionCount());
 }
 
 TEST_F(rask_ast_Builder_buildTree, twoFunctions)
 {
-    using namespace rask;
-
     cst.functions.resize(2);
 
-    ast::FunctionDecl fd1(cst::Identifier::create(Position(), "f1"), ast::VOID);
-    ast::FunctionDecl fd2(cst::Identifier::create(Position(), "f2"), ast::VOID);
-    ast::SharedScope s1(new ast::Scope);
-    ast::SharedScope s2(new ast::Scope);
+    ast::FunctionDecl decl1(cst::Identifier::create(Position(), "f1"), ast::VOID);
+    ast::FunctionDecl decl2(cst::Identifier::create(Position(), "f2"), ast::VOID);
+    ast::SharedScope scope1(new ast::Scope);
+    ast::SharedScope scope2(new ast::Scope);
 
     EXPECT_CALL(*scopeFactory, createScope())
-        .WillOnce(Return(s1))
-        .WillOnce(Return(s2));
+        .WillOnce(Return(scope1))
+        .WillOnce(Return(scope2));
     {
         InSequence s;
         EXPECT_CALL(builder, buildFunctionDecl(Ref(cst.functions[0]), Ref(builder.variableFactory)))
-            .WillOnce(Return(fd1));
+            .WillOnce(Return(decl1));
         EXPECT_CALL(builder, buildFunctionDecl(Ref(cst.functions[1]), _))
-            .WillOnce(Return(fd2));
-        EXPECT_CALL(builder, buildFunction(Ref(cst.functions[0]), fd1.function(), s1))
+            .WillOnce(Return(decl2));
+        EXPECT_CALL(builder, buildFunction(Ref(cst.functions[0]), decl1.function(), scope1))
             .WillOnce(Return(true));
-        EXPECT_CALL(builder, buildFunction(Ref(cst.functions[1]), fd2.function(), s2))
+        EXPECT_CALL(builder, buildFunction(Ref(cst.functions[1]), decl2.function(), scope2))
             .WillOnce(Return(true));
     }
 
-    boost::optional<ast::Tree> ast = builder.buildTree(cst, scopeFactory);
-
-    ASSERT_TRUE(ast);
-    ASSERT_EQ(0u, logger.errors().size());
+    ASSERT_NO_FATAL_FAILURE(assertBuildTree());
     ASSERT_EQ(2u, ast->functionCount());
-    ASSERT_TRUE(ast->function(0) == fd1.function());
-    ASSERT_TRUE(ast->function(1) == fd2.function());
+    ASSERT_TRUE(ast->function(0) == decl1.function());
+    ASSERT_TRUE(ast->function(1) == decl2.function());
 }
 
 TEST_F(rask_ast_Builder_buildTree, twoFunctionsSecondDeclarationFails)
@@ -105,8 +109,7 @@ TEST_F(rask_ast_Builder_buildTree, twoFunctionsSecondDeclarationFails)
     EXPECT_CALL(builder, buildFunctionDecl(Ref(cst.functions[1]), _))
         .WillOnce(Return(boost::none));
 
-    ASSERT_FALSE(builder.buildTree(cst, scopeFactory));
-    ASSERT_EQ(0u, logger.errors().size());
+    ASSERT_NO_FATAL_FAILURE(assertBuildTreeFails());
 }
 
 TEST_F(rask_ast_Builder_buildTree, twoFunctionsSecondDefinitionFails)
@@ -125,18 +128,14 @@ TEST_F(rask_ast_Builder_buildTree, twoFunctionsSecondDefinitionFails)
     EXPECT_CALL(*scopeFactory, createScope())
         .Times(2)
         .WillRepeatedly(Return(ast::SharedScope(new ast::Scope)));
-
-    ASSERT_FALSE(builder.buildTree(cst, scopeFactory));
-    ASSERT_EQ(0u, logger.errors().size());
+    ASSERT_NO_FATAL_FAILURE(assertBuildTreeFails());
 }
 
 TEST_F(rask_ast_Builder_buildTree, noMain)
 {
     cst.end = Position("xxx", 1, 2);
     ft = ast::FunctionTable();
-
-    ASSERT_FALSE(builder.buildTree(cst, scopeFactory));
-    ASSERT_EQ(1u, logger.errors().size());
+    ASSERT_NO_FATAL_FAILURE(assertBuildTreeFails(1));
     ASSERT_EQ(error::Message::missingMainFunction(Position(cst.end.file)), logger.errors()[0]);
 }
 
