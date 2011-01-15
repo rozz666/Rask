@@ -6,88 +6,70 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <tut/tut.hpp>
-#include <tut/../contrib/tut_macros.h>
 #include <boost/scoped_ptr.hpp>
 #include <rask/cg/CodeGenerator.hpp>
 #include <rask/cg/Prefixes.hpp>
-#include <rask/test/TUTAssert.hpp>
-#include <rask/test/Mock.hpp>
 #include <rask/test/VariableFactory.hpp>
 #include <llvm/LLVMContext.h>
 #include <llvm/BasicBlock.h>
 #include <llvm/DerivedTypes.h>
 #include <llvm/Instructions.h>
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+
+using namespace rask;
+using namespace testing;
 
 namespace
 {
 
-CLASS_MOCK(CodeGeneratorMock, rask::cg::CodeGenerator)
+struct CodeGeneratorMock : rask::cg::CodeGenerator
 {
     CodeGeneratorMock(rask::cg::SymbolTable& st) : rask::cg::CodeGenerator(st) { }
 
-    MOCK_METHOD(llvm::Value *, genValue, (const rask::ast::Expression&, expr)(llvm::BasicBlock&, block))
+    MOCK_METHOD2(genValue, llvm::Value *(const ast::Expression& expr, llvm::BasicBlock& block));
 };
+
+std::ostream& operator<<(std::ostream& os, const ast::Expression& expr)
+{
+    return os << "ast::Expression";
+}
 
 }
 
-namespace tut
-{
-
-struct genVariableDecl_TestData
+struct rask_cg_CodeGenerator_genVariableDecl : testing::Test
 {
     llvm::LLVMContext ctx;
     boost::scoped_ptr<llvm::BasicBlock> block;
-    rask::cg::SymbolTable st;
+    cg::SymbolTable st;
     CodeGeneratorMock cg;
 
-    genVariableDecl_TestData()
-        : block(llvm::BasicBlock::Create(ctx)), cg(st)
-    {
-    }
+    rask_cg_CodeGenerator_genVariableDecl() : block(llvm::BasicBlock::Create(ctx)), cg(st) { }
 };
 
-typedef test_group<genVariableDecl_TestData> factory;
-typedef factory::object object;
-}
 
-namespace
+TEST_F(rask_cg_CodeGenerator_genVariableDecl, generateDeclaration)
 {
-tut::factory tf("rask.cg.CodeGenerator.genVariableDecl");
-}
-
-namespace tut
-{
-
-template <>
-template <>
-void object::test<1>()
-{
-    using namespace rask;
-
     cst::Identifier name;
     name.value = "asia";
     ast::VariableDecl vd(test::VariableFactory().createShared(name), ast::Constant(10));
 
-    llvm::Value *value = llvm::ConstantInt::get(ctx, llvm::APInt(32, getConstant(vd.value()).getInt32(), true));
-    MOCK_RETURN(cg, genValue, value);
+    llvm::Value *value = llvm::ConstantInt::get(ctx, llvm::APInt(32, 10, true));
+    EXPECT_CALL(cg, genValue(Ref(vd.value()), Ref(*block))).WillOnce(Return(value));
 
     llvm::AllocaInst *alloc = cg.genVariableDecl(vd, *block);
 
-    ENSURE_EQUALS(block->size(), 2u);
+    ASSERT_EQ(2u, block->size());
     llvm::BasicBlock::iterator it = block->begin();
 
-    ENSURE(&*it == alloc);
-    ENSURE_EQUALS(alloc->getNameStr(), cg::LOCAL_VAR_PREFIX + name.value);
-    ENSURE(alloc->getAllocatedType() == llvm::IntegerType::get(ctx, 32));
-    ENSURE(st.get(name) == alloc);
+    ASSERT_TRUE(&*it == alloc);
+    ASSERT_EQ(cg::LOCAL_VAR_PREFIX + name.value, alloc->getNameStr());
+    ASSERT_TRUE(alloc->getAllocatedType() == llvm::IntegerType::get(ctx, 32));
+    ASSERT_TRUE(st.get(name) == alloc);
     ++it;
 
-    ENSURE_CALL(cg, genValue(vd.value(), *block));
-    ENSURE(llvm::isa<llvm::StoreInst>(*it));
+    ASSERT_TRUE(llvm::isa<llvm::StoreInst>(*it));
     llvm::StoreInst *store = llvm::cast<llvm::StoreInst>(&*it);
-    ENSURE(store->getValueOperand() == value);
-    ENSURE(store->getPointerOperand() == alloc);
-}
-
+    ASSERT_TRUE(store->getValueOperand() == value);
+    ASSERT_TRUE(store->getPointerOperand() == alloc);
 }
