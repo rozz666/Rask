@@ -6,59 +6,24 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <tut/tut.hpp>
-#include <tut/../contrib/tut_macros.h>
-#include <rask/test/TUTAssert.hpp>
 #include <rask/ast/BuiltinFunction.hpp>
+#include <gtest/gtest.h>
 
-namespace tut
+using namespace rask;
+
+TEST(rask_ast_BuiltinFunction, constructor)
 {
-
-struct BuiltinFunction_TestData
-{
-};
-
-typedef test_group<BuiltinFunction_TestData> factory;
-typedef factory::object object;
-}
-
-namespace
-{
-tut::factory tf("rask.ast.BuiltinFunction");
-}
-
-namespace tut
-{
-
-template <>
-template <>
-void object::test<1>()
-{
-    using namespace rask;
-
     ast::BuiltinFunction bf1("test1", ast::VOID, 2);
-    ast::BuiltinFunction bf2("test2", ast::VOID, 0);
+    ast::BuiltinFunction bf2("test2", ast::INT32, 0);
     ast::Function& f1 = bf1;
     ast::Function& f2 = bf2;
 
-    cst::Identifier name = f1.name();
-
-    ENSURE(f1.name().position == Position());
-    ENSURE_EQUALS(f1.name().value, "test1");
-    ENSURE_EQUALS(f1.argCount(), 2u);
-    ENSURE(f2.name().position == Position());
-    ENSURE_EQUALS(f2.name().value, "test2");
-    ENSURE_EQUALS(f2.argCount(), 0u);
-}
-
-template <>
-template <>
-void object::test<2>()
-{
-    using namespace rask;
-
-    ENSURE(ast::BuiltinFunction("xxx", ast::VOID, 0).type() == ast::VOID);
-    ENSURE(ast::BuiltinFunction("xxx", ast::INT32, 0).type() == ast::INT32);
-}
-
+    ASSERT_TRUE(f1.name().position == Position());
+    ASSERT_EQ("test1", f1.name().value);
+    ASSERT_EQ(2u, f1.argCount());
+    ASSERT_TRUE(f1.type() == ast::VOID);
+    ASSERT_TRUE(f2.name().position == Position());
+    ASSERT_EQ("test2", f2.name().value);
+    ASSERT_EQ(0u, f2.argCount());
+    ASSERT_TRUE(f2.type() == ast::INT32);
 }
