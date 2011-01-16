@@ -40,17 +40,48 @@ struct rask_ast_buildExpression : testing::Test
     BuilderMock builder;
     ast::SharedScopeMock scopeMock;
     ast::SharedScope scope;
+    boost::optional<ast::Expression> expr;
+    cst::Expression chainExpr;
+    cst::Expression unOpCall;
+    cst::Expression functionCall;
+    ast::FunctionCall::Arguments fcArgs;
 
-    rask_ast_buildExpression() : builder(logger, ft), scopeMock(new ast::ScopeMock), scope(scopeMock) { }
+    rask_ast_buildExpression()
+        : builder(logger, ft), scopeMock(new ast::ScopeMock), scope(scopeMock), fcArgs(5)
+    {
+        chainExpr = cst::ChainExpression();
+        unOpCall = cst::UnaryOperatorCall();
+        functionCall = cst::FunctionCall();
+    }
+
+    void assertBuildExpression(const cst::Expression& cexpr, ast::SharedScope scope)
+    {
+        expr = builder.buildExpression(cexpr, scope);
+        ASSERT_TRUE(expr);
+        ASSERT_TRUE(logger.errors().empty());
+    }
+
+    void assertBuildExpressionWithScope(const cst::Expression& cexpr)
+    {
+        assertBuildExpression(cexpr, scope);
+    }
+
+    void assertBuildExpressionWithoutScope(const cst::Expression& cexpr)
+    {
+        assertBuildExpression(cexpr, null);
+    }
+
+    void assertBuildExpressionFailsNoErrors(const cst::Expression& cexpr)
+    {
+        ASSERT_FALSE(builder.buildExpression(cexpr, null));
+        ASSERT_TRUE(logger.errors().empty());
+    }
 };
 
 TEST_F(rask_ast_buildExpression, constant)
 {
     cst::Constant c = cst::Constant::create(Position(), 123);
-    boost::optional<ast::Expression> expr = builder.buildExpression(c, null);
-
-    ASSERT_TRUE(expr);
-    ASSERT_TRUE(logger.errors().empty());
+    ASSERT_NO_FATAL_FAILURE(assertBuildExpressionWithoutScope(c));
     ASSERT_TRUE(getConstant(*expr) == ast::Constant(c.value));
 }
 
@@ -62,10 +93,7 @@ TEST_F(rask_ast_buildExpression, variable)
     EXPECT_CALL(*scopeMock, getVariable(id.value))
         .WillOnce(Return(var));
 
-    boost::optional<ast::Expression> expr = builder.buildExpression(cst::Expression(id), scope);
-
-    ASSERT_TRUE(expr);
-    ASSERT_TRUE(logger.errors().empty());
+    ASSERT_NO_FATAL_FAILURE(assertBuildExpressionWithScope(id));
     ASSERT_TRUE(getVariable(*expr).lock() == var);
 }
 
@@ -76,87 +104,61 @@ TEST_F(rask_ast_buildExpression, variableFails)
 
     cst::Identifier id = cst::Identifier::create(Position("xxx", 1, 2), "abc");
 
-    ASSERT_FALSE(builder.buildExpression(id, scopeMock));
+    ASSERT_FALSE(builder.buildExpression(id, scope));
     ASSERT_EQ(1u, logger.errors().size());
     ASSERT_EQ(error::Message::unknownIdentifier(id.position, id.value), logger.errors()[0]);
 }
 
 TEST_F(rask_ast_buildExpression, functionCall)
 {
-    cst::Expression fc = cst::FunctionCall();
-    unsigned n = 5;
+    EXPECT_CALL(builder, buildFunctionCall(Ref(getFunctionCall(functionCall)), scope))
+        .WillOnce(Return(ast::FunctionCall(null, fcArgs)));
 
-    EXPECT_CALL(builder, buildFunctionCall(Ref(getFunctionCall(fc)), scope))
-        .WillOnce(Return(ast::FunctionCall(null, ast::FunctionCall::Arguments(n))));
-
-    boost::optional<ast::Expression> expr = builder.buildExpression(fc, scope);
-
-    ASSERT_TRUE(expr);
-    ASSERT_TRUE(logger.errors().empty());
-    ASSERT_TRUE(getFunctionCall(*expr).args().size() == n);
+    ASSERT_NO_FATAL_FAILURE(assertBuildExpressionWithScope(functionCall));
+    ASSERT_TRUE(getFunctionCall(*expr).args().size() == fcArgs.size());
 }
 
 TEST_F(rask_ast_buildExpression, functionCallFails)
 {
-    cst::Expression fc = cst::FunctionCall();
-
     EXPECT_CALL(builder, buildFunctionCall(_, _))
         .WillOnce(Return(null));
 
-    ASSERT_FALSE(builder.buildExpression(fc, null));
-    ASSERT_TRUE(logger.errors().empty());
+    ASSERT_NO_FATAL_FAILURE(assertBuildExpressionFailsNoErrors(functionCall));
 }
 
 TEST_F(rask_ast_buildExpression, unaryOperatorCall)
 {
-    cst::Expression c = cst::UnaryOperatorCall();
-    unsigned n = 5;
+    EXPECT_CALL(builder, buildUnaryOperatorCall(Ref(getUnaryOperatorCall(unOpCall)), scope))
+        .WillOnce(Return(ast::FunctionCall(null, fcArgs)));
 
-    EXPECT_CALL(builder, buildUnaryOperatorCall(Ref(getUnaryOperatorCall(c)), scope))
-        .WillOnce(Return(ast::FunctionCall(null, ast::FunctionCall::Arguments(n))));
-
-    boost::optional<ast::Expression> expr = builder.buildExpression(c, scopeMock);
-
-    ASSERT_TRUE(expr);
-    ASSERT_TRUE(logger.errors().empty());
-    ASSERT_TRUE(getFunctionCall(*expr).args().size() == n);
+    ASSERT_NO_FATAL_FAILURE(assertBuildExpressionWithScope(unOpCall));
+    ASSERT_TRUE(getFunctionCall(*expr).args().size() == fcArgs.size());
 }
 
 TEST_F(rask_ast_buildExpression, unaryOperatorCallFails)
 {
-    cst::Expression c = cst::UnaryOperatorCall();
-
     EXPECT_CALL(builder, buildUnaryOperatorCall(_, _))
         .WillOnce(Return(null));
 
-    ASSERT_FALSE(builder.buildExpression(c, null));
-    ASSERT_TRUE(logger.errors().empty());
+    ASSERT_NO_FATAL_FAILURE(assertBuildExpressionFailsNoErrors(unOpCall));
 }
 
 TEST_F(rask_ast_buildExpression, chainExpression)
 {
     ast::Constant ret(5);
-    cst::Expression ce = cst::ChainExpression();
-
-    EXPECT_CALL(builder, buildChainExpression(Ref(getChainExpression(ce)), Eq<ast::SharedScope>(null)))
+    EXPECT_CALL(builder, buildChainExpression(Ref(getChainExpression(chainExpr)), scope))
         .WillOnce(Return(ast::Expression(ret)));
 
-    boost::optional<ast::Expression> expr = builder.buildExpression(ce, null);
-
-    ASSERT_TRUE(expr);
-    ASSERT_TRUE(logger.errors().empty());
+    ASSERT_NO_FATAL_FAILURE(assertBuildExpressionWithScope(chainExpr));
     ASSERT_TRUE(getConstant(*expr) == ret);
 }
 
 TEST_F(rask_ast_buildExpression, chainExpressionFails)
 {
-    cst::ChainExpression ce;
-
     EXPECT_CALL(builder, buildChainExpression(_, _))
         .WillOnce(Return(null));
 
-    ASSERT_FALSE(builder.buildExpression(ce, scopeMock));
-    ASSERT_TRUE(logger.errors().empty());
+    ASSERT_NO_FATAL_FAILURE(assertBuildExpressionFailsNoErrors(chainExpr));
 }
 
 TEST_F(rask_ast_buildExpression, booleanConstants)
