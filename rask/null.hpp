@@ -12,6 +12,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
+#include <boost/optional.hpp>
 
 namespace rask
 {
@@ -28,6 +29,9 @@ public:
 
     template <typename T>
     operator boost::weak_ptr<T>() const { return boost::weak_ptr<T>(); }
+
+    template <typename T>
+    operator boost::optional<T>() const { return boost::optional<T>(); }
 };
 
 template <typename T>

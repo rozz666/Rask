@@ -41,3 +41,9 @@ TEST(rask_null, pointerEquality)
     ASSERT_TRUE(rask::null == rask::null);
     ASSERT_TRUE(!(rask::null != rask::null));
 }
+
+TEST(rask_null, optionalInitialization)
+{
+    boost::optional<int> x = rask::null;
+    ASSERT_FALSE(x);
+}
