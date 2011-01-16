@@ -6,107 +6,71 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <tut/tut.hpp>
-#include <tut/../contrib/tut_macros.h>
-#include <rask/test/TUTAssert.hpp>
 #include <rask/ast/BuiltinFunctions.hpp>
 #include <rask/ast/FunctionTable.hpp>
 #include <rask/Operators.hpp>
+#include <gtest/gtest.h>
 
-namespace tut
-{
-
-struct BuiltinFunctions_TestData
+struct rask_ast_BuiltinFunctions : testing::Test
 {
     rask::ast::BuiltinFunctions bfs;
     rask::ast::FunctionTable ft;
 
-    BuiltinFunctions_TestData()
+    rask_ast_BuiltinFunctions()
     {
         bfs.declare(ft);
     }
 
-    void ensureBuiltinFunction(const std::string& name, rask::ast::BasicType type, unsigned argCount)
+    void assertBuiltinFunction(const std::string& name, rask::ast::BasicType type, unsigned argCount)
     {
         using namespace rask;
-        
+
         boost::optional<ast::SharedFunction> f = ft.getFunction(name);
-        ENSURE(f);
-        ENSURE(boost::dynamic_pointer_cast<ast::BuiltinFunction>(*f));
-        ENSURE_EQUALS((*f)->name().position, Position());
-        ENSURE_EQUALS((*f)->name().value, name);
-        ENSURE_EQUALS((*f)->argCount(), argCount);
-        ENSURE((*f)->type() == type);
+        ASSERT_TRUE(f);
+        ASSERT_TRUE(boost::dynamic_pointer_cast<ast::BuiltinFunction>(*f));
+        ASSERT_EQ(Position(), (*f)->name().position);
+        ASSERT_EQ(name, (*f)->name().value);
+        ASSERT_EQ(argCount, (*f)->argCount());
+        ASSERT_TRUE((*f)->type() == type);
     }
 };
 
-typedef test_group<BuiltinFunctions_TestData> factory;
-typedef factory::object object;
+TEST_F(rask_ast_BuiltinFunctions, print)
+{
+    assertBuiltinFunction("print", rask::ast::VOID, 1);
 }
 
-namespace
+TEST_F(rask_ast_BuiltinFunctions, getInt32)
 {
-tut::factory tf("rask.ast.BuiltinFunctions");
+    assertBuiltinFunction("getInt32", rask::ast::INT32, 0);;
 }
 
-namespace tut
+TEST_F(rask_ast_BuiltinFunctions, unaryMinus)
 {
-
-template <>
-template <>
-void object::test<1>()
-{
-    ensureBuiltinFunction("print", rask::ast::VOID, 1);
+    assertBuiltinFunction(rask::UNARY_MINUS_NAME, rask::ast::INT32, 1);
 }
 
-template <>
-template <>
-void object::test<2>()
+TEST_F(rask_ast_BuiltinFunctions, binaryMinus)
 {
-    ensureBuiltinFunction("getInt32", rask::ast::INT32, 0);;
+    assertBuiltinFunction(rask::BINARY_MINUS_NAME, rask::ast::INT32, 2);
 }
 
-template <>
-template <>
-void object::test<3>()
+TEST_F(rask_ast_BuiltinFunctions, binaryPlus)
 {
-    ensureBuiltinFunction(rask::UNARY_MINUS_NAME, rask::ast::INT32, 1);
+    assertBuiltinFunction(rask::BINARY_PLUS_NAME, rask::ast::INT32, 2);
 }
 
-template <>
-template <>
-void object::test<4>()
+TEST_F(rask_ast_BuiltinFunctions, binaryMult)
 {
-    ensureBuiltinFunction(rask::BINARY_MINUS_NAME, rask::ast::INT32, 2);
+    assertBuiltinFunction(rask::BINARY_MULT_NAME, rask::ast::INT32, 2);
 }
 
-template <>
-template <>
-void object::test<5>()
+TEST_F(rask_ast_BuiltinFunctions, binaryDiv)
 {
-    ensureBuiltinFunction(rask::BINARY_PLUS_NAME, rask::ast::INT32, 2);
+    assertBuiltinFunction(rask::BINARY_DIV_NAME, rask::ast::INT32, 2);
 }
 
-template <>
-template <>
-void object::test<6>()
+TEST_F(rask_ast_BuiltinFunctions, binaryMod)
 {
-    ensureBuiltinFunction(rask::BINARY_MULT_NAME, rask::ast::INT32, 2);
-}
-
-template <>
-template <>
-void object::test<7>()
-{
-    ensureBuiltinFunction(rask::BINARY_DIV_NAME, rask::ast::INT32, 2);
-}
-
-template <>
-template <>
-void object::test<8>()
-{
-    ensureBuiltinFunction(rask::BINARY_MOD_NAME, rask::ast::INT32, 2);
-}
-
-
+    assertBuiltinFunction(rask::BINARY_MOD_NAME, rask::ast::INT32, 2);
 }
