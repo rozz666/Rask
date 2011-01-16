@@ -101,7 +101,7 @@ void GTestController::loadState()
 {
     boost::shared_ptr<FILE> f(std::fopen(journalName.c_str(), "rb"), safefclose);
 
-    if (!f.get())
+    if (!validFile(f.get()))
     {
         filter_ << "*:-:";
         return;
@@ -124,6 +124,8 @@ void GTestController::saveState(std::string currentTest)
     boost::shared_ptr<FILE> f(std::fopen(journalName.c_str(), "wb"), safefclose);
 
     if (!f) return;
+    char good = 'N';
+    std::fwrite(&good, sizeof(good), 1, f.get());
     writeString(currentTest, f.get());
     writeString(filter_.str(), f.get());
     writeString(output_.str(), f.get());
@@ -131,7 +133,9 @@ void GTestController::saveState(std::string currentTest)
     std::fwrite(&ok_, sizeof(ok_), 1, f.get());
     std::fwrite(&failed_, sizeof(failed_), 1, f.get());
     std::fwrite(&crashed_, sizeof(crashed_), 1, f.get());
-
+    std::fseek(f.get(), 0, SEEK_SET);
+    good = 'Y';
+    std::fwrite(&good, sizeof(good), 1, f.get());
 }
 void GTestController::writeString(const std::string& s, FILE* f)
 {
@@ -147,6 +151,12 @@ std::string GTestController::readString(FILE* f)
     std::vector<char> buf(n);
     std::fread(&buf[0], 1, n, f);
     return &buf[0];
+}
+
+bool GTestController::validFile(FILE* f)
+{
+    char good;
+    return f && std::fread(&good, sizeof(good), 1, f) && (good == 'Y');
 }
 
 

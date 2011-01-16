@@ -57,6 +57,7 @@ private:
     void saveState(std::string currentTest);
     void writeString(const std::string& s, FILE *f);
     std::string readString(FILE *f);
+    bool validFile(FILE *f);
 };
 
 }
