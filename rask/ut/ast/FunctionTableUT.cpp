@@ -6,27 +6,25 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <tut/tut.hpp>
-#include <tut/../contrib/tut_macros.h>
-#include <rask/test/TUTAssert.hpp>
 #include <rask/ast/FunctionTable.hpp>
 #include <rask/test/FunctionFactory.hpp>
 #include <boost/assign/list_of.hpp>
+#include <gtest/gtest.h>
 
-namespace tut
-{
+using namespace rask;
+using namespace testing;
 
-struct AstSymbolTable_TestData
+struct rask_ast_FunctionTable : testing::Test
 {
-    rask::ast::FunctionTable ft;
-    rask::test::FunctionFactory functionFactory;
+    ast::FunctionTable ft;
+    test::FunctionFactory functionFactory;
     std::string f1Name;
     std::string f2Name;
-    rask::ast::SharedFunction f1a;
-    rask::ast::SharedFunction f1b;
-    rask::ast::SharedFunction f2;
+    ast::SharedFunction f1a;
+    ast::SharedFunction f1b;
+    ast::SharedFunction f2;
 
-    AstSymbolTable_TestData()
+    rask_ast_FunctionTable()
         : f1Name("asia"), f2Name("kasia"),
         f1a(functionFactory.createShared(f1Name)),
         f1b(functionFactory.createShared(f1Name)),
@@ -35,49 +33,28 @@ struct AstSymbolTable_TestData
     }
 };
 
-typedef test_group<AstSymbolTable_TestData> factory;
-typedef factory::object object;
+TEST_F(rask_ast_FunctionTable, twoFunctions)
+{
+    ASSERT_TRUE(ft.add(f1a) == f1a);
+    ASSERT_TRUE(ft.add(f2) == f2);
+    ASSERT_TRUE(*ft.getFunction(f1Name) == f1a);
+    ASSERT_TRUE(*ft.getFunction(f2Name) == f2);
 }
 
-namespace
+TEST_F(rask_ast_FunctionTable, badFunctionName)
 {
-tut::factory tf("rask.ast.SymbolTable");
+    ASSERT_FALSE(ft.getFunction("x"));
 }
 
-namespace tut
+TEST_F(rask_ast_FunctionTable, duplicatedFunction)
 {
-
-template <>
-template <>
-void object::test<1>()
-{
-    ENSURE(ft.add(f1a) == f1a);
-    ENSURE(ft.add(f2) == f2);
-    ENSURE(*ft.getFunction(f1Name) == f1a);
-    ENSURE(*ft.getFunction(f2Name) == f2);
+    ASSERT_TRUE(ft.add(f1a) == f1a);
+    ASSERT_TRUE(ft.add(f1b) == f1a);
+    ASSERT_TRUE(ft.getFunction(f1Name) == f1a);
 }
 
-template <>
-template <>
-void object::test<2>()
+TEST_F(rask_ast_FunctionTable, family)
 {
-    ENSURE(!ft.getFunction("x"));
-}
-
-template <>
-template <>
-void object::test<3>()
-{
-    ENSURE(ft.add(f1a) == f1a);
-    ENSURE(ft.add(f1b) == f1a);
-    ENSURE(ft.getFunction(f1Name) == f1a);
-}
-
-template <>
-template <>
-void object::test<4>()
-{
-    using namespace rask;
     using boost::assign::list_of;
 
     std::string name("fam1");
@@ -88,26 +65,22 @@ void object::test<4>()
     ast::Function::ArgumentTypes args3 = list_of(ast::INT32)(ast::BOOLEAN);
     ast::SharedCustomFunction fam13 = functionFactory.createShared(name, ast::VOID, args3);
 
-    ENSURE(ft.add(fam11) == fam11);
-    ENSURE(ft.add(fam12) == fam12);
-    ENSURE(ft.add(fam13) == fam13);
+    ASSERT_TRUE(ft.add(fam11) == fam11);
+    ASSERT_TRUE(ft.add(fam12) == fam12);
+    ASSERT_TRUE(ft.add(fam13) == fam13);
     boost::optional<ast::SharedFunctionFamily> optFam1 = ft.getFamily(name);
-    ENSURE(optFam1);
+    ASSERT_TRUE(optFam1);
     ast::SharedFunctionFamily fam1 = *optFam1;
-    ENSURE_EQUALS(fam1->name(), name);
-    ENSURE(fam1->getFunction(args1));
-    ENSURE(*fam1->getFunction(args1) == fam11);
-    ENSURE(fam1->getFunction(args2));
-    ENSURE(*fam1->getFunction(args2) == fam12);
-    ENSURE(fam1->getFunction(args3));
-    ENSURE(*fam1->getFunction(args3) == fam13);
+    ASSERT_EQ(name, fam1->name());
+    ASSERT_TRUE(fam1->getFunction(args1));
+    ASSERT_TRUE(*fam1->getFunction(args1) == fam11);
+    ASSERT_TRUE(fam1->getFunction(args2));
+    ASSERT_TRUE(*fam1->getFunction(args2) == fam12);
+    ASSERT_TRUE(fam1->getFunction(args3));
+    ASSERT_TRUE(*fam1->getFunction(args3) == fam13);
 }
 
-template <>
-template <>
-void object::test<5>()
+TEST_F(rask_ast_FunctionTable, invalidFamily)
 {
-    ENSURE(!ft.getFamily("xxx"));
-}
-
+    ASSERT_FALSE(ft.getFamily("xxx"));
 }
