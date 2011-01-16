@@ -6,221 +6,170 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <tut/tut.hpp>
-#include <rask/test/TUTAssert.hpp>
-#include <rask/test/Mock.hpp>
-#include <rask/test/VariableFactory.hpp>
 #include <rask/ast/Builder.hpp>
+#include <rask/test/VariableFactory.hpp>
 #include <rask/null.hpp>
-#include <rask/ut/ast/ScopeMock.hpp>
+#include <rask/ut/ast/ScopeMockNew.hpp>
+#include <gmock/gmock.h>
+
+using namespace rask;
+using namespace testing;
 
 namespace
 {
 
-CLASS_MOCK(BuilderMock, rask::ast::Builder)
+struct BuilderMock : ast::Builder
 {
-    BuilderMock(rask::error::Logger& logger, rask::ast::FunctionTable& ft)
-        : rask::ast::Builder(logger, ft) { }
+    BuilderMock(error::Logger& logger, ast::FunctionTable& ft)
+        : ast::Builder(logger, ft) { }
 
-    MOCK_METHOD(boost::optional<rask::ast::FunctionCall>, buildFunctionCall,
-        (const rask::cst::FunctionCall&, fc)(rask::ast::SharedScope, scope))
-    MOCK_METHOD(boost::optional<rask::ast::FunctionCall>, buildUnaryOperatorCall,
-        (const rask::cst::UnaryOperatorCall&, oc)(rask::ast::SharedScope, scope))
-    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildChainExpression,
-        (const rask::cst::ChainExpression&, oc)(rask::ast::SharedScope, scope))
+    MOCK_METHOD2(
+        buildFunctionCall, boost::optional<ast::FunctionCall>(const cst::FunctionCall&, ast::SharedScope));
+    MOCK_METHOD2(
+        buildUnaryOperatorCall, boost::optional<ast::FunctionCall>(const cst::UnaryOperatorCall&, ast::SharedScope));
+    MOCK_METHOD2(
+        buildChainExpression, boost::optional<ast::Expression>(const cst::ChainExpression&, ast::SharedScope));
 };
 
 }
 
-namespace tut
+struct rask_ast_buildExpression : testing::Test
 {
-
-struct buildExpression_TestData
-{
-    rask::error::Logger logger;
-    rask::ast::FunctionTable ft;
+    error::Logger logger;
+    ast::FunctionTable ft;
     BuilderMock builder;
-    rask::ast::test::SharedScopeMock scope;
+    ast::SharedScopeMock scopeMock;
+    ast::SharedScope scope;
 
-    buildExpression_TestData() : builder(logger, ft), scope(new rask::ast::test::ScopeMock) { }
+    rask_ast_buildExpression() : builder(logger, ft), scopeMock(new ast::ScopeMock), scope(scopeMock) { }
 };
 
-typedef test_group<buildExpression_TestData> factory;
-typedef factory::object object;
-}
-
-namespace
+TEST_F(rask_ast_buildExpression, constant)
 {
-tut::factory tf("rask.ast.Builder.buildExpression");
-}
-
-namespace tut
-{
-
-template <>
-template <>
-void object::test<1>()
-{
-    using namespace rask;
-
     cst::Constant c = cst::Constant::create(Position(), 123);
     boost::optional<ast::Expression> expr = builder.buildExpression(c, null);
 
-    ENSURE(expr);
-    ENSURE(logger.errors().empty());
-    ENSURE(getConstant(*expr) == ast::Constant(c.value));
+    ASSERT_TRUE(expr);
+    ASSERT_TRUE(logger.errors().empty());
+    ASSERT_TRUE(getConstant(*expr) == ast::Constant(c.value));
 }
 
-template <>
-template <>
-void object::test<2>()
+TEST_F(rask_ast_buildExpression, variable)
 {
-    using namespace rask;
-
     cst::Identifier id = cst::Identifier::create(Position(), "abc");
-    cst::Expression idExpr = id;
     ast::SharedVariable var(test::VariableFactory().createShared(id));
 
-    MOCK_RETURN(*scope, getVariable, var);
+    EXPECT_CALL(*scopeMock, getVariable(id.value))
+        .WillOnce(Return(var));
 
-    boost::optional<ast::Expression> expr = builder.buildExpression(idExpr, scope);
+    boost::optional<ast::Expression> expr = builder.buildExpression(cst::Expression(id), scope);
 
-    ENSURE(expr);
-    ENSURE(logger.errors().empty());
-    ENSURE(getVariable(*expr).lock() == var);
-    ENSURE_CALL(*scope, getVariable(getIdentifier(idExpr).value));
+    ASSERT_TRUE(expr);
+    ASSERT_TRUE(logger.errors().empty());
+    ASSERT_TRUE(getVariable(*expr).lock() == var);
 }
 
-template <>
-template <>
-void object::test<3>()
+TEST_F(rask_ast_buildExpression, variableFails)
 {
-    using namespace rask;
-
-    MOCK_RETURN(*scope, getVariable, boost::none);
+    EXPECT_CALL(*scopeMock, getVariable(_))
+        .WillOnce(Return(null));
 
     cst::Identifier id = cst::Identifier::create(Position("xxx", 1, 2), "abc");
 
-    ENSURE(!builder.buildExpression(id, scope));
-    ENSURE_EQUALS(logger.errors().size(), 1u);
-    ENSURE_EQUALS(logger.errors()[0], error::Message::unknownIdentifier(id.position, id.value));
+    ASSERT_FALSE(builder.buildExpression(id, scopeMock));
+    ASSERT_EQ(1u, logger.errors().size());
+    ASSERT_EQ(error::Message::unknownIdentifier(id.position, id.value), logger.errors()[0]);
 }
 
-template <>
-template <>
-void object::test<4>()
+TEST_F(rask_ast_buildExpression, functionCall)
 {
-    using namespace rask;
-
     cst::Expression fc = cst::FunctionCall();
     unsigned n = 5;
 
-    MOCK_RETURN(builder, buildFunctionCall, ast::FunctionCall(null, ast::FunctionCall::Arguments(n)));
+    EXPECT_CALL(builder, buildFunctionCall(Ref(getFunctionCall(fc)), scope))
+        .WillOnce(Return(ast::FunctionCall(null, ast::FunctionCall::Arguments(n))));
 
     boost::optional<ast::Expression> expr = builder.buildExpression(fc, scope);
 
-    ENSURE(expr);
-    ENSURE(logger.errors().empty());
-    ENSURE(getFunctionCall(*expr).args().size() == n);
-    ENSURE_CALL(builder, buildFunctionCall(getFunctionCall(fc), scope));
+    ASSERT_TRUE(expr);
+    ASSERT_TRUE(logger.errors().empty());
+    ASSERT_TRUE(getFunctionCall(*expr).args().size() == n);
 }
 
-template <>
-template <>
-void object::test<5>()
+TEST_F(rask_ast_buildExpression, functionCallFails)
 {
-    using namespace rask;
+    cst::Expression fc = cst::FunctionCall();
 
-    cst::FunctionCall fc;
+    EXPECT_CALL(builder, buildFunctionCall(_, _))
+        .WillOnce(Return(null));
 
-    MOCK_RETURN(builder, buildFunctionCall, boost::none);
-
-    ENSURE(!builder.buildExpression(fc, null));
-    ENSURE(logger.errors().empty());
+    ASSERT_FALSE(builder.buildExpression(fc, null));
+    ASSERT_TRUE(logger.errors().empty());
 }
 
-template <>
-template <>
-void object::test<6>()
+TEST_F(rask_ast_buildExpression, unaryOperatorCall)
 {
-    using namespace rask;
-
     cst::Expression c = cst::UnaryOperatorCall();
     unsigned n = 5;
 
-    MOCK_RETURN(builder, buildUnaryOperatorCall, ast::FunctionCall(null, ast::FunctionCall::Arguments(n)));
+    EXPECT_CALL(builder, buildUnaryOperatorCall(Ref(getUnaryOperatorCall(c)), scope))
+        .WillOnce(Return(ast::FunctionCall(null, ast::FunctionCall::Arguments(n))));
 
-    boost::optional<ast::Expression> expr = builder.buildExpression(c, scope);
+    boost::optional<ast::Expression> expr = builder.buildExpression(c, scopeMock);
 
-    ENSURE(expr);
-    ENSURE(logger.errors().empty());
-    ENSURE(getFunctionCall(*expr).args().size() == n);
-    ENSURE_CALL(builder, buildUnaryOperatorCall(getUnaryOperatorCall(c), scope));
+    ASSERT_TRUE(expr);
+    ASSERT_TRUE(logger.errors().empty());
+    ASSERT_TRUE(getFunctionCall(*expr).args().size() == n);
 }
 
-template <>
-template <>
-void object::test<7>()
+TEST_F(rask_ast_buildExpression, unaryOperatorCallFails)
 {
-    using namespace rask;
+    cst::Expression c = cst::UnaryOperatorCall();
 
-    cst::UnaryOperatorCall c;
+    EXPECT_CALL(builder, buildUnaryOperatorCall(_, _))
+        .WillOnce(Return(null));
 
-    MOCK_RETURN(builder, buildUnaryOperatorCall, boost::none);
-
-    ENSURE(!builder.buildExpression(c, null));
-    ENSURE(logger.errors().empty());
+    ASSERT_FALSE(builder.buildExpression(c, null));
+    ASSERT_TRUE(logger.errors().empty());
 }
 
-template <>
-template <>
-void object::test<8>()
+TEST_F(rask_ast_buildExpression, chainExpression)
 {
-    using namespace rask;
-
+    ast::Constant ret(5);
     cst::Expression ce = cst::ChainExpression();
 
-    MOCK_RETURN(builder, buildChainExpression, boost::none);
-
-    ENSURE(!builder.buildExpression(ce, scope));
-    ENSURE(logger.errors().empty());
-    ENSURE_CALL(builder, buildChainExpression(getChainExpression(ce), scope));
-}
-
-template <>
-template <>
-void object::test<9>()
-{
-    using namespace rask;
-
-    ast::Constant ret(5);
-    cst::ChainExpression ce;
-
-    MOCK_RETURN(builder, buildChainExpression, ast::Expression(ret));
+    EXPECT_CALL(builder, buildChainExpression(Ref(getChainExpression(ce)), Eq<ast::SharedScope>(null)))
+        .WillOnce(Return(ast::Expression(ret)));
 
     boost::optional<ast::Expression> expr = builder.buildExpression(ce, null);
 
-    ENSURE(expr);
-    ENSURE(logger.errors().empty());
-    ENSURE(getConstant(*expr) == ret);
+    ASSERT_TRUE(expr);
+    ASSERT_TRUE(logger.errors().empty());
+    ASSERT_TRUE(getConstant(*expr) == ret);
 }
 
-template <>
-template <>
-void object::test<10>()
+TEST_F(rask_ast_buildExpression, chainExpressionFails)
 {
-    using namespace rask;
+    cst::ChainExpression ce;
 
+    EXPECT_CALL(builder, buildChainExpression(_, _))
+        .WillOnce(Return(null));
+
+    ASSERT_FALSE(builder.buildExpression(ce, scopeMock));
+    ASSERT_TRUE(logger.errors().empty());
+}
+
+TEST_F(rask_ast_buildExpression, booleanConstants)
+{
     cst::Identifier c1 = cst::Identifier::create(Position(), "true");
     cst::Identifier c2 = cst::Identifier::create(Position(), "false");
     boost::optional<ast::Expression> expr1 = builder.buildExpression(c1, null);
     boost::optional<ast::Expression> expr2 = builder.buildExpression(c2, null);
 
-    ENSURE(expr1);
-    ENSURE(expr2);
-    ENSURE(logger.errors().empty());
-    ENSURE(getConstant(*expr1) == ast::Constant(true));
-    ENSURE(getConstant(*expr2) == ast::Constant(false));
+    ASSERT_TRUE(expr1);
+    ASSERT_TRUE(expr2);
+    ASSERT_TRUE(logger.errors().empty());
+    ASSERT_TRUE(getConstant(*expr1) == ast::Constant(true));
+    ASSERT_TRUE(getConstant(*expr2) == ast::Constant(false));
 }
 
-}
