@@ -35,6 +35,7 @@ public:
 
 private:
 
+    std::string currentSuite_;
     std::ostringstream filter_;
     std::ostringstream output_;
     std::ostringstream errors_;
@@ -54,10 +55,11 @@ private:
     }
 
     void loadState();
-    void saveState(std::string currentTest);
+    void saveState(const std::string& currentSuite, const std::string currentTest);
     void writeString(const std::string& s, FILE *f);
     std::string readString(FILE *f);
     bool validFile(FILE *f);
+    static std::string prettyName(std::string name);
 };
 
 }

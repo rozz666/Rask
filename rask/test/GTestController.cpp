@@ -34,20 +34,22 @@ GTestController::GTestController() : ok_(0), failed_(0), crashed_(0)
 
 void GTestController::OnTestProgramStart(const testing::UnitTest& )
 {
-    print("\n").flush();
+    if (currentSuite_.empty()) print("\n").flush();
 }
 
 void GTestController::OnTestCaseStart(const testing::TestCase& testCase)
 {
-    std::string name = testCase.name();
-    boost::replace_all(name, "_", ".");
-    print(name).print(":").flush();
+    if (testCase.name() != currentSuite_)
+    {
+        currentSuite_ = testCase.name();
+        print(prettyName(testCase.name())).print(":").flush();
+    }
 }
 
 void GTestController::OnTestStart(const testing::TestInfo& testInfo)
 {
     filter_ << testInfo.test_case_name() << "." << testInfo.name() << ":";
-    saveState(testInfo.test_case_name() + std::string(".") + testInfo.name());
+    saveState(testInfo.test_case_name(), testInfo.name());
 }
 
 void GTestController::OnTestEnd(const testing::TestInfo& testInfo)
@@ -107,6 +109,7 @@ void GTestController::loadState()
         return;
     }
 
+    currentSuite_ = readString(f.get());
     std::string failedTest = readString(f.get());
     filter_ << readString(f.get());
     print(readString(f.get())).flush();
@@ -115,17 +118,19 @@ void GTestController::loadState()
     std::fread(&failed_, sizeof(failed_), 1, f.get());
     std::fread(&crashed_, sizeof(crashed_), 1, f.get());
 
+    ++crashed_;
     print("C").flush();
-    errors_ << "\n" << failedTest << ":\nCRASHED!!!\n";
+    errors_ << "\n" << prettyName(currentSuite_) << "." << failedTest << ":\nCRASHED!!!\n";
 }
 
-void GTestController::saveState(std::string currentTest)
+void GTestController::saveState(const std::string& currentSuite, const std::string currentTest)
 {
     boost::shared_ptr<FILE> f(std::fopen(journalName.c_str(), "wb"), safefclose);
 
     if (!f) return;
     char good = 'N';
     std::fwrite(&good, sizeof(good), 1, f.get());
+    writeString(currentSuite, f.get());
     writeString(currentTest, f.get());
     writeString(filter_.str(), f.get());
     writeString(output_.str(), f.get());
@@ -139,7 +144,7 @@ void GTestController::saveState(std::string currentTest)
 }
 void GTestController::writeString(const std::string& s, FILE* f)
 {
-    std::size_t n = s.length() + 1;
+    std::size_t n = s.length();
     std::fwrite(&n, sizeof(n), 1, f);
     std::fwrite(s.c_str(), 1, n, f);
 }
@@ -150,13 +155,18 @@ std::string GTestController::readString(FILE* f)
     std::fread(&n, sizeof(n), 1, f);
     std::vector<char> buf(n);
     std::fread(&buf[0], 1, n, f);
-    return &buf[0];
+    return std::string(buf.begin(), buf.end());
 }
 
 bool GTestController::validFile(FILE* f)
 {
     char good;
     return f && std::fread(&good, sizeof(good), 1, f) && (good == 'Y');
+}
+std::string GTestController::prettyName(std::string name)
+{
+    boost::replace_all(name, "_", ".");
+    return name;
 }
 
 
