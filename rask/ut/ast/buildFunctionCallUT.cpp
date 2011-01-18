@@ -10,6 +10,7 @@
 #include <rask/ast/BuiltinFunction.hpp>
 #include <rask/ut/ast/ScopeMockNew.hpp>
 #include <rask/null.hpp>
+#include <rask/ut/cst/OperatorStubs.hpp>
 #include <gmock/gmock.h>
 
 using namespace rask;
@@ -25,11 +26,6 @@ struct BuilderMock : ast::Builder
 
     MOCK_METHOD2(buildExpression, boost::optional<ast::Expression>(const cst::Expression&, ast::SharedScope));
 };
-
-std::ostream& operator<<(std::ostream& os, const cst::Expression& )
-{
-    return os << "cst::Expression";
-}
 
 }
 
