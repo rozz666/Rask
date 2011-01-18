@@ -6,80 +6,55 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <tut/tut.hpp>
-#include <tut/../contrib/tut_macros.h>
-#include <rask/test/TUTAssert.hpp>
-#include <rask/test/Mock.hpp>
 #include <rask/ast/Builder.hpp>
-#include <rask/ut/ast/ScopeMock.hpp>
+#include <rask/ut/ast/ScopeMockNew.hpp>
 #include <rask/null.hpp>
+#include <gmock/gmock.h>
 
 using namespace rask;
+using namespace testing;
 
 namespace
 {
 
-CLASS_MOCK(BuilderMock, rask::ast::Builder)
+struct BuilderMock : ast::Builder
 {
-    BuilderMock() : rask::ast::Builder(null, null, null) { }
+    BuilderMock() : ast::Builder(null, null, null) { }
 
-    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildExpression,
-        (const rask::cst::Expression&, expr)(rask::ast::SharedScope, scope))
+    MOCK_METHOD2(buildExpression, boost::optional<ast::Expression>(const cst::Expression&, ast::SharedScope));
 };
+
+std::ostream& operator<<(std::ostream& os, const cst::Expression& )
+{
+    return os << "cst::Expression";
+}
 
 }
 
-namespace tut
+struct rask_ast_Builder_buildReturn : testing::Test
 {
-
-struct buildReturn_TestData
-{
-    rask::cst::Return ret;
-    rask::ast::test::SharedScopeMock scope;
+    cst::Return ret;
+    ast::SharedScope scope;
     BuilderMock builder;
 
-    buildReturn_TestData() : scope(new rask::ast::test::ScopeMock) { }
+    rask_ast_Builder_buildReturn() : scope(new ast::ScopeMock) { }
 };
 
-typedef test_group<buildReturn_TestData> factory;
-typedef factory::object object;
-}
-
-namespace
+TEST_F(rask_ast_Builder_buildReturn, successful)
 {
-tut::factory tf("rask.ast.Builder.buildReturn");
-}
-
-namespace tut
-{
-
-template <>
-template <>
-void object::test<1>()
-{
-    using namespace rask;
-
     ast::Constant value(555);
-
-    MOCK_RETURN(builder, buildExpression, ast::Expression(value));
+    EXPECT_CALL(builder, buildExpression(Ref(ret.value), scope))
+        .WillOnce(Return(ast::Expression(value)));
 
     boost::optional<ast::Return> r = builder.buildReturn(ret, scope);
-
-    ENSURE(r);
-    ENSURE_CALL(builder, buildExpression(ret.value, scope));
-    ENSURE(getConstant(r->expr()) == value);
+    ASSERT_TRUE(r);
+    ASSERT_TRUE(getConstant(r->expr()) == value);
 }
 
-template <>
-template <>
-void object::test<2>()
+TEST_F(rask_ast_Builder_buildReturn, buildExpressionFails)
 {
-    using namespace rask;
+    EXPECT_CALL(builder, buildExpression(_, _))
+        .WillOnce(Return(null));
 
-    MOCK_RETURN(builder, buildExpression, boost::none);
-
-    ENSURE(!builder.buildReturn(ret, scope));
-    ENSURE_CALL(builder, buildExpression(ret.value, scope));
-}
-
+    ASSERT_FALSE(builder.buildReturn(ret, scope));
 }
