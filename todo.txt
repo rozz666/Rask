@@ -1,5 +1,4 @@
-Use a DI library
-Use Google Mock
+Use factories to construct dependent objects
 Switch to Google Test
 REFACTOR ALL UTs TO USE MOCKS!
 Mock Function in tests
