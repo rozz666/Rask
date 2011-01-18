@@ -12,14 +12,16 @@
 #include <rask/test/Mock.hpp>
 #include <rask/ast/Builder.hpp>
 #include <rask/ut/ast/ScopeMock.hpp>
+#include <rask/null.hpp>
+
+using namespace rask;
 
 namespace
 {
 
 CLASS_MOCK(BuilderMock, rask::ast::Builder)
 {
-    BuilderMock(rask::error::Logger& logger, rask::ast::FunctionTable& ft)
-    : rask::ast::Builder(logger, ft) { }
+    BuilderMock() : rask::ast::Builder(null, null, null) { }
 
     MOCK_METHOD(boost::optional<rask::ast::Expression>, buildExpression,
         (const rask::cst::Expression&, expr)(rask::ast::SharedScope, scope))
@@ -33,12 +35,10 @@ namespace tut
 struct buildReturn_TestData
 {
     rask::cst::Return ret;
-    rask::error::Logger logger;
-    rask::ast::FunctionTable ft;
     rask::ast::test::SharedScopeMock scope;
     BuilderMock builder;
 
-    buildReturn_TestData() : scope(new rask::ast::test::ScopeMock), builder(logger, ft) { }
+    buildReturn_TestData() : scope(new rask::ast::test::ScopeMock) { }
 };
 
 typedef test_group<buildReturn_TestData> factory;
@@ -66,7 +66,6 @@ void object::test<1>()
     boost::optional<ast::Return> r = builder.buildReturn(ret, scope);
 
     ENSURE(r);
-    ENSURE_EQUALS(logger.errors().size(), 0u);
     ENSURE_CALL(builder, buildExpression(ret.value, scope));
     ENSURE(getConstant(r->expr()) == value);
 }
@@ -80,7 +79,6 @@ void object::test<2>()
     MOCK_RETURN(builder, buildExpression, boost::none);
 
     ENSURE(!builder.buildReturn(ret, scope));
-    ENSURE_EQUALS(logger.errors().size(), 0u);
     ENSURE_CALL(builder, buildExpression(ret.value, scope));
 }
 

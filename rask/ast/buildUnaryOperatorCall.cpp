@@ -18,8 +18,8 @@ boost::optional<FunctionCall> Builder::buildUnaryOperatorCall(const cst::UnaryOp
 {
     FunctionCall::Arguments args;
     args.push_back(*buildExpression(oc.expr, scope));
-    return FunctionCall(*functionTable_.getFunction(UNARY_MINUS_NAME), args);
+    return FunctionCall(*functionTable_->getFunction(UNARY_MINUS_NAME), args);
 }
-    
+
 }
 }

@@ -14,12 +14,11 @@ namespace rask
 namespace ast
 {
 
-boost::optional<VariableDecl> Builder::buildVariableDecl(
-    const cst::VariableDecl& vd, SharedScope scope, VariableFactory& variableFactory)
+boost::optional<VariableDecl> Builder::buildVariableDecl(const cst::VariableDecl& vd, SharedScope scope)
 {
     if (!vd.value)
     {
-        logger_.log(error::Message::uninitializedVariable(vd.name.position, vd.name.value));
+        logger_->log(error::Message::uninitializedVariable(vd.name.position, vd.name.value));
         return boost::none;
     }
 
@@ -27,7 +26,7 @@ boost::optional<VariableDecl> Builder::buildVariableDecl(
 
     if (!expr) return boost::none;
 
-    VariableDecl decl(variableFactory.createVariable(vd.name, getExpressionType(*expr)), *expr);
+    VariableDecl decl(variableFactory_->createVariable(vd.name, getExpressionType(*expr)), *expr);
     scope->addVariable(decl.var());
 
     return decl;

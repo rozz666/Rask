@@ -26,17 +26,15 @@ class Builder
 {
 public:
 
-    VariableFactory variableFactory;
-
-    DI_CONSTRUCTOR(Builder, (error::Logger& logger, FunctionTable& functionTable))
-        : logger_(logger), functionTable_(functionTable) { }
+    DI_CONSTRUCTOR(Builder,
+        (error::SharedLogger logger, SharedFunctionTable functionTable, SharedVariableFactory variableFactory))
+        : logger_(logger), functionTable_(functionTable), variableFactory_(variableFactory) { }
 
     virtual boost::optional<FunctionCall> buildFunctionCall(const cst::FunctionCall& fc, SharedScope scope);
-    virtual boost::optional<FunctionDecl> buildFunctionDecl(const cst::Function& f, VariableFactory& variableFactory);
+    virtual boost::optional<FunctionDecl> buildFunctionDecl(const cst::Function& f);
     virtual bool buildFunction(const cst::Function& cf, SharedCustomFunction f, SharedScope scope);
     virtual boost::optional<Tree> buildTree(const cst::Tree& cst, SharedScopeFactory scopeFactory);
-    virtual boost::optional<VariableDecl> buildVariableDecl(
-        const cst::VariableDecl& vd, SharedScope scope, VariableFactory& variableFactory);
+    virtual boost::optional<VariableDecl> buildVariableDecl(const cst::VariableDecl& vd, SharedScope scope);
     virtual boost::optional<Expression> buildExpression(const cst::Expression& expr, SharedScope scope);
     virtual boost::optional<Expression> buildChainExpression(const cst::ChainExpression& expr, SharedScope scope);
     virtual boost::optional<Return> buildReturn(const cst::Return& ret, SharedScope scope);
@@ -46,8 +44,9 @@ private:
 
     typedef std::vector<std::pair<const cst::Function *, SharedCustomFunction> > Functions;
 
-    error::Logger& logger_;
-    FunctionTable& functionTable_;
+    error::SharedLogger logger_;
+    SharedFunctionTable functionTable_;
+    SharedVariableFactory variableFactory_;
 
     std::string functionSignature(const std::string& name, const std::vector<cst::Expression>& args);
     boost::optional<Functions> buildFunctionDecls(const std::vector<cst::Function>& cfs, Tree& ast);

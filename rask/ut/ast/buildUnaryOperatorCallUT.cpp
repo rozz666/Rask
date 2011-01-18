@@ -13,14 +13,16 @@
 #include <rask/test/FunctionFactory.hpp>
 #include <rask/Operators.hpp>
 #include <rask/ut/ast/ScopeMock.hpp>
+#include <rask/null.hpp>
+
+using namespace rask;
 
 namespace
 {
 
 CLASS_MOCK(BuilderMock, rask::ast::Builder)
 {
-    BuilderMock(rask::error::Logger& logger, rask::ast::FunctionTable& ft)
-        : rask::ast::Builder(logger, ft) { }
+    BuilderMock(ast::SharedFunctionTable ft) : rask::ast::Builder(null, ft, null) { }
 
     MOCK_METHOD(boost::optional<rask::ast::Expression>, buildExpression,
         (const rask::cst::Expression&, expr)(rask::ast::SharedScope, scope))
@@ -33,12 +35,12 @@ namespace tut
 
 struct buildUnaryOperatorCall_TestData
 {
-    rask::error::Logger logger;
-    rask::ast::FunctionTable ft;
+    ast::SharedFunctionTable ft;
     BuilderMock builder;
     rask::ast::test::SharedScopeMock scope;
 
-    buildUnaryOperatorCall_TestData() : builder(logger, ft), scope(new rask::ast::test::ScopeMock) { }
+    buildUnaryOperatorCall_TestData()
+        : ft(new ast::FunctionTable), builder(ft), scope(new rask::ast::test::ScopeMock) { }
 };
 
 typedef test_group<buildUnaryOperatorCall_TestData> factory;
@@ -67,7 +69,7 @@ void object::test<1>()
     ast::Constant retExpr(7);
     MOCK_RETURN(builder, buildExpression, ast::Expression(retExpr));
 
-    ft.add(f);
+    ft->add(f);
 
     boost::optional<ast::FunctionCall> fc = builder.buildUnaryOperatorCall(oc, scope);
 

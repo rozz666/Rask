@@ -18,6 +18,7 @@
 #include <llvm/Bitcode/BitstreamWriter.h>
 #include <llvm/Bitcode/ReaderWriter.h>
 #include <di/injector.hpp>
+#include <boost/concept_check.hpp>
 
 struct Parameters
 {
@@ -83,6 +84,10 @@ struct CompilerModule
             r.type<rask::ast::FunctionTable>()
             .in_scope<di::scopes::singleton>()
             .instance(ft.release())
+        );
+        r.add(
+            r.type<rask::ast::VariableFactory>()
+            .in_scope<di::scopes::singleton>()
         );
     }
 };

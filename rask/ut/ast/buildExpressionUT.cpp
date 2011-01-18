@@ -20,8 +20,8 @@ namespace
 
 struct BuilderMock : ast::Builder
 {
-    BuilderMock(error::Logger& logger, ast::FunctionTable& ft)
-        : ast::Builder(logger, ft) { }
+    BuilderMock(error::SharedLogger logger)
+        : ast::Builder(logger, null, null) { }
 
     MOCK_METHOD2(
         buildFunctionCall, boost::optional<ast::FunctionCall>(const cst::FunctionCall&, ast::SharedScope));
@@ -35,8 +35,7 @@ struct BuilderMock : ast::Builder
 
 struct rask_ast_buildExpression : testing::Test
 {
-    error::Logger logger;
-    ast::FunctionTable ft;
+    error::SharedLogger logger;
     BuilderMock builder;
     ast::SharedScopeMock scopeMock;
     ast::SharedScope scope;
@@ -47,7 +46,7 @@ struct rask_ast_buildExpression : testing::Test
     ast::FunctionCall::Arguments fcArgs;
 
     rask_ast_buildExpression()
-        : builder(logger, ft), scopeMock(new ast::ScopeMock), scope(scopeMock), fcArgs(5)
+        : logger(new error::Logger), builder(logger), scopeMock(new ast::ScopeMock), scope(scopeMock), fcArgs(5)
     {
         chainExpr = cst::ChainExpression();
         unOpCall = cst::UnaryOperatorCall();
@@ -58,7 +57,7 @@ struct rask_ast_buildExpression : testing::Test
     {
         expr = builder.buildExpression(cexpr, scope);
         ASSERT_TRUE(expr);
-        ASSERT_TRUE(logger.errors().empty());
+        ASSERT_TRUE(logger->errors().empty());
     }
 
     void assertBuildExpressionWithScope(const cst::Expression& cexpr)
@@ -74,7 +73,7 @@ struct rask_ast_buildExpression : testing::Test
     void assertBuildExpressionFailsNoErrors(const cst::Expression& cexpr)
     {
         ASSERT_FALSE(builder.buildExpression(cexpr, null));
-        ASSERT_TRUE(logger.errors().empty());
+        ASSERT_TRUE(logger->errors().empty());
     }
 };
 
@@ -105,8 +104,8 @@ TEST_F(rask_ast_buildExpression, variableFails)
     cst::Identifier id = cst::Identifier::create(Position("xxx", 1, 2), "abc");
 
     ASSERT_FALSE(builder.buildExpression(id, scope));
-    ASSERT_EQ(1u, logger.errors().size());
-    ASSERT_EQ(error::Message::unknownIdentifier(id.position, id.value), logger.errors()[0]);
+    ASSERT_EQ(1u, logger->errors().size());
+    ASSERT_EQ(error::Message::unknownIdentifier(id.position, id.value), logger->errors()[0]);
 }
 
 TEST_F(rask_ast_buildExpression, functionCall)
@@ -170,7 +169,7 @@ TEST_F(rask_ast_buildExpression, booleanConstants)
 
     ASSERT_TRUE(expr1);
     ASSERT_TRUE(expr2);
-    ASSERT_TRUE(logger.errors().empty());
+    ASSERT_TRUE(logger->errors().empty());
     ASSERT_TRUE(getConstant(*expr1) == ast::Constant(true));
     ASSERT_TRUE(getConstant(*expr2) == ast::Constant(false));
 }

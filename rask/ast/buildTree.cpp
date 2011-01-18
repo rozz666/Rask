@@ -23,7 +23,7 @@ boost::optional<Builder::Functions> Builder::buildFunctionDecls(const std::vecto
 
     BOOST_FOREACH(const cst::Function& f, cfs)
     {
-        if (boost::optional<FunctionDecl> fd = buildFunctionDecl(f, variableFactory))
+        if (boost::optional<FunctionDecl> fd = buildFunctionDecl(f))
         {
             ast.add(fd->function());
             functions.push_back(Functions::value_type(&f, fd->function()));
@@ -58,9 +58,9 @@ boost::optional<Tree> Builder::buildTree(const cst::Tree& cst, SharedScopeFactor
 
     if (!functions || !buildFunctions(*functions, scopeFactory)) return boost::none;
 
-    if (!functionTable_.getFunction("main"))
+    if (!functionTable_->getFunction("main"))
     {
-        logger_.log(error::Message::missingMainFunction(Position(cst.end.file)));
+        logger_->log(error::Message::missingMainFunction(Position(cst.end.file)));
         return boost::none;
     }
 

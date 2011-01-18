@@ -17,10 +17,10 @@ namespace ast
 struct BuildExpression : boost::static_visitor<boost::optional<Expression> >
 {
     Builder& builder;
-    error::Logger& logger;
+    error::SharedLogger logger;
     SharedScope scope;
 
-    BuildExpression(Builder& builder, SharedScope scope, error::Logger& logger)
+    BuildExpression(Builder& builder, SharedScope scope, error::SharedLogger logger)
         : builder(builder), logger(logger), scope(scope) { }
 
     Expression operator()(const cst::Constant& c)
@@ -32,15 +32,15 @@ struct BuildExpression : boost::static_visitor<boost::optional<Expression> >
     {
         if (id.value == "true") return ast::Expression(ast::Constant(true));
         if (id.value == "false") return ast::Expression(ast::Constant(false));
-        
+
         boost::optional<SharedVariable> var = scope->getVariable(id.value);
 
         if (!var)
         {
-            logger.log(error::Message::unknownIdentifier(id.position, id.value));
+            logger->log(error::Message::unknownIdentifier(id.position, id.value));
             return boost::none;
         }
-        
+
         return Expression(*var);
     }
 
@@ -58,7 +58,7 @@ struct BuildExpression : boost::static_visitor<boost::optional<Expression> >
         boost::optional<FunctionCall> c = builder.buildUnaryOperatorCall(oc, scope);
 
         if (!c) return boost::none;
-        
+
         return ast::Expression(*c);
     }
 
@@ -67,7 +67,7 @@ struct BuildExpression : boost::static_visitor<boost::optional<Expression> >
         return builder.buildChainExpression(ce, scope);
     }
 };
-    
+
 boost::optional<Expression> Builder::buildExpression(const cst::Expression& expr, SharedScope scope)
 {
     BuildExpression b(*this, scope, logger_);

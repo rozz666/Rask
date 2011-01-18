@@ -100,6 +100,8 @@ private:
     Families families_;
 };
 
+typedef boost::shared_ptr<FunctionTable> SharedFunctionTable;
+
 }
 }
 

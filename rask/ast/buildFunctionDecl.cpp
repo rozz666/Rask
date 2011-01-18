@@ -23,23 +23,23 @@ const TypeDictionary typeDictionary = boost::assign::map_list_of
     ("boolean", BOOLEAN)
     ("void", VOID);
 
-boost::optional<FunctionDecl> Builder::buildFunctionDecl(const cst::Function& f, VariableFactory& variableFactory)
+boost::optional<FunctionDecl> Builder::buildFunctionDecl(const cst::Function& f)
 {
     FunctionDecl fd(f.name, typeDictionary.find(f.type.value)->second);
     SharedCustomFunction cf = fd.function();
 
-    SharedFunction r = functionTable_.add(cf);
+    SharedFunction r = functionTable_->add(cf);
 
     if (r != cf)
     {
-        logger_.log(error::Message::redefinition(f.name.position, f.name.value + "()"));
-        logger_.log(error::Message::previousDefinition(r->name().position, r->name().value + "()"));
+        logger_->log(error::Message::redefinition(f.name.position, f.name.value + "()"));
+        logger_->log(error::Message::previousDefinition(r->name().position, r->name().value + "()"));
         return boost::none;
     }
 
     BOOST_FOREACH(const cst::FunctionArgument& arg, f.args)
     {
-        cf->addArg(variableFactory.createVariable(arg.name, typeDictionary.find(arg.type.value)->second));
+        cf->addArg(variableFactory_->createVariable(arg.name, typeDictionary.find(arg.type.value)->second));
     }
 
     return fd;

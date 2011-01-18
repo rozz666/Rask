@@ -10,6 +10,7 @@
 #include <rask/test/FunctionFactory.hpp>
 #include <rask/Operators.hpp>
 #include <rask/ut/ast/ScopeMockNew.hpp>
+#include <rask/null.hpp>
 #include <gmock/gmock.h>
 
 using namespace rask;
@@ -20,8 +21,8 @@ namespace
 
 struct BuilderMock : ast::Builder
 {
-    BuilderMock(error::Logger& logger, ast::FunctionTable& ft)
-        : ast::Builder(logger, ft) { }
+    BuilderMock(ast::SharedFunctionTable ft)
+        : ast::Builder(null, ft, null) { }
 
     MOCK_METHOD1(buildFunctionCall, boost::optional<ast::FunctionCall>(const cst::FunctionCall& ));
     MOCK_METHOD1(buildUnaryOperatorCall, boost::optional<ast::FunctionCall>(const cst::UnaryOperatorCall&));
@@ -37,26 +38,24 @@ std::ostream& operator<<(std::ostream& os, const cst::Expression& )
 
 struct rask_ast_Builder_buildChainExpression : testing::Test
 {
-    error::Logger logger;
-    ast::FunctionTable ft;
+    ast::SharedFunctionTable ft;
     BuilderMock builder;
     ast::SharedScope scope;
     cst::ChainExpression chainExpr;
     boost::optional<ast::Expression> expr;
 
-    rask_ast_Builder_buildChainExpression() : builder(logger, ft), scope(new ast::ScopeMock) { }
+    rask_ast_Builder_buildChainExpression()
+        : ft(new ast::FunctionTable), builder(ft), scope(new ast::ScopeMock) { }
 
     void assertBuildChainExpression()
     {
         expr = builder.buildChainExpression(chainExpr, scope);
         ASSERT_TRUE(expr);
-        ASSERT_TRUE(logger.errors().empty());
     }
 
     void assertFailedBuildChainExpression()
     {
         ASSERT_FALSE(builder.buildChainExpression(chainExpr, scope));
-        ASSERT_TRUE(logger.errors().empty());
     }
 };
 
@@ -95,8 +94,8 @@ TEST_F(rask_ast_Builder_buildChainExpression, operators)
     test::FunctionFactory functionFactory;
     ast::SharedCustomFunction opMinus = functionFactory.createShared(BINARY_MINUS_NAME, ast::INT32, 2);
     ast::SharedCustomFunction opPlus = functionFactory.createShared(BINARY_PLUS_NAME, ast::INT32, 2);
-    ft.add(opMinus);
-    ft.add(opPlus);
+    ft->add(opMinus);
+    ft->add(opPlus);
 
     ASSERT_NO_FATAL_FAILURE(assertBuildChainExpression());
 

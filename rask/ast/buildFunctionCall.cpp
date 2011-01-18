@@ -17,11 +17,11 @@ namespace ast
 
 boost::optional<FunctionCall> Builder::buildFunctionCall(const cst::FunctionCall& call, SharedScope scope)
 {
-    boost::optional<SharedFunction> f = functionTable_.getFunction(call.function.value);
+    boost::optional<SharedFunction> f = functionTable_->getFunction(call.function.value);
 
     if (!f)
     {
-        logger_.log(error::Message::unknownIdentifier(call.function.position, call.function.value));
+        logger_->log(error::Message::unknownIdentifier(call.function.position, call.function.value));
         return boost::none;
     }
 
@@ -34,12 +34,12 @@ boost::optional<FunctionCall> Builder::buildFunctionCall(const cst::FunctionCall
 
     if (call.args.size() != (*f)->argCount())
     {
-        logger_.log(error::Message::functionNotFound(call.function.position, functionSignature((*f)->name().value, call.args)));
+        logger_->log(error::Message::functionNotFound(call.function.position, functionSignature((*f)->name().value, call.args)));
         return boost::none;
     }
 
     return FunctionCall(*f, args);
 }
-    
+
 }
 }

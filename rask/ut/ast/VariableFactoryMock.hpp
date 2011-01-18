@@ -24,6 +24,8 @@ CLASS_MOCK(VariableFactoryMock, VariableFactory)
     MOCK_METHOD(SharedVariable, createVariable, (const cst::Identifier&, name)(BasicType, type))
 };
 
+typedef boost::shared_ptr<VariableFactoryMock> SharedVariableFactoryMock;
+
 }
 }
 }

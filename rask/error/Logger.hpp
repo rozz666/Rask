@@ -12,6 +12,7 @@
 #include <vector>
 #include <rask/Position.hpp>
 #include <rask/error/Message.hpp>
+#include <boost/shared_ptr.hpp>
 
 namespace rask
 {
@@ -38,6 +39,8 @@ private:
 
     Errors errors_;
 };
+
+typedef boost::shared_ptr<Logger> SharedLogger;
 
 }
 }
