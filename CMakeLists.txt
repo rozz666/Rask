@@ -75,7 +75,6 @@ ADD_EXECUTABLE(
     raskut
     rask/test/GTestController.cpp
     rask/main/ut.cpp
-    rask/test/GTestPrinter.cpp
     rask/ut/ast/ExpressionUT.cpp
     rask/ut/ast/ScopeUT.cpp
     rask/ut/nullUT.cpp
