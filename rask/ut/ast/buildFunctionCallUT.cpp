@@ -32,52 +32,60 @@ struct BuilderMock : ast::Builder
 struct rask_ast_Builder_buildFunctionCall : testing::Test
 {
     error::SharedLogger logger;
-    const std::string file;
     ast::SharedFunctionTable ft;
     BuilderMock builder;
+    std::string file;
     cst::FunctionCall ccall;
-    ast::Constant dummy1;
-    ast::Constant dummy2;
-    ast::SharedScope scope;
+    boost::optional<ast::FunctionCall> call;
+    ast::SharedBuiltinFunction f;
 
     rask_ast_Builder_buildFunctionCall()
-        : logger(new error::Logger), file("test.rask"), ft(new ast::FunctionTable),
-        builder(logger, ft), dummy1(1), dummy2(2),
-        scope(new ast::ScopeMock) { }
+        : logger(new error::Logger), ft(new ast::FunctionTable),
+        builder(logger, ft), file("test.rask") { }
+
+    void assertFailureWithError(const error::Message& msg)
+    {
+        ASSERT_FALSE(builder.buildFunctionCall(ccall, null));
+        ASSERT_EQ(1u, logger->errors().size());
+        ASSERT_EQ(msg, logger->errors()[0]);
+    }
+
+    void assertSuccessWithArgs(unsigned numArgs)
+    {
+        ASSERT_TRUE(call);
+        ASSERT_EQ(0u, logger->errors().size());
+        ASSERT_TRUE(call->function().lock() == f);
+        ASSERT_EQ(numArgs, call->args().size());
+    }
 };
 
 TEST_F(rask_ast_Builder_buildFunctionCall, functionWithNoArguments)
 {
-    ast::SharedBuiltinFunction f(new ast::BuiltinFunction("f", ast::VOID, 0));
+    f.reset(new ast::BuiltinFunction("f", ast::VOID, 0));
     ft->add(f);
     ccall.function = cst::Identifier::create(Position(file, 2, 4), f->name().value);
 
-    boost::optional<ast::FunctionCall> call = builder.buildFunctionCall(ccall, scope);
-
-    ASSERT_TRUE(call);
-    ASSERT_EQ(0u, logger->errors().size());
-    ASSERT_TRUE(call->function().lock() == f);
-    ASSERT_EQ(0u, call->args().size());
+    call = builder.buildFunctionCall(ccall, null);
+    assertSuccessWithArgs(0);
 }
 
 TEST_F(rask_ast_Builder_buildFunctionCall, functionWithTwoArguments)
 {
-    ast::SharedBuiltinFunction f(new ast::BuiltinFunction("f", ast::VOID, 2));
+    f.reset(new ast::BuiltinFunction("f", ast::VOID, 2));
     ft->add(f);
     ccall.function = cst::Identifier::create(Position(file, 2, 4), f->name().value);
     ccall.args.resize(2);
+    ast::Constant dummy1(1);
+    ast::Constant dummy2(2);
+    ast::SharedScope scope(new ast::ScopeMock);
 
     EXPECT_CALL(builder, buildExpression(Ref(ccall.args[0]), scope))
         .WillOnce(Return(ast::Expression(dummy1)));
     EXPECT_CALL(builder, buildExpression(Ref(ccall.args[1]), scope))
         .WillOnce(Return(ast::Expression(dummy2)));
 
-    boost::optional<ast::FunctionCall> call = builder.buildFunctionCall(ccall, scope);
-
-    ASSERT_TRUE(call);
-    ASSERT_EQ(0u, logger->errors().size());
-    ASSERT_TRUE(call->function().lock() == f);
-    ASSERT_EQ(2u, call->args().size());
+    call = builder.buildFunctionCall(ccall, scope);
+    ASSERT_NO_FATAL_FAILURE(assertSuccessWithArgs(2));
     ASSERT_TRUE(getConstant(call->args()[0]) == dummy1);
     ASSERT_TRUE(getConstant(call->args()[1]) == dummy2);
 }
@@ -87,25 +95,21 @@ TEST_F(rask_ast_Builder_buildFunctionCall, unknownIdentifier)
     ccall.function = cst::Identifier::create(Position(file, 2, 4), "xxx");
     ccall.args.resize(1);
 
-    ASSERT_FALSE(builder.buildFunctionCall(ccall, scope));
-    ASSERT_EQ(1u, logger->errors().size());
-    ASSERT_EQ(error::Message::unknownIdentifier(ccall.function.position, ccall.function.value), logger->errors()[0]);
+    assertFailureWithError(error::Message::unknownIdentifier(ccall.function.position, ccall.function.value));
 }
 
 TEST_F(rask_ast_Builder_buildFunctionCall, unknownFunction)
 {
-    ast::SharedBuiltinFunction f(new ast::BuiltinFunction("abc", ast::VOID, 1));
+    f.reset(new ast::BuiltinFunction("abc", ast::VOID, 1));
     ft->add(f);
     ccall.function = cst::Identifier::create(Position(file, 2, 4), f->name().value);
 
-    ASSERT_FALSE(builder.buildFunctionCall(ccall, scope));
-    ASSERT_EQ(1u, logger->errors().size());
-    ASSERT_EQ(error::Message::functionNotFound(ccall.function.position, "abc()"), logger->errors()[0]);
+    assertFailureWithError(error::Message::functionNotFound(ccall.function.position, "abc()"));
 }
 
 TEST_F(rask_ast_Builder_buildFunctionCall, unknownFunctionWithTwoArguments)
 {
-    ast::SharedBuiltinFunction f(new ast::BuiltinFunction("print", ast::VOID, 1));
+    f.reset(new ast::BuiltinFunction("print", ast::VOID, 1));
     ft->add(f);
     ccall.function = cst::Identifier::create(Position(file, 2, 4), "print");
     ccall.args.resize(2);
@@ -115,7 +119,5 @@ TEST_F(rask_ast_Builder_buildFunctionCall, unknownFunctionWithTwoArguments)
     EXPECT_CALL(builder, buildExpression(Ref(ccall.args[1]), _))
         .WillOnce(Return(null));
 
-    ASSERT_FALSE(builder.buildFunctionCall(ccall, scope));
-    ASSERT_EQ(1u, logger->errors().size());
-    ASSERT_EQ(error::Message::functionNotFound(ccall.function.position, "print(int32, int32)"), logger->errors()[0]);
+    assertFailureWithError(error::Message::functionNotFound(ccall.function.position, "print(int32, int32)"));
 }
