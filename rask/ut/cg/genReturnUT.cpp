@@ -6,40 +6,42 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <tut/tut.hpp>
-#include <tut/../contrib/tut_macros.h>
-#include <rask/test/TUTAssert.hpp>
-#include <rask/test/Mock.hpp>
 #include <rask/cg/CodeGenerator.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <llvm/LLVMContext.h>
 #include <llvm/Instructions.h>
 #include <llvm/DerivedTypes.h>
+#include <gmock/gmock.h>
+
+using namespace rask;
+using namespace testing;
 
 namespace
 {
 
-CLASS_MOCK(CodeGeneratorMock, rask::cg::CodeGenerator)
+struct CodeGeneratorMock : cg::CodeGenerator
 {
-    CodeGeneratorMock(rask::cg::SymbolTable& st) : rask::cg::CodeGenerator(st) { }
+    CodeGeneratorMock(cg::SymbolTable& st) : cg::CodeGenerator(st) { }
 
-    MOCK_METHOD(llvm::Value *, genValue, (const rask::ast::Expression&, expr)(llvm::BasicBlock&, block))
+    MOCK_METHOD2(genValue, llvm::Value *(const ast::Expression&, llvm::BasicBlock&));
 };
+
+std::ostream& operator<<(std::ostream& os, const ast::Expression& )
+{
+    return os << "ast::Expression";
+}
 
 }
 
-namespace tut
-{
-
-struct genReturn_TestData
+struct rask_cg_CodeGenerator_genReturn : testing::Test
 {
     llvm::LLVMContext ctx;
-    rask::cg::SymbolTable st;
+    cg::SymbolTable st;
     boost::scoped_ptr<llvm::Module> module;
     llvm::BasicBlock *block;
     CodeGeneratorMock cg;
 
-    genReturn_TestData() : module(new llvm::Module("testModule", ctx)), cg(st)
+    rask_cg_CodeGenerator_genReturn() : module(new llvm::Module("testModule", ctx)), cg(st)
     {
         llvm::FunctionType *type = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), false);
         llvm::Function *func = llvm::Function::Create(type, llvm::Function::ExternalLinkage, "main", &*module);
@@ -47,37 +49,19 @@ struct genReturn_TestData
     }
 };
 
-typedef test_group<genReturn_TestData> factory;
-typedef factory::object object;
-}
-
-namespace
+TEST_F(rask_cg_CodeGenerator_genReturn, returnExpression)
 {
-tut::factory tf("rask.cg.CodeGenerator.genReturn");
-}
-
-namespace tut
-{
-
-template <>
-template <>
-void object::test<1>()
-{
-    using namespace rask;
-
     ast::Return ret(ast::Constant(10));
 
     llvm::AllocaInst *a1 = new llvm::AllocaInst(llvm::IntegerType::get(ctx, 32));
 
-    MOCK_RETURN(cg, genValue, a1);
+    EXPECT_CALL(cg, genValue(Ref(ret.expr()), Ref(*block)))
+        .WillOnce(Return(a1));
 
     cg.genReturn(ret, *block);
 
-    ENSURE_CALL(cg, genValue(ret.expr(), *block));
-    ENSURE_EQUALS(block->size(), 1u);
-    ENSURE(llvm::isa<llvm::ReturnInst>(block->front()));
+    ASSERT_EQ(1u, block->size());
+    ASSERT_TRUE(llvm::isa<llvm::ReturnInst>(block->front()));
     llvm::ReturnInst *inst = llvm::cast<llvm::ReturnInst>(&block->front());
-    ENSURE(inst->getReturnValue() == a1);
-}
-
+    ASSERT_TRUE(inst->getReturnValue() == a1);
 }
