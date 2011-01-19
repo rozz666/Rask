@@ -127,14 +127,15 @@ int main(int argc, char **argv)
             if (ast && !params.noOutput)
             {
                 llvm::LLVMContext context;
+                llvm::Module module("mainModule", context);
                 cg::SymbolTable symbolTable;
                 cg::CodeGenerator cg(symbolTable);
 
-                std::auto_ptr<llvm::Module> module = cg.genModule(*ast, context);
+                cg.genModule(*ast, context, module);
 
                 std::vector<unsigned char> buf;
                 llvm::BitstreamWriter bw(buf);
-                llvm::WriteBitcodeToStream(module.get(), bw);
+                llvm::WriteBitcodeToStream(&module, bw);
 
                 std::ofstream of(params.outputFile.c_str(), std::ios::binary);
 

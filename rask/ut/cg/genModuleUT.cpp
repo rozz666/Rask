@@ -6,71 +6,57 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <tut/tut.hpp>
-#include <tut/../contrib/tut_macros.h>
+#include <rask/cg/CodeGenerator.hpp>
 #include <llvm/LLVMContext.h>
 #include <llvm/DerivedTypes.h>
-#include <rask/test/TUTAssert.hpp>
-#include <rask/cg/CodeGenerator.hpp>
-#include <rask/test/Mock.hpp>
 #include <rask/test/FunctionFactory.hpp>
+#include <boost/scoped_ptr.hpp>
+#include <gmock/gmock.h>
 
-namespace tut
-{
+using namespace rask;
+using namespace testing;
 
-struct genModule_TestData
+struct rask_cg_CodeGenerator_genModule : testing::Test
 {
-    rask::test::FunctionFactory functionFactory;
+    test::FunctionFactory functionFactory;
 };
-
-typedef test_group<genModule_TestData> factory;
-typedef factory::object object;
-}
 
 namespace
 {
-tut::factory tf("rask.cg.CodeGenerator.genModule");
 
-CLASS_MOCK(CodeGeneratorMock, rask::cg::CodeGenerator)
+struct CodeGeneratorMock : cg::CodeGenerator
 {
-    CodeGeneratorMock(rask::cg::SymbolTable& st) : rask::cg::CodeGenerator(st) { }
-    
-    MOCK_METHOD(void, genFunction, (const rask::ast::CustomFunction&, f)(llvm::Module&, module))
-    MOCK_METHOD(void, declFunction, (const rask::ast::CustomFunction&, f)(llvm::Module&, module))
-    MOCK_METHOD(void, declBuiltinFunctions, (llvm::Module&, module))
+    CodeGeneratorMock(cg::SymbolTable& st) : cg::CodeGenerator(st) { }
+
+    MOCK_METHOD2(genFunction, void(const ast::CustomFunction&, llvm::Module&));
+    MOCK_METHOD2(declFunction, void(const ast::CustomFunction&, llvm::Module&));
+    MOCK_METHOD1(declBuiltinFunctions, void(llvm::Module&));
 };
 
 }
 
-namespace tut
+TEST_F(rask_cg_CodeGenerator_genModule, twoFunctions)
 {
-
-template <>
-template <>
-void object::test<1>()
-{
-    using namespace rask;
-    
     llvm::LLVMContext context;
     ast::SharedCustomFunction f1 = functionFactory.createShared("abc");
     ast::SharedCustomFunction f2 = functionFactory.createShared("def");
     ast::Tree ast;
     ast.add(f1);
     ast.add(f2);
-    
-    rask::cg::SymbolTable dummyST;
+
+    cg::SymbolTable dummyST;
     CodeGeneratorMock cg(dummyST);
-    
-    std::auto_ptr<llvm::Module> module = cg.genModule(ast, context);
 
-    ensure_equals("context", &module->getContext(), &context);
+    boost::scoped_ptr<llvm::Module> module(new llvm::Module("xxx", context));
 
-    ENSURE_CALL(cg, declBuiltinFunctions(*module));
-    ENSURE_CALL(cg, declFunction(*f1, *module));
-    ENSURE_CALL(cg, declFunction(*f2, *module));
-    ENSURE_CALL(cg, genFunction(*f1, *module));
-    ENSURE_CALL(cg, genFunction(*f2, *module));
-}
+    {
+        InSequence s;
+        EXPECT_CALL(cg, declBuiltinFunctions(Ref(*module)));
+        EXPECT_CALL(cg, declFunction(Ref(*f1), Ref(*module)));
+        EXPECT_CALL(cg, declFunction(Ref(*f2), Ref(*module)));
+        EXPECT_CALL(cg, genFunction(Ref(*f1), Ref(*module)));
+        EXPECT_CALL(cg, genFunction(Ref(*f2), Ref(*module)));
+    }
 
-
+    cg.genModule(ast, context, *module);
 }
