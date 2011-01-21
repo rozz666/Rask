@@ -6,44 +6,41 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <tut/tut.hpp>
-#include <tut/../contrib/tut_macros.h>
-#include <rask/test/TUTAssert.hpp>
-#include <rask/test/Mock.hpp>
-#include <boost/scoped_ptr.hpp>
 #include <rask/cg/CodeGenerator.hpp>
 #include <llvm/LLVMContext.h>
 #include <llvm/Instructions.h>
 #include <llvm/DerivedTypes.h>
 #include <rask/test/VariableFactory.hpp>
 #include <rask/null.hpp>
+#include <gmock/gmock.h>
+#include <boost/scoped_ptr.hpp>
+
+using namespace rask;
+using namespace testing;
 
 namespace
 {
 
-CLASS_MOCK(CodeGeneratorMock, rask::cg::CodeGenerator)
+struct CodeGeneratorMock : cg::CodeGenerator
 {
-    CodeGeneratorMock(rask::cg::SymbolTable& symbolTable) : rask::cg::CodeGenerator(symbolTable) { }
+    CodeGeneratorMock(cg::SymbolTable& symbolTable) : cg::CodeGenerator(symbolTable) { }
 
-    MOCK_METHOD(llvm::CallInst *, genFunctionCall, (const rask::ast::FunctionCall&, fc)(llvm::BasicBlock&, block))
+    MOCK_METHOD2(genFunctionCall, llvm::CallInst *(const ast::FunctionCall&, llvm::BasicBlock&));
 };
 
 }
 
-namespace tut
+struct rask_cg_CodeGenerator_genValue : testing::Test
 {
-
-struct genValue_TestData
-{
-    rask::test::VariableFactory variableFactory;
+    test::VariableFactory variableFactory;
     llvm::LLVMContext ctx;
     boost::scoped_ptr<llvm::Module> module;
     llvm::BasicBlock *block;
-    rask::cg::SymbolTable st;
+    cg::SymbolTable st;
     CodeGeneratorMock cg;
     llvm::AllocaInst *a1;
-    
-    genValue_TestData()
+
+    rask_cg_CodeGenerator_genValue()
         : module(new llvm::Module("testModule", ctx)), cg(st),
         a1(new llvm::AllocaInst(llvm::IntegerType::get(ctx, 32)))
     {
@@ -53,57 +50,31 @@ struct genValue_TestData
     }
 };
 
-typedef test_group<genValue_TestData> factory;
-typedef factory::object object;
-}
-
-namespace
+TEST_F(rask_cg_CodeGenerator_genValue, constant)
 {
-tut::factory tf("rask.cg.CodeGenerator.genValue");
-}
-
-namespace tut
-{
-
-template <>
-template <>
-void object::test<1>()
-{
-    using namespace rask;
-    
     ast::Constant c(10);
-    ENSURE(cg.genValue(c, *block) == llvm::ConstantInt::get(ctx, llvm::APInt(32, c.getInt32(), true)));
+    ASSERT_TRUE(cg.genValue(c, *block) == llvm::ConstantInt::get(ctx, llvm::APInt(32, c.getInt32(), true)));
 }
 
-template <>
-template <>
-void object::test<2>()
+TEST_F(rask_cg_CodeGenerator_genValue, variable)
 {
-    using namespace rask;
-    
     ast::SharedVariable v = variableFactory.createShared("x");
     st.add(v->name(), a1);
-    
+
     llvm::Value *val = cg.genValue(v, *block);
 
-    ENSURE(llvm::isa<llvm::LoadInst>(val));
-    ENSURE(llvm::cast<llvm::LoadInst>(val)->getPointerOperand() == st.get(v->name()));
+    ASSERT_TRUE(llvm::isa<llvm::LoadInst>(val));
+    ASSERT_TRUE(llvm::cast<llvm::LoadInst>(val)->getPointerOperand() == st.get(v->name()));
 }
 
-template <>
-template <>
-void object::test<3>()
+TEST_F(rask_cg_CodeGenerator_genValue, functionCall)
 {
-    using namespace rask;
-
     ast::Expression fc = ast::FunctionCall(null, ast::FunctionCall::Arguments(0));
 
-    MOCK_RETURN(cg, genFunctionCall, 0);
+    EXPECT_CALL(cg, genFunctionCall(Ref(getFunctionCall(fc)), Ref(*block)))
+        .WillOnce(Return(null));
 
     llvm::Value *val = cg.genValue(fc, *block);
 
-    ENSURE(val == 0);
-    ENSURE_CALL(cg, genFunctionCall(getFunctionCall(fc), *block));
-}
-
+    ASSERT_TRUE(val == null);
 }
