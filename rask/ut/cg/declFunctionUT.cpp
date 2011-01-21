@@ -6,111 +6,83 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <tut/tut.hpp>
-#include <tut/../contrib/tut_macros.h>
+#include <rask/cg/CodeGenerator.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <llvm/LLVMContext.h>
 #include <llvm/DerivedTypes.h>
-#include <rask/cg/CodeGenerator.hpp>
 #include <rask/cg/Prefixes.hpp>
-#include <rask/test/TUTAssert.hpp>
 #include <rask/test/FunctionFactory.hpp>
+#include <gtest/gtest.h>
 
-namespace tut
-{
+using namespace rask;
+using namespace testing;
 
-struct declFunction_TestData
+struct rask_cg_CodeGenerator_declFunction : testing::Test
 {
     llvm::LLVMContext context;
     boost::scoped_ptr<llvm::Module> module;
-    rask::cg::SymbolTable st;
-    rask::cg::CodeGenerator cg;
-    rask::test::FunctionFactory functionFactory;
+    cg::SymbolTable st;
+    cg::CodeGenerator cg;
+    test::FunctionFactory functionFactory;
 
-    declFunction_TestData() : module(new llvm::Module("testModule", context)), cg(st) { }
+    rask_cg_CodeGenerator_declFunction() : module(new llvm::Module("testModule", context)), cg(st) { }
 };
 
-typedef test_group<declFunction_TestData> factory;
-typedef factory::object object;
-}
-
-namespace
+TEST_F(rask_cg_CodeGenerator_declFunction, voidFunctionNoArgs)
 {
-tut::factory tf("rask.cg.CodeGenerator.declFunction");
-}
-
-namespace tut
-{
-
-template <>
-template <>
-void object::test<1>()
-{
-    using namespace rask;
-
     ast::CustomFunction f = functionFactory.create("f1");
 
     cg.declFunction(f, *module);
 
-    ENSURE_EQUALS(module->getFunctionList().size(), 1u);
+    ASSERT_EQ(1u, module->getFunctionList().size());
     llvm::Function& lf = module->getFunctionList().front();
-    ENSURE_EQUALS(lf.getNameStr(), f.name().value);
+    ASSERT_EQ(f.name().value, lf.getNameStr());
     llvm::FunctionType *fType = llvm::FunctionType::get(llvm::Type::getVoidTy(context), false);
-    ENSURE(llvm::isa<llvm::PointerType>(lf.getType()));
-    ENSURE(lf.getType()->getElementType() == fType);
-    ENSURE(lf.getBasicBlockList().empty());
-    ENSURE(lf.getCallingConv() == llvm::CallingConv::C);
-    ENSURE_EQUALS(lf.getLinkage(), llvm::Function::ExternalLinkage);
-    ENSURE(lf.getParent() == module.get());
-    ENSURE(&lf.getContext() == &context);
+    ASSERT_TRUE(llvm::isa<llvm::PointerType>(lf.getType()));
+    ASSERT_TRUE(lf.getType()->getElementType() == fType);
+    ASSERT_TRUE(lf.getBasicBlockList().empty());
+    ASSERT_TRUE(lf.getCallingConv() == llvm::CallingConv::C);
+    ASSERT_TRUE(lf.getLinkage() == llvm::Function::ExternalLinkage);
+    ASSERT_TRUE(lf.getParent() == module.get());
+    ASSERT_TRUE(&lf.getContext() == &context);
 }
 
-template <>
-template <>
-void object::test<2>()
+TEST_F(rask_cg_CodeGenerator_declFunction, voidFunctionTwoArgs)
 {
-    using namespace rask;
-
-    ast::SharedCustomFunction f = functionFactory.createShared("f1", ast::VOID, 2);
+    ast::SharedCustomFunction f = functionFactory.createShared("f2", ast::VOID, 2);
 
     cg.declFunction(*f, *module);
 
-    ENSURE_EQUALS(module->getFunctionList().size(), 1u);
+    ASSERT_EQ(1u, module->getFunctionList().size());
     llvm::Function& lf = module->getFunctionList().front();
-    ENSURE_EQUALS(lf.getNameStr(), f->name().value);
+    ASSERT_EQ(f->name().value, lf.getNameStr());
     std::vector<const llvm::Type *> fArgs(2, llvm::IntegerType::get(module->getContext(), 32));
     llvm::FunctionType *fType = llvm::FunctionType::get(llvm::Type::getVoidTy(context), fArgs, false);
-    ENSURE(llvm::isa<llvm::PointerType>(lf.getType()));
-    ENSURE(lf.getType()->getElementType() == fType);
-    ENSURE_EQUALS(lf.arg_size(), 2u);
+    ASSERT_TRUE(llvm::isa<llvm::PointerType>(lf.getType()));
+    ASSERT_TRUE(lf.getType()->getElementType() == fType);
+    ASSERT_EQ(2u, lf.arg_size());
     llvm::Function::arg_iterator arg = lf.arg_begin();
-    ENSURE_EQUALS(arg->getNameStr(), cg::ARG_PREFIX + f->arg(0)->name().value);
+    ASSERT_EQ(cg::ARG_PREFIX + f->arg(0)->name().value, arg->getNameStr());
     ++arg;
-    ENSURE_EQUALS(arg->getNameStr(), cg::ARG_PREFIX + f->arg(1)->name().value);
-    ENSURE(lf.getBasicBlockList().empty());
+    ASSERT_EQ(cg::ARG_PREFIX + f->arg(1)->name().value, arg->getNameStr());
+    ASSERT_TRUE(lf.getBasicBlockList().empty());
 }
 
-template <>
-template <>
-void object::test<3>()
+TEST_F(rask_cg_CodeGenerator_declFunction, int32FunctionNoArgs)
 {
-    using namespace rask;
-
-    ast::CustomFunction f = functionFactory.create("f1", ast::INT32);
+    ast::CustomFunction f = functionFactory.create("f3", ast::INT32);
 
     cg.declFunction(f, *module);
 
-    ENSURE_EQUALS(module->getFunctionList().size(), 1u);
+    ASSERT_EQ(1u, module->getFunctionList().size());
     llvm::Function& lf = module->getFunctionList().front();
-    ENSURE_EQUALS(lf.getNameStr(), f.name().value);
+    ASSERT_EQ(f.name().value, lf.getNameStr());
     llvm::FunctionType *fType = llvm::FunctionType::get(llvm::IntegerType::get(context, 32), false);
-    ENSURE(llvm::isa<llvm::PointerType>(lf.getType()));
-    ENSURE(lf.getType()->getElementType() == fType);
-    ENSURE(lf.getBasicBlockList().empty());
-    ENSURE(lf.getCallingConv() == llvm::CallingConv::C);
-    ENSURE_EQUALS(lf.getLinkage(), llvm::Function::ExternalLinkage);
-    ENSURE(lf.getParent() == module.get());
-    ENSURE(&lf.getContext() == &context);
-}
-
+    ASSERT_TRUE(llvm::isa<llvm::PointerType>(lf.getType()));
+    ASSERT_TRUE(lf.getType()->getElementType() == fType);
+    ASSERT_TRUE(lf.getBasicBlockList().empty());
+    ASSERT_TRUE(lf.getCallingConv() == llvm::CallingConv::C);
+    ASSERT_TRUE(lf.getLinkage() == llvm::Function::ExternalLinkage);
+    ASSERT_TRUE(lf.getParent() == module.get());
+    ASSERT_TRUE(&lf.getContext() == &context);
 }
