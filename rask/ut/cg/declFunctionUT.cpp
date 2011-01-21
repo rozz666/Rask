@@ -24,65 +24,62 @@ struct rask_cg_CodeGenerator_declFunction : testing::Test
     cg::SymbolTable st;
     cg::CodeGenerator cg;
     test::FunctionFactory functionFactory;
+    ast::SharedCustomFunction f;
+    llvm::Function *lf;
 
     rask_cg_CodeGenerator_declFunction() : module(new llvm::Module("testModule", context)), cg(st) { }
+
+    void assertFunction()
+    {
+        cg.declFunction(*f, *module);
+
+        ASSERT_EQ(1u, module->getFunctionList().size());
+        lf = &module->getFunctionList().front();
+        ASSERT_EQ(f->name().value, lf->getNameStr());
+    }
+
+    void assertFunctionType(llvm::FunctionType *type)
+    {
+        ASSERT_TRUE(llvm::isa<llvm::PointerType>(lf->getType()));
+        ASSERT_TRUE(lf->getType()->getElementType() == type);
+    }
 };
 
 TEST_F(rask_cg_CodeGenerator_declFunction, voidFunctionNoArgs)
 {
-    ast::CustomFunction f = functionFactory.create("f1");
+    f = functionFactory.createShared("f1");
 
-    cg.declFunction(f, *module);
+    ASSERT_NO_FATAL_FAILURE(assertFunction());
 
-    ASSERT_EQ(1u, module->getFunctionList().size());
-    llvm::Function& lf = module->getFunctionList().front();
-    ASSERT_EQ(f.name().value, lf.getNameStr());
     llvm::FunctionType *fType = llvm::FunctionType::get(llvm::Type::getVoidTy(context), false);
-    ASSERT_TRUE(llvm::isa<llvm::PointerType>(lf.getType()));
-    ASSERT_TRUE(lf.getType()->getElementType() == fType);
-    ASSERT_TRUE(lf.getBasicBlockList().empty());
-    ASSERT_TRUE(lf.getCallingConv() == llvm::CallingConv::C);
-    ASSERT_TRUE(lf.getLinkage() == llvm::Function::ExternalLinkage);
-    ASSERT_TRUE(lf.getParent() == module.get());
-    ASSERT_TRUE(&lf.getContext() == &context);
+    ASSERT_NO_FATAL_FAILURE(assertFunctionType(fType));
+    ASSERT_TRUE(lf->getBasicBlockList().empty());
+    ASSERT_TRUE(lf->getCallingConv() == llvm::CallingConv::C);
+    ASSERT_TRUE(lf->getLinkage() == llvm::Function::ExternalLinkage);
 }
 
 TEST_F(rask_cg_CodeGenerator_declFunction, voidFunctionTwoArgs)
 {
-    ast::SharedCustomFunction f = functionFactory.createShared("f2", ast::VOID, 2);
+    f = functionFactory.createShared("f2", ast::VOID, 2);
 
-    cg.declFunction(*f, *module);
+    ASSERT_NO_FATAL_FAILURE(assertFunction());
 
-    ASSERT_EQ(1u, module->getFunctionList().size());
-    llvm::Function& lf = module->getFunctionList().front();
-    ASSERT_EQ(f->name().value, lf.getNameStr());
     std::vector<const llvm::Type *> fArgs(2, llvm::IntegerType::get(module->getContext(), 32));
     llvm::FunctionType *fType = llvm::FunctionType::get(llvm::Type::getVoidTy(context), fArgs, false);
-    ASSERT_TRUE(llvm::isa<llvm::PointerType>(lf.getType()));
-    ASSERT_TRUE(lf.getType()->getElementType() == fType);
-    ASSERT_EQ(2u, lf.arg_size());
-    llvm::Function::arg_iterator arg = lf.arg_begin();
+    ASSERT_NO_FATAL_FAILURE(assertFunctionType(fType));
+    ASSERT_EQ(2u, lf->arg_size());
+    llvm::Function::arg_iterator arg = lf->arg_begin();
     ASSERT_EQ(cg::ARG_PREFIX + f->arg(0)->name().value, arg->getNameStr());
     ++arg;
     ASSERT_EQ(cg::ARG_PREFIX + f->arg(1)->name().value, arg->getNameStr());
-    ASSERT_TRUE(lf.getBasicBlockList().empty());
 }
 
 TEST_F(rask_cg_CodeGenerator_declFunction, int32FunctionNoArgs)
 {
-    ast::CustomFunction f = functionFactory.create("f3", ast::INT32);
+    f = functionFactory.createShared("f3", ast::INT32);
 
-    cg.declFunction(f, *module);
+    ASSERT_NO_FATAL_FAILURE(assertFunction());
 
-    ASSERT_EQ(1u, module->getFunctionList().size());
-    llvm::Function& lf = module->getFunctionList().front();
-    ASSERT_EQ(f.name().value, lf.getNameStr());
     llvm::FunctionType *fType = llvm::FunctionType::get(llvm::IntegerType::get(context, 32), false);
-    ASSERT_TRUE(llvm::isa<llvm::PointerType>(lf.getType()));
-    ASSERT_TRUE(lf.getType()->getElementType() == fType);
-    ASSERT_TRUE(lf.getBasicBlockList().empty());
-    ASSERT_TRUE(lf.getCallingConv() == llvm::CallingConv::C);
-    ASSERT_TRUE(lf.getLinkage() == llvm::Function::ExternalLinkage);
-    ASSERT_TRUE(lf.getParent() == module.get());
-    ASSERT_TRUE(&lf.getContext() == &context);
+    assertFunctionType(fType);
 }
