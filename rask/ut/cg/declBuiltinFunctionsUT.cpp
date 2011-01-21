@@ -6,77 +6,49 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <tut/tut.hpp>
-#include <tut/../contrib/tut_macros.h>
+#include <rask/cg/CodeGenerator.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <llvm/LLVMContext.h>
 #include <llvm/DerivedTypes.h>
-#include <rask/cg/CodeGenerator.hpp>
-#include <rask/test/TUTAssert.hpp>
+#include <gmock/gmock.h>
 
-namespace tut
-{
+using namespace rask;
+using namespace testing;
 
-struct declBuiltinFunctions_TestData
+struct rask_cg_CodeGenerator_declBuiltinFunctions : testing::Test
 {
     llvm::LLVMContext context;
     boost::scoped_ptr<llvm::Module> module;
-    rask::cg::SymbolTable st;
+    cg::SymbolTable st;
 
-    declBuiltinFunctions_TestData() : module(new llvm::Module("testModule", context))
+    rask_cg_CodeGenerator_declBuiltinFunctions() : module(new llvm::Module("testModule", context))
     {
-        rask::cg::CodeGenerator(st).declBuiltinFunctions(*module);
+        cg::CodeGenerator(st).declBuiltinFunctions(*module);
+    }
+
+    void assertFunction(const std::string& name, llvm::FunctionType *functionType)
+    {
+        llvm::Function *f = module->getFunction(name);
+
+        ASSERT_TRUE(f);
+        ASSERT_TRUE(llvm::isa<llvm::PointerType>(f->getType()));
+        ASSERT_TRUE(f->getType()->getElementType() == functionType);
+        ASSERT_TRUE(f->getBasicBlockList().empty());
+        ASSERT_TRUE(f->getLinkage() == llvm::Function::ExternalLinkage);
+        ASSERT_TRUE(f->getCallingConv() == llvm::CallingConv::C);
     }
 };
 
-typedef test_group<declBuiltinFunctions_TestData> factory;
-typedef factory::object object;
-}
-
-namespace
+TEST_F(rask_cg_CodeGenerator_declBuiltinFunctions, print)
 {
-tut::factory tf("rask.cg.CodeGenerator.declBuiltinFunctions");
-}
-
-namespace tut
-{
-
-template <>
-template <>
-void object::test<1>()
-{
-    using namespace rask;
-    
-    llvm::Function *printInt = module->getFunction("print");
-
     std::vector<const llvm::Type*> printIntArgs;
     printIntArgs.push_back(llvm::IntegerType::get(context, 32));
     llvm::FunctionType *printIntType = llvm::FunctionType::get(llvm::Type::getVoidTy(context), printIntArgs, false);
-
-    ENSURE(printInt);
-    ENSURE(llvm::isa<llvm::PointerType>(printInt->getType()));
-    ENSURE(printInt->getType()->getElementType() == printIntType);
-    ENSURE(printInt->getBasicBlockList().empty());
-    ENSURE(printInt->getLinkage() == llvm::Function::ExternalLinkage);
-    ENSURE(printInt->getCallingConv() == llvm::CallingConv::C);
+    assertFunction("print", printIntType);
 }
 
-template <>
-template <>
-void object::test<2>()
+TEST_F(rask_cg_CodeGenerator_declBuiltinFunctions, getInt32)
 {
-    using namespace rask;
-    
-    llvm::Function *getInt32 = module->getFunction("getInt32");
-   
     llvm::FunctionType *getInt32Type = llvm::FunctionType::get(llvm::IntegerType::get(context, 32), false);
-    
-    ENSURE(getInt32);
-    ENSURE(llvm::isa<llvm::PointerType>(getInt32->getType()));
-    ENSURE(getInt32->getType()->getElementType() == getInt32Type);
-    ENSURE(getInt32->getBasicBlockList().empty());
-    ENSURE(getInt32->getLinkage() == llvm::Function::ExternalLinkage);
-    ENSURE(getInt32->getCallingConv() == llvm::CallingConv::C);
-}
-
+    assertFunction("getInt32", getInt32Type);
 }
