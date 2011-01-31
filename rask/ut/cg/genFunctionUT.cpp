@@ -77,7 +77,6 @@ struct rask_cg_CodeGenerator_genFunction : testing::Test
         instructionFactory(new InstructionFactoryMock), cg(symbolTable, basicBlockFactory, instructionFactory),
         f(functionFactory.create("abc")), entry(llvm::BasicBlock::Create(ctx))
     {
-        cg.declBuiltinFunctions(*module);
         cg.declFunction(f, *module);
     }
 };
