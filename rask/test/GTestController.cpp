@@ -42,7 +42,7 @@ void GTestController::OnTestCaseStart(const testing::TestCase& testCase)
     if (testCase.name() != currentSuite_)
     {
         currentSuite_ = testCase.name();
-        print(prettyName(testCase.name())).print(":").flush();
+        print("\n").print(prettyName(testCase.name())).print(":").flush();
     }
 }
 
@@ -78,11 +78,6 @@ void GTestController::OnTestEnd(const testing::TestInfo& testInfo)
 
         errors_ << result.summary() << std::endl;
     }
-}
-
-void GTestController::OnTestCaseEnd(const testing::TestCase& )
-{
-    print("\n").flush();
 }
 
 void GTestController::OnTestProgramEnd(const testing::UnitTest& )

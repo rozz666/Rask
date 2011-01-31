@@ -30,7 +30,6 @@ public:
     virtual void OnTestCaseStart(const testing::TestCase& );
     virtual void OnTestStart(const testing::TestInfo& );
     virtual void OnTestEnd(const testing::TestInfo& );
-    virtual void OnTestCaseEnd(const testing::TestCase& );
     virtual void OnTestProgramEnd(const testing::UnitTest& );
 
 private:
