@@ -10,6 +10,7 @@
 #define RASK_CST_PARSER_HPP
 
 #include <boost/optional.hpp>
+#include <boost/shared_ptr.hpp>
 #include <rask/InputStream.hpp>
 #include <rask/error/Logger.hpp>
 #include <rask/cst/Tree.hpp>
@@ -32,8 +33,9 @@ private:
     error::Logger& logger_;
 };
 
-}
+typedef boost::shared_ptr<Parser> SharedParser;
 
+}
 }
 
 #endif // RASK_CST_PARSER_HPP

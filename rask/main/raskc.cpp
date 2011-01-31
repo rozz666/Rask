@@ -72,7 +72,6 @@ struct CompilerModule
 
         r.add(
             r.type<cst::Parser>()
-            .in_scope<di::scopes::singleton>()
         );
         r.add(
             r.type<ast::Builder>()
@@ -84,20 +83,10 @@ struct CompilerModule
         );
         r.add(
             r.type<ast::FunctionTable>()
-            .in_scope<di::scopes::singleton>()
             .instance(ft.release())
         );
         r.add(
-            r.type<ast::VariableFactory>()
-            .in_scope<di::scopes::singleton>()
-        );
-        r.add(
             r.type<cg::CodeGenerator>()
-            .in_scope<di::scopes::singleton>()
-        );
-        r.add(
-            r.type<cg::SymbolTable>()
-            .in_scope<di::scopes::singleton>()
         );
     }
 };
@@ -124,15 +113,15 @@ int main(int argc, char **argv)
         CompilerModule compilerModule;
         injector.install(compilerModule);
 
-        cst::Parser& parser = injector.construct<cst::Parser& >();
-        boost::optional<cst::Tree> cst = parser.parseFile(is);
+        cst::SharedParser parser = injector.construct<cst::SharedParser>();
+        boost::optional<cst::Tree> cst = parser->parseFile(is);
 
         if (cst)
         {
-            ast::Builder& builder = injector.construct<ast::Builder&>();
+            ast::SharedBuilder builder = injector.construct<ast::SharedBuilder>();
 
             ast::SharedScopeFactory scopeFactory(new ast::ScopeFactory);
-            boost::optional<ast::Tree> ast = builder.buildTree(*cst, scopeFactory);
+            boost::optional<ast::Tree> ast = builder->buildTree(*cst, scopeFactory);
 
             if (ast && !params.noOutput)
             {

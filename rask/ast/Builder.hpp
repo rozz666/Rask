@@ -53,6 +53,8 @@ private:
     bool buildFunctions(const Functions& fs, SharedScopeFactory scopeFactory);
 };
 
+typedef boost::shared_ptr<Builder> SharedBuilder;
+
 }
 }
 
