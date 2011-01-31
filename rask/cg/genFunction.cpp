@@ -43,30 +43,30 @@ struct StatementVisitor : boost::static_visitor<void>
         cg.genReturn(ret, entry);
     }
 };
-        
+
 void CodeGenerator::genFunction(const ast::CustomFunction& f, llvm::Module& module)
 {
     llvm::Function *func = module.getFunction(f.name().value);
-    llvm::BasicBlock *entry = llvm::BasicBlock::Create(module.getContext(), "entry", func);
+    llvm::BasicBlock *entry = basicBlockFactory_->createBasicBlock(module.getContext(), "entry", func);
 
     if (f.argCount() > 0)
     {
-        llvm::BasicBlock *argsBlock = llvm::BasicBlock::Create(module.getContext(), "args", func, entry);
+        llvm::BasicBlock *argsBlock = basicBlockFactory_->createBasicBlockBefore(module.getContext(), "args", func, entry);
         const llvm::IntegerType *type = llvm::IntegerType::get(module.getContext(), 32);
-        
+
         BOOST_FOREACH(llvm::Argument& arg, func->getArgumentList())
         {
             const cst::Identifier& argName = f.arg(arg.getArgNo())->name();
-            llvm::AllocaInst *alloca = new llvm::AllocaInst(type, LOCAL_ARG_PREFIX + argName.value, argsBlock);
-            new llvm::StoreInst(&arg, alloca, argsBlock);
+            llvm::AllocaInst *alloca = instructionFactory_->createAlloca(type, LOCAL_ARG_PREFIX + argName.value, argsBlock);
+            instructionFactory_->createStore(&arg, alloca, argsBlock);
             symbolTable_.add(argName, alloca);
         }
 
-        llvm::BranchInst::Create(entry, argsBlock);
+        instructionFactory_->createBranch(entry, argsBlock);
     }
 
     StatementVisitor sv(*this,  *entry);
-    
+
     for (std::size_t i = 0; i != f.stmtCount(); ++i)
     {
         f.stmt(i).apply_visitor(sv);
@@ -74,7 +74,7 @@ void CodeGenerator::genFunction(const ast::CustomFunction& f, llvm::Module& modu
 
     if (f.type() == ast::VOID)
     {
-        llvm::ReturnInst::Create(module.getContext(), entry);
+        instructionFactory_->createReturn(module.getContext(), entry);
     }
 }
 

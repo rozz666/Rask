@@ -14,7 +14,9 @@ namespace rask
 namespace cg
 {
 
-CodeGenerator::CodeGenerator(SymbolTable& symbolTable) : symbolTable_(symbolTable)
+CodeGenerator::CodeGenerator(
+    SymbolTable& symbolTable, SharedBasicBlockFactory basicBlockFactory, SharedInstructionFactory instructionFactory)
+    : symbolTable_(symbolTable), basicBlockFactory_(basicBlockFactory), instructionFactory_(instructionFactory)
 {
     binaryOpMap_[BINARY_MINUS_NAME] = llvm::BinaryOperator::CreateNSWSub;
     binaryOpMap_[BINARY_PLUS_NAME] = llvm::BinaryOperator::CreateNSWAdd;

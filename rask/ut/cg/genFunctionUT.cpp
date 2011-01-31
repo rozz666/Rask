@@ -6,137 +6,136 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <tut/tut.hpp>
-#include <tut/../contrib/tut_macros.h>
-#include <boost/scoped_ptr.hpp>
 #include <rask/cg/CodeGenerator.hpp>
 #include <rask/cg/Prefixes.hpp>
-#include <rask/test/Mock.hpp>
+#include <boost/scoped_ptr.hpp>
 #include <llvm/LLVMContext.h>
 #include <llvm/Instructions.h>
 #include <llvm/DerivedTypes.h>
 #include <rask/test/FunctionFactory.hpp>
 #include <rask/test/VariableDeclFactory.hpp>
 #include <rask/null.hpp>
+#include <gmock/gmock.h>
+
+using namespace rask;
+using namespace testing;
 
 namespace
 {
 
-CLASS_MOCK(CodeGeneratorMock, rask::cg::CodeGenerator)
+struct BasicBlockFactoryMock : cg::BasicBlockFactory
 {
-    CodeGeneratorMock(rask::cg::SymbolTable& symbolTable) : rask::cg::CodeGenerator(symbolTable) { }
+    MOCK_METHOD3(createBasicBlock, llvm::BasicBlock *(llvm::LLVMContext&, const std::string&, llvm::Function *));
+    MOCK_METHOD4(
+        createBasicBlockBefore,
+        llvm::BasicBlock *(llvm::LLVMContext&, const std::string&, llvm::Function *, llvm::BasicBlock *));
+};
 
-    MOCK_METHOD(llvm::CallInst *, genFunctionCall, (const rask::ast::FunctionCall&, fc)(llvm::BasicBlock&, block))
-    MOCK_METHOD(llvm::AllocaInst *, genVariableDecl, (const rask::ast::VariableDecl&, vd)(llvm::BasicBlock&, block))
-    MOCK_METHOD(void, genReturn, (const rask::ast::Return&, vd)(llvm::BasicBlock&, block))
+typedef boost::shared_ptr<BasicBlockFactoryMock> SharedBasicBlockFactoryMock;
+
+struct InstructionFactoryMock : cg::InstructionFactory
+{
+    MOCK_METHOD2(createReturn, llvm::ReturnInst *(llvm::LLVMContext&, llvm::BasicBlock *));
+    MOCK_METHOD3(createAlloca, llvm::AllocaInst *(const llvm::Type *, const std::string& , llvm::BasicBlock *));
+    MOCK_METHOD3(createStore, llvm::StoreInst *(llvm::Value *, llvm::Value *, llvm::BasicBlock *));
+    MOCK_METHOD2(createBranch, llvm::BranchInst *(llvm::BasicBlock *, llvm::BasicBlock *));
+};
+
+typedef boost::shared_ptr<InstructionFactoryMock> SharedInstructionFactoryMock;
+
+struct CodeGeneratorMock : cg::CodeGenerator
+{
+    CodeGeneratorMock(
+        cg::SymbolTable& symbolTable,
+        cg::SharedBasicBlockFactory basicBlockFactory,
+        cg::SharedInstructionFactory instructionFactory)
+        : cg::CodeGenerator(symbolTable, basicBlockFactory, instructionFactory) { }
+
+    MOCK_METHOD2(genFunctionCall, llvm::CallInst *(const ast::FunctionCall&, llvm::BasicBlock&));
+    MOCK_METHOD2(genVariableDecl, llvm::AllocaInst *(const ast::VariableDecl&, llvm::BasicBlock&));
+    MOCK_METHOD2(genReturn, void(const ast::Return&, llvm::BasicBlock&));
 };
 
 }
 
-namespace tut
-{
-
-struct genFunction_TestData
+struct rask_cg_CodeGenerator_genFunction : testing::Test
 {
     llvm::LLVMContext ctx;
     boost::scoped_ptr<llvm::Module> module;
-    rask::cg::SymbolTable symbolTable;
+    cg::SymbolTable symbolTable;
+    SharedBasicBlockFactoryMock basicBlockFactory;
+    SharedInstructionFactoryMock instructionFactory;
     CodeGeneratorMock cg;
-    rask::test::FunctionFactory functionFactory;
-    rask::test::VariableDeclFactory varDeclFactory;
-    rask::ast::CustomFunction f;
+    test::FunctionFactory functionFactory;
+    test::VariableDeclFactory varDeclFactory;
+    ast::CustomFunction f;
+    llvm::BasicBlock *entry;
 
-    genFunction_TestData()
-        : module(new llvm::Module("testModule", ctx)), cg(symbolTable),
-        f(functionFactory.create("abc"))
+
+    rask_cg_CodeGenerator_genFunction()
+        : module(new llvm::Module("testModule", ctx)), basicBlockFactory(new BasicBlockFactoryMock),
+        instructionFactory(new InstructionFactoryMock), cg(symbolTable, basicBlockFactory, instructionFactory),
+        f(functionFactory.create("abc")), entry(llvm::BasicBlock::Create(ctx))
     {
         cg.declBuiltinFunctions(*module);
         cg.declFunction(f, *module);
     }
 };
 
-typedef test_group<genFunction_TestData> factory;
-typedef factory::object object;
-}
-
-namespace
+TEST_F(rask_cg_CodeGenerator_genFunction, emptyFunction)
 {
-tut::factory tf("rask.cg.CodeGenerator.genFunction");
-}
-
-namespace tut
-{
-
-template <>
-template <>
-void object::test<1>()
-{
-    using namespace rask;
-
-    cg.genFunction(f, *module);
     llvm::Function *gf = module->getFunction(f.name().value);
 
-    ENSURE_EQUALS(gf->size(), 1u);
-    llvm::BasicBlock *entry = &gf->front();
-    ENSURE_EQUALS(entry->getNameStr(), "entry");
-    ENSURE_EQUALS(entry->size(), 1u);
-    ENSURE(llvm::isa<llvm::ReturnInst>(entry->front()));
+    EXPECT_CALL(*basicBlockFactory, createBasicBlock(Ref(ctx), Eq<std::string>("entry"), gf))
+        .WillOnce(Return(entry));
+    EXPECT_CALL(*instructionFactory, createReturn(Ref(ctx), entry))
+        .WillOnce(Return(null));
+
+    cg.genFunction(f, *module);
 }
 
-template <>
-template <>
-void object::test<2>()
+TEST_F(rask_cg_CodeGenerator_genFunction, functionCalls)
 {
-    using namespace rask;
-
     f.addStmt(ast::FunctionCall(null, ast::FunctionCall::Arguments()));
     f.addStmt(ast::FunctionCall(null, ast::FunctionCall::Arguments()));
 
-    MOCK_RETURN(cg, genFunctionCall, null);
-    MOCK_RETURN(cg, genFunctionCall, null);
+    EXPECT_CALL(*basicBlockFactory, createBasicBlock(_, _, _))
+        .WillOnce(Return(entry));
+    {
+        InSequence seq;
+        EXPECT_CALL(cg, genFunctionCall(Ref(getFunctionCall(f.stmt(0))), Ref(*entry)))
+            .WillOnce(Return(null));
+        EXPECT_CALL(cg, genFunctionCall(Ref(getFunctionCall(f.stmt(1))), Ref(*entry)))
+            .WillOnce(Return(null));
+        EXPECT_CALL(*instructionFactory, createReturn(_, _))
+            .WillOnce(Return(null));
+    }
 
     cg.genFunction(f, *module);
-    llvm::Function *gf = module->getFunction(f.name().value);
 
-    ENSURE_EQUALS(gf->size(), 1u);
-    llvm::BasicBlock *entry = &gf->front();
-    ENSURE_EQUALS(entry->getNameStr(), "entry");
-    ENSURE_EQUALS(entry->size(), 1u);
-    ENSURE(llvm::isa<llvm::ReturnInst>(entry->front()));
-    ENSURE_CALL(cg, genFunctionCall(getFunctionCall(f.stmt(0)), *entry));
-    ENSURE_CALL(cg, genFunctionCall(getFunctionCall(f.stmt(1)), *entry));
 }
 
-template <>
-template <>
-void object::test<3>()
+TEST_F(rask_cg_CodeGenerator_genFunction, variableDeclarations)
 {
-    using namespace rask;
-
     f.addStmt(varDeclFactory.create("asia"));
     f.addStmt(varDeclFactory.create("kasia"));
-
-    MOCK_RETURN(cg, genVariableDecl, null);
-    MOCK_RETURN(cg, genVariableDecl, null);
+    EXPECT_CALL(*basicBlockFactory, createBasicBlock(_, _, _))
+        .WillOnce(Return(entry));
+    {
+        InSequence seq;
+        EXPECT_CALL(cg, genVariableDecl(Ref(getVariableDecl(f.stmt(0))), Ref(*entry)))
+                .WillOnce(Return(null));
+        EXPECT_CALL(cg, genVariableDecl(Ref(getVariableDecl(f.stmt(1))), Ref(*entry)))
+                .WillOnce(Return(null));
+        EXPECT_CALL(*instructionFactory, createReturn(_, _))
+            .WillOnce(Return(null));
+    }
 
     cg.genFunction(f, *module);
-    llvm::Function *gf = module->getFunction(f.name().value);
-
-    ENSURE_EQUALS(gf->size(), 1u);
-    llvm::BasicBlock *entry = &gf->front();
-    ENSURE_EQUALS(entry->getNameStr(), "entry");
-    ENSURE_EQUALS(entry->size(), 1u);
-    ENSURE_CALL(cg, genVariableDecl(getVariableDecl(f.stmt(0)), *entry));
-    ENSURE_CALL(cg, genVariableDecl(getVariableDecl(f.stmt(1)), *entry));
-    ENSURE(llvm::isa<llvm::ReturnInst>(entry->front()));
 }
 
-template <>
-template <>
-void object::test<4>()
+TEST_F(rask_cg_CodeGenerator_genFunction, functionWithArgs)
 {
-    using namespace rask;
-
     ast::SharedCustomFunction f = functionFactory.createShared("xxx", ast::VOID, 2);
     cg.declFunction(*f, *module);
 
@@ -144,88 +143,67 @@ void object::test<4>()
     llvm::Argument *arg1 = &*it;
     llvm::Argument *arg2 = &*++it;
 
+    EXPECT_CALL(*basicBlockFactory, createBasicBlock(_, _, _))
+        .WillOnce(Return(entry));
+
+    llvm::BasicBlock *argsBlock = llvm::BasicBlock::Create(ctx);
+
+    EXPECT_CALL(*basicBlockFactory, createBasicBlockBefore(Ref(ctx), Eq<std::string>("args"), _, entry))
+        .WillOnce(Return(argsBlock));
+
+    const llvm::Type *type = llvm::IntegerType::get(ctx, 32);
+
+    llvm::AllocaInst *alloca1 = new llvm::AllocaInst(type);
+    llvm::AllocaInst *alloca2 = new llvm::AllocaInst(type);
+
+    ExpectationSet init;
+
+    init += EXPECT_CALL(*instructionFactory, createAlloca(type, cg::LOCAL_ARG_PREFIX + f->arg(0)->name().value, argsBlock))
+        .WillOnce(Return(alloca1));
+    init += EXPECT_CALL(*instructionFactory, createAlloca(type, cg::LOCAL_ARG_PREFIX + f->arg(1)->name().value, argsBlock))
+        .WillOnce(Return(alloca2));
+
+    init += EXPECT_CALL(*instructionFactory, createStore(arg1, alloca1, argsBlock))
+        .WillOnce(Return(null));
+    init += EXPECT_CALL(*instructionFactory, createStore(arg2, alloca2, argsBlock))
+        .WillOnce(Return(null));
+
+    EXPECT_CALL(*instructionFactory, createBranch(entry, argsBlock))
+        .After(init)
+        .WillOnce(Return(null));
+
+    EXPECT_CALL(*instructionFactory, createReturn(_, _))
+        .WillOnce(Return(null));
+
     cg.genFunction(*f, *module);
-
-    llvm::Function *gf = module->getFunction(f->name().value);
-
-    ENSURE_EQUALS(gf->size(), 2u);
-    llvm::Function::iterator block = gf->begin();
-    ENSURE_EQUALS(block->getNameStr(), "args");
-    ENSURE_EQUALS(block->size(), 5u);
-    llvm::BasicBlock::iterator inst = block->begin();
-
-    ENSURE(llvm::isa<llvm::AllocaInst>(*inst));
-    llvm::AllocaInst *alloc = llvm::cast<llvm::AllocaInst>(&*inst);
-    ENSURE_EQUALS(alloc->getNameStr(), cg::LOCAL_ARG_PREFIX + f->arg(0)->name().value);
-    ENSURE(alloc->getAllocatedType() == llvm::IntegerType::get(ctx, 32));
-    ENSURE(symbolTable.get(f->arg(0)->name()) == alloc);
-    ++inst;
-    ENSURE(llvm::isa<llvm::StoreInst>(*inst));
-    llvm::StoreInst *store = llvm::cast<llvm::StoreInst>(&*inst);
-    ENSURE(store->getValueOperand() == arg1);
-    ENSURE(store->getPointerOperand() == alloc);
-    ++inst;
-    ENSURE(llvm::isa<llvm::AllocaInst>(*inst));
-    alloc = llvm::cast<llvm::AllocaInst>(&*inst);
-    ENSURE_EQUALS(alloc->getNameStr(), cg::LOCAL_ARG_PREFIX + f->arg(1)->name().value);
-    ENSURE(alloc->getAllocatedType() == llvm::IntegerType::get(ctx, 32));
-    ENSURE(symbolTable.get(f->arg(1)->name()) == alloc);
-    ++inst;
-    ENSURE(llvm::isa<llvm::StoreInst>(*inst));
-    store = llvm::cast<llvm::StoreInst>(&*inst);
-    ENSURE(store->getValueOperand() == arg2);
-    ENSURE(store->getPointerOperand() == alloc);
-    ++inst;
-    ENSURE(llvm::isa<llvm::BranchInst>(*inst));
-    llvm::BranchInst *branch = llvm::cast<llvm::BranchInst>(&*inst);
-    ENSURE(branch->isUnconditional());
-
-    ++block;
-    ENSURE(branch->getSuccessor(0) == &*block);
-    ENSURE_EQUALS(block->getNameStr(), "entry");
-    ENSURE_EQUALS(block->size(), 1u);
-    ENSURE(llvm::isa<llvm::ReturnInst>(block->front()));
 }
 
-template <>
-template <>
-void object::test<5>()
+TEST_F(rask_cg_CodeGenerator_genFunction, int32Function)
 {
-    using namespace rask;
-
     f = functionFactory.create("asia", ast::INT32);
     cg.declFunction(f, *module);
 
-    cg.genFunction(f, *module);
-    llvm::Function *gf = module->getFunction(f.name().value);
+    EXPECT_CALL(*basicBlockFactory, createBasicBlock(_, _, _))
+        .WillOnce(Return(entry));
 
-    ENSURE_EQUALS(gf->size(), 1u);
-    llvm::BasicBlock *entry = &gf->front();
-    ENSURE_EQUALS(entry->getNameStr(), "entry");
-    ENSURE_EQUALS(entry->size(), 0u);
+    cg.genFunction(f, *module);
 }
 
-template <>
-template <>
-void object::test<6>()
+TEST_F(rask_cg_CodeGenerator_genFunction, returnStatements)
 {
-    using namespace rask;
-
     f = functionFactory.create("asia", ast::INT32);
     cg.declFunction(f, *module);
 
     f.addStmt(ast::Return(ast::Constant(10)));
     f.addStmt(ast::Return(ast::Constant(20)));
 
+    EXPECT_CALL(*basicBlockFactory, createBasicBlock(_, _, _))
+        .WillOnce(Return(entry));
+    {
+        InSequence seq;
+        EXPECT_CALL(cg, genReturn(Ref(getReturn(f.stmt(0))), Ref(*entry)));
+        EXPECT_CALL(cg, genReturn(Ref(getReturn(f.stmt(1))), Ref(*entry)));
+    }
+
     cg.genFunction(f, *module);
-    llvm::Function *gf = module->getFunction(f.name().value);
-
-    ENSURE_EQUALS(gf->size(), 1u);
-    llvm::BasicBlock *entry = &gf->front();
-    ENSURE_EQUALS(entry->getNameStr(), "entry");
-    ENSURE_EQUALS(entry->size(), 0u);
-    ENSURE_CALL(cg, genReturn(getReturn(f.stmt(0)), *entry));
-    ENSURE_CALL(cg, genReturn(getReturn(f.stmt(1)), *entry));
-}
-
 }

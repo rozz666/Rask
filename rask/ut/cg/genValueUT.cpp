@@ -23,7 +23,7 @@ namespace
 
 struct CodeGeneratorMock : cg::CodeGenerator
 {
-    CodeGeneratorMock(cg::SymbolTable& symbolTable) : cg::CodeGenerator(symbolTable) { }
+    CodeGeneratorMock(cg::SymbolTable& symbolTable) : cg::CodeGenerator(symbolTable, null, null) { }
 
     MOCK_METHOD2(genFunctionCall, llvm::CallInst *(const ast::FunctionCall&, llvm::BasicBlock&));
 };

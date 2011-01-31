@@ -39,6 +39,8 @@ add_library(
 
 add_library(
     raskcg STATIC
+    rask/cg/InstructionFactory.cpp
+    rask/cg/BasicBlockFactory.cpp
     rask/cg/CodeGenerator.cpp
     rask/cg/declBuiltinFunctions.cpp
     rask/cg/declFunction.cpp

@@ -12,6 +12,7 @@
 #include <llvm/Instructions.h>
 #include <llvm/DerivedTypes.h>
 #include <gmock/gmock.h>
+#include <rask/null.hpp>
 
 using namespace rask;
 using namespace testing;
@@ -21,7 +22,7 @@ namespace
 
 struct CodeGeneratorMock : cg::CodeGenerator
 {
-    CodeGeneratorMock(cg::SymbolTable& st) : cg::CodeGenerator(st) { }
+    CodeGeneratorMock(cg::SymbolTable& st) : cg::CodeGenerator(st, null, null) { }
 
     MOCK_METHOD2(genValue, llvm::Value *(const ast::Expression&, llvm::BasicBlock&));
 };

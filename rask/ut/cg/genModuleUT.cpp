@@ -10,6 +10,7 @@
 #include <llvm/LLVMContext.h>
 #include <llvm/DerivedTypes.h>
 #include <rask/test/FunctionFactory.hpp>
+#include <rask/null.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <gmock/gmock.h>
 
@@ -26,7 +27,7 @@ namespace
 
 struct CodeGeneratorMock : cg::CodeGenerator
 {
-    CodeGeneratorMock(cg::SymbolTable& st) : cg::CodeGenerator(st) { }
+    CodeGeneratorMock(cg::SymbolTable& st) : cg::CodeGenerator(st, null, null) { }
 
     MOCK_METHOD2(genFunction, void(const ast::CustomFunction&, llvm::Module&));
     MOCK_METHOD2(declFunction, void(const ast::CustomFunction&, llvm::Module&));

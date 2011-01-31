@@ -11,6 +11,7 @@
 #include <llvm/LLVMContext.h>
 #include <llvm/DerivedTypes.h>
 #include <gmock/gmock.h>
+#include <rask/null.hpp>
 
 using namespace rask;
 using namespace testing;
@@ -23,7 +24,7 @@ struct rask_cg_CodeGenerator_declBuiltinFunctions : testing::Test
 
     rask_cg_CodeGenerator_declBuiltinFunctions() : module(new llvm::Module("testModule", context))
     {
-        cg::CodeGenerator(st).declBuiltinFunctions(*module);
+        cg::CodeGenerator(st, null, null).declBuiltinFunctions(*module);
     }
 
     void assertFunction(const std::string& name, llvm::FunctionType *functionType)

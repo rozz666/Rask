@@ -13,6 +13,7 @@
 #include <rask/cg/Prefixes.hpp>
 #include <rask/test/FunctionFactory.hpp>
 #include <gtest/gtest.h>
+#include <rask/null.hpp>
 
 using namespace rask;
 using namespace testing;
@@ -27,7 +28,7 @@ struct rask_cg_CodeGenerator_declFunction : testing::Test
     ast::SharedCustomFunction f;
     llvm::Function *lf;
 
-    rask_cg_CodeGenerator_declFunction() : module(new llvm::Module("testModule", context)), cg(st) { }
+    rask_cg_CodeGenerator_declFunction() : module(new llvm::Module("testModule", context)), cg(st, null, null) { }
 
     void assertFunction()
     {

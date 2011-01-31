@@ -129,7 +129,9 @@ int main(int argc, char **argv)
                 llvm::LLVMContext context;
                 llvm::Module module("mainModule", context);
                 cg::SymbolTable symbolTable;
-                cg::CodeGenerator cg(symbolTable);
+                cg::SharedBasicBlockFactory basicBlockFactory(new cg::BasicBlockFactory);
+                cg::SharedInstructionFactory instructionFactory(new cg::InstructionFactory);
+                cg::CodeGenerator cg(symbolTable, basicBlockFactory, instructionFactory);
 
                 cg.genModule(*ast, context, module);
 

@@ -18,13 +18,14 @@
 #include <llvm/LLVMContext.h>
 #include <llvm/Instructions.h>
 #include <llvm/DerivedTypes.h>
+#include <rask/null.hpp>
 
 namespace
 {
 
 CLASS_MOCK(CodeGeneratorMock, rask::cg::CodeGenerator)
 {
-    CodeGeneratorMock(rask::cg::SymbolTable& st) : rask::cg::CodeGenerator(st) { }
+    CodeGeneratorMock(rask::cg::SymbolTable& st) : rask::cg::CodeGenerator(st, rask::null, rask::null) { }
 
     MOCK_METHOD(llvm::Value *, genValue, (const rask::ast::Expression&, expr)(llvm::BasicBlock&, block))
 };

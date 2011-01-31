@@ -1,3 +1,4 @@
+Add virtual destructors
 Use factories to construct dependent objects
 Switch to Google Test
 REFACTOR ALL UTs TO USE MOCKS!

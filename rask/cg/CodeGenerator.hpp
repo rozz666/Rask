@@ -13,6 +13,8 @@
 #include <rask/ast/CustomFunction.hpp>
 #include <rask/ast/Tree.hpp>
 #include <rask/cg/SymbolTable.hpp>
+#include <rask/cg/BasicBlockFactory.hpp>
+#include <rask/cg/InstructionFactory.hpp>
 #include <llvm/Function.h>
 #include <llvm/Module.h>
 #include <llvm/Instructions.h>
@@ -26,7 +28,10 @@ class CodeGenerator
 {
 public:
 
-    CodeGenerator(SymbolTable& symbolTable);
+    CodeGenerator(
+        SymbolTable& symbolTable,
+        SharedBasicBlockFactory basicBlockFactory,
+        SharedInstructionFactory instructionFactory);
 
     virtual llvm::Value *genFunctionCall(const ast::FunctionCall& fc, llvm::BasicBlock& block);
     virtual llvm::AllocaInst *genVariableDecl(const ast::VariableDecl& vd, llvm::BasicBlock& block);
@@ -46,6 +51,8 @@ private:
 
     BinaryOpMap binaryOpMap_;
     SymbolTable& symbolTable_;
+    SharedBasicBlockFactory basicBlockFactory_;
+    SharedInstructionFactory instructionFactory_;
 };
 
 }
