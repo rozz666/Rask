@@ -1,3 +1,4 @@
+Use type factory in cg.
 Add virtual destructors
 Use factories to construct dependent objects
 Switch to Google Test

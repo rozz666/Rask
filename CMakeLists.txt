@@ -39,6 +39,7 @@ add_library(
 
 add_library(
     raskcg STATIC
+    rask/cg/TypeFactory.cpp
     rask/cg/InstructionFactory.cpp
     rask/cg/BasicBlockFactory.cpp
     rask/cg/CodeGenerator.cpp
@@ -77,6 +78,7 @@ ADD_EXECUTABLE(
     raskut
     rask/test/GTestController.cpp
     rask/main/ut.cpp
+    rask/ut/cg/TypeFactoryUT.cpp
     rask/ut/ast/ExpressionUT.cpp
     rask/ut/ast/ScopeUT.cpp
     rask/ut/nullUT.cpp
