@@ -25,7 +25,7 @@ namespace
 
 struct CodeGeneratorMock : rask::cg::CodeGenerator
 {
-    CodeGeneratorMock(rask::cg::SymbolTable& st) : rask::cg::CodeGenerator(st, null, null) { }
+    CodeGeneratorMock(rask::cg::SharedSymbolTable st) : rask::cg::CodeGenerator(st, null, null) { }
 
     MOCK_METHOD2(genValue, llvm::Value *(const ast::Expression& expr, llvm::BasicBlock& block));
 };
@@ -41,10 +41,11 @@ struct rask_cg_CodeGenerator_genVariableDecl : testing::Test
 {
     llvm::LLVMContext ctx;
     boost::scoped_ptr<llvm::BasicBlock> block;
-    cg::SymbolTable st;
+    cg::SharedSymbolTable st;
     CodeGeneratorMock cg;
 
-    rask_cg_CodeGenerator_genVariableDecl() : block(llvm::BasicBlock::Create(ctx)), cg(st) { }
+    rask_cg_CodeGenerator_genVariableDecl()
+        : block(llvm::BasicBlock::Create(ctx)), st(new cg::SymbolTable), cg(st) { }
 };
 
 
@@ -65,7 +66,7 @@ TEST_F(rask_cg_CodeGenerator_genVariableDecl, generateDeclaration)
     ASSERT_TRUE(&*it == alloc);
     ASSERT_EQ(cg::LOCAL_VAR_PREFIX + name.value, alloc->getNameStr());
     ASSERT_TRUE(alloc->getAllocatedType() == llvm::IntegerType::get(ctx, 32));
-    ASSERT_TRUE(st.get(name) == alloc);
+    ASSERT_TRUE(st->get(name) == alloc);
     ++it;
 
     ASSERT_TRUE(llvm::isa<llvm::StoreInst>(*it));

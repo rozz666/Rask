@@ -59,7 +59,7 @@ void CodeGenerator::genFunction(const ast::CustomFunction& f, llvm::Module& modu
             const cst::Identifier& argName = f.arg(arg.getArgNo())->name();
             llvm::AllocaInst *alloca = instructionFactory_->createAlloca(type, LOCAL_ARG_PREFIX + argName.value, argsBlock);
             instructionFactory_->createStore(&arg, alloca, argsBlock);
-            symbolTable_.add(argName, alloca);
+            symbolTable_->add(argName, alloca);
         }
 
         instructionFactory_->createBranch(entry, argsBlock);

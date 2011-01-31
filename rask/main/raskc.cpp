@@ -65,28 +65,38 @@ struct CompilerModule
 
     void operator()(di::registry& r)
     {
-        std::auto_ptr<rask::ast::FunctionTable> ft(new rask::ast::FunctionTable);
+        using namespace rask;
+
+        std::auto_ptr<ast::FunctionTable> ft(new ast::FunctionTable);
         builtinFunctions.declare(*ft);
 
         r.add(
-            r.type<rask::cst::Parser>()
+            r.type<cst::Parser>()
             .in_scope<di::scopes::singleton>()
         );
         r.add(
-            r.type<rask::ast::Builder>()
+            r.type<ast::Builder>()
             .in_scope<di::scopes::singleton>()
         );
         r.add(
-            r.type<rask::error::Logger>()
+            r.type<error::Logger>()
             .in_scope<di::scopes::singleton>()
         );
         r.add(
-            r.type<rask::ast::FunctionTable>()
+            r.type<ast::FunctionTable>()
             .in_scope<di::scopes::singleton>()
             .instance(ft.release())
         );
         r.add(
-            r.type<rask::ast::VariableFactory>()
+            r.type<ast::VariableFactory>()
+            .in_scope<di::scopes::singleton>()
+        );
+        r.add(
+            r.type<cg::CodeGenerator>()
+            .in_scope<di::scopes::singleton>()
+        );
+        r.add(
+            r.type<cg::SymbolTable>()
             .in_scope<di::scopes::singleton>()
         );
     }
@@ -128,12 +138,9 @@ int main(int argc, char **argv)
             {
                 llvm::LLVMContext context;
                 llvm::Module module("mainModule", context);
-                cg::SymbolTable symbolTable;
-                cg::SharedBasicBlockFactory basicBlockFactory(new cg::BasicBlockFactory);
-                cg::SharedInstructionFactory instructionFactory(new cg::InstructionFactory);
-                cg::CodeGenerator cg(symbolTable, basicBlockFactory, instructionFactory);
+                cg::SharedCodeGenerator cg = injector.construct<cg::SharedCodeGenerator>();
 
-                cg.genModule(*ast, context, module);
+                cg->genModule(*ast, context, module);
 
                 std::vector<unsigned char> buf;
                 llvm::BitstreamWriter bw(buf);
@@ -146,7 +153,7 @@ int main(int argc, char **argv)
         }
 
         error::Logger& logger = injector.construct<error::Logger& >();
-        std::copy(logger.errors().begin(), logger.errors().end(), std::ostream_iterator<rask::error::Message>(std::cerr, "\n"));
+        std::copy(logger.errors().begin(), logger.errors().end(), std::ostream_iterator<error::Message>(std::cerr, "\n"));
     }
     catch (const std::exception& e)
     {

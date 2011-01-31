@@ -22,13 +22,12 @@ struct rask_cg_CodeGenerator_declFunction : testing::Test
 {
     llvm::LLVMContext context;
     boost::scoped_ptr<llvm::Module> module;
-    cg::SymbolTable st;
     cg::CodeGenerator cg;
     test::FunctionFactory functionFactory;
     ast::SharedCustomFunction f;
     llvm::Function *lf;
 
-    rask_cg_CodeGenerator_declFunction() : module(new llvm::Module("testModule", context)), cg(st, null, null) { }
+    rask_cg_CodeGenerator_declFunction() : module(new llvm::Module("testModule", context)), cg(null, null, null) { }
 
     void assertFunction()
     {

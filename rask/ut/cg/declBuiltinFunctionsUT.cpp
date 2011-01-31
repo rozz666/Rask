@@ -20,11 +20,10 @@ struct rask_cg_CodeGenerator_declBuiltinFunctions : testing::Test
 {
     llvm::LLVMContext context;
     boost::scoped_ptr<llvm::Module> module;
-    cg::SymbolTable st;
 
     rask_cg_CodeGenerator_declBuiltinFunctions() : module(new llvm::Module("testModule", context))
     {
-        cg::CodeGenerator(st, null, null).declBuiltinFunctions(*module);
+        cg::CodeGenerator(null, null, null).declBuiltinFunctions(*module);
     }
 
     void assertFunction(const std::string& name, llvm::FunctionType *functionType)

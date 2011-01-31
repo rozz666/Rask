@@ -22,7 +22,7 @@ namespace
 
 struct CodeGeneratorMock : cg::CodeGenerator
 {
-    CodeGeneratorMock(cg::SymbolTable& st) : cg::CodeGenerator(st, null, null) { }
+    CodeGeneratorMock() : cg::CodeGenerator(null, null, null) { }
 
     MOCK_METHOD2(genValue, llvm::Value *(const ast::Expression&, llvm::BasicBlock&));
 };
@@ -37,12 +37,11 @@ std::ostream& operator<<(std::ostream& os, const ast::Expression& )
 struct rask_cg_CodeGenerator_genReturn : testing::Test
 {
     llvm::LLVMContext ctx;
-    cg::SymbolTable st;
     boost::scoped_ptr<llvm::Module> module;
     llvm::BasicBlock *block;
     CodeGeneratorMock cg;
 
-    rask_cg_CodeGenerator_genReturn() : module(new llvm::Module("testModule", ctx)), cg(st)
+    rask_cg_CodeGenerator_genReturn() : module(new llvm::Module("testModule", ctx))
     {
         llvm::FunctionType *type = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), false);
         llvm::Function *func = llvm::Function::Create(type, llvm::Function::ExternalLinkage, "main", &*module);

@@ -27,7 +27,7 @@ namespace
 
 struct CodeGeneratorMock : cg::CodeGenerator
 {
-    CodeGeneratorMock(cg::SymbolTable& st) : cg::CodeGenerator(st, null, null) { }
+    CodeGeneratorMock() : cg::CodeGenerator(null, null, null) { }
 
     MOCK_METHOD2(genFunction, void(const ast::CustomFunction&, llvm::Module&));
     MOCK_METHOD2(declFunction, void(const ast::CustomFunction&, llvm::Module&));
@@ -45,8 +45,7 @@ TEST_F(rask_cg_CodeGenerator_genModule, twoFunctions)
     ast.add(f1);
     ast.add(f2);
 
-    cg::SymbolTable dummyST;
-    CodeGeneratorMock cg(dummyST);
+    CodeGeneratorMock cg;
 
     boost::scoped_ptr<llvm::Module> module(new llvm::Module("xxx", context));
 

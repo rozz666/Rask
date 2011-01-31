@@ -46,7 +46,7 @@ typedef boost::shared_ptr<InstructionFactoryMock> SharedInstructionFactoryMock;
 struct CodeGeneratorMock : cg::CodeGenerator
 {
     CodeGeneratorMock(
-        cg::SymbolTable& symbolTable,
+        cg::SharedSymbolTable symbolTable,
         cg::SharedBasicBlockFactory basicBlockFactory,
         cg::SharedInstructionFactory instructionFactory)
         : cg::CodeGenerator(symbolTable, basicBlockFactory, instructionFactory) { }
@@ -62,7 +62,7 @@ struct rask_cg_CodeGenerator_genFunction : testing::Test
 {
     llvm::LLVMContext ctx;
     boost::scoped_ptr<llvm::Module> module;
-    cg::SymbolTable symbolTable;
+    cg::SharedSymbolTable symbolTable;
     SharedBasicBlockFactoryMock basicBlockFactory;
     SharedInstructionFactoryMock instructionFactory;
     CodeGeneratorMock cg;
@@ -73,7 +73,8 @@ struct rask_cg_CodeGenerator_genFunction : testing::Test
 
 
     rask_cg_CodeGenerator_genFunction()
-        : module(new llvm::Module("testModule", ctx)), basicBlockFactory(new BasicBlockFactoryMock),
+        : module(new llvm::Module("testModule", ctx)), symbolTable(new cg::SymbolTable),
+        basicBlockFactory(new BasicBlockFactoryMock),
         instructionFactory(new InstructionFactoryMock), cg(symbolTable, basicBlockFactory, instructionFactory),
         f(functionFactory.create("abc")), entry(llvm::BasicBlock::Create(ctx))
     {

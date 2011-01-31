@@ -18,6 +18,7 @@
 #include <llvm/Function.h>
 #include <llvm/Module.h>
 #include <llvm/Instructions.h>
+#include <di/constructor.hpp>
 
 namespace rask
 {
@@ -28,10 +29,11 @@ class CodeGenerator
 {
 public:
 
-    CodeGenerator(
-        SymbolTable& symbolTable,
-        SharedBasicBlockFactory basicBlockFactory,
-        SharedInstructionFactory instructionFactory);
+    DI_CONSTRUCTOR(
+        CodeGenerator, (
+            SharedSymbolTable symbolTable,
+            SharedBasicBlockFactory basicBlockFactory,
+            SharedInstructionFactory instructionFactory));
 
     virtual llvm::Value *genFunctionCall(const ast::FunctionCall& fc, llvm::BasicBlock& block);
     virtual llvm::AllocaInst *genVariableDecl(const ast::VariableDecl& vd, llvm::BasicBlock& block);
@@ -50,10 +52,12 @@ private:
     > BinaryOpMap;
 
     BinaryOpMap binaryOpMap_;
-    SymbolTable& symbolTable_;
+    SharedSymbolTable symbolTable_;
     SharedBasicBlockFactory basicBlockFactory_;
     SharedInstructionFactory instructionFactory_;
 };
+
+typedef boost::shared_ptr<CodeGenerator> SharedCodeGenerator;
 
 }
 }

@@ -22,12 +22,11 @@ llvm::AllocaInst *CodeGenerator::genVariableDecl(const ast::VariableDecl& vd, ll
     llvm::AllocaInst *alloca = new llvm::AllocaInst(llvm::IntegerType::get(ctx, 32), LOCAL_VAR_PREFIX + vd.var()->name().value, &block);
     new llvm::StoreInst(value, alloca, &block);
 
-    symbolTable_.add(vd.var()->name(), alloca);
-    
+    symbolTable_->add(vd.var()->name(), alloca);
+
     return alloca;
 }
 
 }
 }
 
-    

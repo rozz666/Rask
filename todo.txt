@@ -1,3 +1,4 @@
+Make test factories static.
 Use type factory in cg.
 Add virtual destructors
 Use factories to construct dependent objects

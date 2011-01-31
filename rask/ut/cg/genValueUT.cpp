@@ -23,7 +23,7 @@ namespace
 
 struct CodeGeneratorMock : cg::CodeGenerator
 {
-    CodeGeneratorMock(cg::SymbolTable& symbolTable) : cg::CodeGenerator(symbolTable, null, null) { }
+    CodeGeneratorMock(cg::SharedSymbolTable symbolTable) : cg::CodeGenerator(symbolTable, null, null) { }
 
     MOCK_METHOD2(genFunctionCall, llvm::CallInst *(const ast::FunctionCall&, llvm::BasicBlock&));
 };
@@ -36,12 +36,12 @@ struct rask_cg_CodeGenerator_genValue : testing::Test
     llvm::LLVMContext ctx;
     boost::scoped_ptr<llvm::Module> module;
     llvm::BasicBlock *block;
-    cg::SymbolTable st;
+    cg::SharedSymbolTable st;
     CodeGeneratorMock cg;
     llvm::AllocaInst *a1;
 
     rask_cg_CodeGenerator_genValue()
-        : module(new llvm::Module("testModule", ctx)), cg(st),
+        : module(new llvm::Module("testModule", ctx)), st(new cg::SymbolTable), cg(st),
         a1(new llvm::AllocaInst(llvm::IntegerType::get(ctx, 32)))
     {
         llvm::FunctionType *type = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), false);
@@ -59,12 +59,12 @@ TEST_F(rask_cg_CodeGenerator_genValue, constant)
 TEST_F(rask_cg_CodeGenerator_genValue, variable)
 {
     ast::SharedVariable v = variableFactory.createShared("x");
-    st.add(v->name(), a1);
+    st->add(v->name(), a1);
 
     llvm::Value *val = cg.genValue(v, *block);
 
     ASSERT_TRUE(llvm::isa<llvm::LoadInst>(val));
-    ASSERT_TRUE(llvm::cast<llvm::LoadInst>(val)->getPointerOperand() == st.get(v->name()));
+    ASSERT_TRUE(llvm::cast<llvm::LoadInst>(val)->getPointerOperand() == st->get(v->name()));
 }
 
 TEST_F(rask_cg_CodeGenerator_genValue, functionCall)

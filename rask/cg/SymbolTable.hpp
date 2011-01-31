@@ -11,6 +11,7 @@
 
 #include <map>
 #include <stdexcept>
+#include <boost/shared_ptr.hpp>
 #include <llvm/Instructions.h>
 #include <rask/cst/Identifier.hpp>
 
@@ -25,11 +26,11 @@ public:
 
     SymbolTableError(const std::string& msg) : std::logic_error(msg) { }
 };
-    
+
 class SymbolTable
 {
     typedef std::map<std::pair<std::string, Position>, llvm::AllocaInst *> Values;
-    
+
 public:
 
     void add(const cst::Identifier& id, llvm::AllocaInst *value)
@@ -45,7 +46,7 @@ public:
         Values::const_iterator it = values_.find(std::make_pair(id.value, id.position));
 
         if (it == values_.end()) throw SymbolTableError("Symbol \'" + id.value + "\' not found");
-        
+
         return it->second;
     }
 
@@ -53,6 +54,8 @@ private:
 
     Values values_;
 };
+
+typedef boost::shared_ptr<SymbolTable> SharedSymbolTable;
 
 }
 }
