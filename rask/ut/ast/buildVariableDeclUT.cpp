@@ -6,131 +6,81 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <tut/tut.hpp>
-#include <tut/../contrib/tut_macros.h>
-#include <rask/test/TUTAssert.hpp>
-#include <rask/test/Mock.hpp>
-#include <rask/test/VariableFactory.hpp>
 #include <rask/ast/Builder.hpp>
-#include <rask/ut/ast/ScopeMock.hpp>
-#include <rask/ut/ast/VariableFactoryMock.hpp>
+#include <rask/test/VariableFactory.hpp>
+#include <rask/ut/ast/ScopeMockNew.hpp>
+#include <rask/ut/ast/VariableFactoryMockNew.hpp>
+#include <rask/ut/cst/OperatorStubs.hpp>
 #include <rask/null.hpp>
+#include <gmock/gmock.h>
+
+using namespace rask;
+using namespace testing;
 
 namespace
 {
 
-CLASS_MOCK(BuilderMock, rask::ast::Builder)
+struct BuilderMock : ast::Builder
 {
     BuilderMock(
-        rask::error::SharedLogger logger, rask::ast::SharedFunctionTable ft,
-        rask::ast::SharedVariableFactory variableFactory)
-        : rask::ast::Builder(logger, ft, variableFactory) { }
+        error::SharedLogger logger, ast::SharedFunctionTable ft, ast::SharedVariableFactory variableFactory)
+        : ast::Builder(logger, ft, variableFactory) { }
 
-    MOCK_METHOD(boost::optional<rask::ast::Expression>, buildExpression,
-        (const rask::cst::Expression&, expr)(rask::ast::SharedScope, scope))
+    MOCK_METHOD2(buildExpression, boost::optional<ast::Expression>(const cst::Expression&, ast::SharedScope));
 };
 
 }
 
-namespace tut
+struct rask_ast_Builder_buildVariableDecl : testing::Test
 {
-
-struct buildVariableDecl_TestData
-{
-    rask::cst::VariableDecl cvd;
-    rask::error::SharedLogger logger;
-    rask::ast::SharedFunctionTable ft;
-    rask::ast::test::SharedScopeMock scope;
-    rask::ast::test::SharedVariableFactoryMock variableFactory;
+    cst::VariableDecl cvd;
+    error::SharedLogger logger;
+    ast::SharedScopeMock scope;
+    ast::SharedVariableFactoryMock variableFactory;
     BuilderMock builder;
 
-    buildVariableDecl_TestData()
-        : logger(new rask::error::Logger()),
-        ft(new rask::ast::FunctionTable), scope(new rask::ast::test::ScopeMock),
-        variableFactory(new rask::ast::test::VariableFactoryMock),
-        builder(logger, ft, variableFactory)
+    rask_ast_Builder_buildVariableDecl()
+        : logger(new error::Logger()), scope(new ast::ScopeMock),
+        variableFactory(new ast::VariableFactoryMock), builder(logger, null, variableFactory)
     {
-        cvd.name = rask::cst::Identifier::create(rask::Position("abc", 1, 3), "x");
-        cvd.value = rask::cst::ChainExpression();
+        cvd.value = cst::ChainExpression();
     }
 };
 
-typedef test_group<buildVariableDecl_TestData> factory;
-typedef factory::object object;
-}
-
-namespace
+TEST_F(rask_ast_Builder_buildVariableDecl, successful)
 {
-tut::factory tf("rask.ast.Builder.buildVariableDecl");
-}
-
-namespace tut
-{
-
-template <>
-template <>
-void object::test<1>()
-{
-    using namespace rask;
-
-    ast::SharedVariable v = test::VariableFactory().createShared("x");
-    MOCK_RETURN(*variableFactory, createVariable, v);
-    MOCK_RETURN(*scope, addVariable, v);
-    rask::ast::Constant dummy(123);
-    MOCK_RETURN(builder, buildExpression, ast::Expression(dummy));
+    ast::Constant dummy(123);
+    ast::SharedVariable v = test::VariableFactory().createShared();
+    EXPECT_CALL(builder, buildExpression(Ref(*cvd.value), Eq<ast::SharedScope>(scope)))
+        .WillOnce(Return(ast::Expression(dummy)));
+    EXPECT_CALL(*variableFactory, createVariable(Ref(cvd.name), dummy.type()))
+        .WillOnce(Return(v));
+    EXPECT_CALL(*scope, addVariable(v))
+        .WillOnce(Return(v));
 
     boost::optional<ast::VariableDecl> vd = builder.buildVariableDecl(cvd, scope);
 
-    ENSURE(vd);
-    ENSURE(logger->errors().empty());
-    ENSURE_CALL(builder, buildExpression(*cvd.value, scope));
-    ENSURE_CALL(*variableFactory, createVariable(cvd.name, dummy.type()));
-    ENSURE(vd->var() == v);
-    ENSURE(getConstant(vd->value()) == dummy);
-    ENSURE_CALL(*scope, addVariable(vd->var()));
+    ASSERT_TRUE(vd);
+    ASSERT_TRUE(logger->errors().empty());
+    ASSERT_TRUE(vd->var() == v);
+    ASSERT_TRUE(getConstant(vd->value()) == dummy);
 }
 
-template <>
-template <>
-void object::test<2>()
+TEST_F(rask_ast_Builder_buildVariableDecl, noValue)
 {
-    using namespace rask;
-
+    cvd.name = cst::Identifier::create(Position("abc", 1, 3), "x");
     cvd.value = boost::none;
 
-    ENSURE(!builder.buildVariableDecl(cvd, scope));
-    ENSURE_EQUALS(logger->errors().size(), 1u);
-    ENSURE_EQUALS(logger->errors()[0], error::Message::uninitializedVariable(cvd.name.position, cvd.name.value));
+    ASSERT_FALSE(builder.buildVariableDecl(cvd, scope));
+    ASSERT_EQ(1u, logger->errors().size());
+    ASSERT_EQ(error::Message::uninitializedVariable(cvd.name.position, cvd.name.value), logger->errors()[0]);
 }
 
-template <>
-template <>
-void object::test<3>()
+TEST_F(rask_ast_Builder_buildVariableDecl, badExpression)
 {
-    using namespace rask;
+    EXPECT_CALL(builder, buildExpression(_, _))
+        .WillOnce(Return(null));
 
-    MOCK_RETURN(builder, buildExpression, boost::none);
-
-    ENSURE(!builder.buildVariableDecl(cvd, scope));
-    ENSURE(logger->errors().empty());
-    ENSURE_CALL(builder, buildExpression(*cvd.value, scope));
-}
-
-template <>
-template <>
-void object::test<4>()
-{
-    using namespace rask;
-
-    ast::SharedVariable v = test::VariableFactory().createShared("x");
-    MOCK_RETURN(*variableFactory, createVariable, v);
-    MOCK_RETURN(*scope, addVariable, v);
-    rask::ast::Constant c(true);
-    MOCK_RETURN(builder, buildExpression, ast::Expression(c));
-
-    boost::optional<ast::VariableDecl> vd = builder.buildVariableDecl(cvd, scope);
-
-    ENSURE_CALL(*variableFactory, createVariable(cvd.name, c.type()));
-}
-
+    ASSERT_FALSE(builder.buildVariableDecl(cvd, scope));
+    ASSERT_TRUE(logger->errors().empty());
 }
