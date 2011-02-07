@@ -21,7 +21,7 @@ class VariableDeclFactory
 {
 public:
 
-    ast::VariableDecl create(const std::string& name);
+    static ast::VariableDecl create(const std::string& name);
 };
 
 }

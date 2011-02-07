@@ -48,11 +48,9 @@ ast::SharedCustomFunction FunctionFactory::createShared(
     ast::SharedCustomFunction f(
         new ast::CustomFunction(cst::Identifier::create(Position(), name), type));
 
-    VariableFactory variableFactory;
-
     for (unsigned short i = 0; i != args.size(); ++i)
     {
-        f->addArg(variableFactory.createShared("arg" + boost::lexical_cast<std::string>(i), args[i]));
+        f->addArg(VariableFactory::createShared("arg" + boost::lexical_cast<std::string>(i), args[i]));
     }
 
     return f;

@@ -87,7 +87,7 @@ TEST_F(rask_ast_buildExpression, constant)
 TEST_F(rask_ast_buildExpression, variable)
 {
     cst::Identifier id = cst::Identifier::create(Position(), "abc");
-    ast::SharedVariable var(test::VariableFactory().createShared(id));
+    ast::SharedVariable var(test::VariableFactory::createShared(id));
 
     EXPECT_CALL(*scopeMock, getVariable(id.value))
         .WillOnce(Return(var));

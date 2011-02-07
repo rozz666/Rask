@@ -87,9 +87,8 @@ TEST_F(rask_ast_Builder_buildChainExpression, operators)
     EXPECT_CALL(builder, buildExpression(Ref(chainExpr.next[1].expr), _))
         .WillOnce(Return(ast::Expression(c)));
 
-    test::FunctionFactory functionFactory;
-    ast::SharedCustomFunction opMinus = functionFactory.createShared(BINARY_MINUS_NAME, ast::INT32, 2);
-    ast::SharedCustomFunction opPlus = functionFactory.createShared(BINARY_PLUS_NAME, ast::INT32, 2);
+    ast::SharedCustomFunction opMinus = test::FunctionFactory::createShared(BINARY_MINUS_NAME, ast::INT32, 2);
+    ast::SharedCustomFunction opPlus = test::FunctionFactory::createShared(BINARY_PLUS_NAME, ast::INT32, 2);
     ft->add(opMinus);
     ft->add(opPlus);
 

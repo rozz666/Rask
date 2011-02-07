@@ -10,21 +10,22 @@
 #include <rask/ast/Scope.hpp>
 #include <rask/test/VariableFactory.hpp>
 
+using namespace rask;
+
 struct rask_ast_Scope : testing::Test
 {
-    rask::test::VariableFactory variableFactory;
     std::string var1Name;
     std::string var2Name;
-    rask::ast::SharedVariable var1a;
-    rask::ast::SharedVariable var1b;
-    rask::ast::SharedVariable var2;
-    rask::ast::Scope scope;
+    ast::SharedVariable var1a;
+    ast::SharedVariable var1b;
+    ast::SharedVariable var2;
+    ast::Scope scope;
 
     rask_ast_Scope()
         : var1Name("asia"), var2Name("kasia"),
-        var1a(variableFactory.createShared(var1Name)),
-        var1b(variableFactory.createShared(var1Name)),
-        var2(variableFactory.createShared(var2Name)) { }
+        var1a(test::VariableFactory::createShared(var1Name)),
+        var1b(test::VariableFactory::createShared(var1Name)),
+        var2(test::VariableFactory::createShared(var2Name)) { }
 
 };
 
@@ -38,7 +39,7 @@ TEST_F(rask_ast_Scope, addTwoVariables)
 
 TEST_F(rask_ast_Scope, getBadVariable)
 {
-    ASSERT_TRUE(!scope.getVariable("x"));
+    ASSERT_FALSE(scope.getVariable("x"));
 }
 
 TEST_F(rask_ast_Scope, addTwoVariablesWithSameName)

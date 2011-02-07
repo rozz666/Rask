@@ -53,7 +53,7 @@ TEST_F(rask_cg_CodeGenerator_genVariableDecl, generateDeclaration)
 {
     cst::Identifier name;
     name.value = "asia";
-    ast::VariableDecl vd(test::VariableFactory().createShared(name), ast::Constant(10));
+    ast::VariableDecl vd(test::VariableFactory::createShared(name), ast::Constant(10));
 
     llvm::Value *value = llvm::ConstantInt::get(ctx, llvm::APInt(32, 10, true));
     EXPECT_CALL(cg, genValue(Ref(vd.value()), Ref(*block))).WillOnce(Return(value));

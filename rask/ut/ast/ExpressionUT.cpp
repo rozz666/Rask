@@ -28,9 +28,9 @@ TEST(rask_ast_Expression, functions)
 {
     ast::BasicType type1 = ast::INT32;
     ast::BasicType type2 = ast::BOOLEAN;
-    ast::SharedFunction f1 = test::FunctionFactory().createShared("f1", type1, 0);
+    ast::SharedFunction f1 = test::FunctionFactory::createShared("f1", type1, 0);
     ast::FunctionCall fc1(f1, ast::FunctionCall::Arguments());
-    ast::SharedFunction f2 = test::FunctionFactory().createShared("f2", type2, 0);
+    ast::SharedFunction f2 = test::FunctionFactory::createShared("f2", type2, 0);
     ast::FunctionCall fc2(f2, ast::FunctionCall::Arguments());
 
     ASSERT_TRUE(ast::getExpressionType(ast::Expression(fc1)) == type1);

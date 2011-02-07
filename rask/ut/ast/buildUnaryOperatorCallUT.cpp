@@ -44,7 +44,7 @@ TEST_F(rask_ast_Builder_buildUnaryOperatorCall, minus)
     cst::UnaryOperatorCall oc;
     oc.op.tag = cst::UnaryOperator::MINUS;
 
-    ast::SharedCustomFunction f = test::FunctionFactory().createShared(UNARY_MINUS_NAME, ast::INT32, 1);
+    ast::SharedCustomFunction f = test::FunctionFactory::createShared(UNARY_MINUS_NAME, ast::INT32, 1);
     ast::Constant retExpr(7);
     EXPECT_CALL(builder, buildExpression(Ref(oc.expr), scope))
         .WillOnce(Return(ast::Expression(retExpr)));

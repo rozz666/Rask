@@ -39,7 +39,6 @@ namespace tut
 
 struct buildFunctionAST_TestData
 {
-    rask::test::VariableDeclFactory varDeclFactory;
     const std::string file;
     rask::cst::Function cf;
     rask::ast::SharedCustomFunction f;
@@ -129,8 +128,8 @@ void object::test<4>()
 
     cf.stmts.resize(2, cst::VariableDecl());
 
-    MOCK_RETURN(builder, buildVariableDecl, varDeclFactory.create(n1));
-    MOCK_RETURN(builder, buildVariableDecl, varDeclFactory.create(n2));
+    MOCK_RETURN(builder, buildVariableDecl, test::VariableDeclFactory::create(n1));
+    MOCK_RETURN(builder, buildVariableDecl, test::VariableDeclFactory::create(n2));
 
     ENSURE(builder.buildFunction(cf, f, scope));
 
@@ -204,9 +203,8 @@ void object::test<8>()
 {
     using namespace rask;
 
-    test::VariableFactory variableFactory;
-    ast::SharedVariable v1 = variableFactory.createShared();
-    ast::SharedVariable v2 = variableFactory.createShared();
+    ast::SharedVariable v1 = test::VariableFactory::createShared();
+    ast::SharedVariable v2 = test::VariableFactory::createShared();
 
     f->addArg(v1);
     f->addArg(v2);

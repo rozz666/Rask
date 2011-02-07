@@ -50,7 +50,7 @@ struct rask_ast_Builder_buildVariableDecl : testing::Test
 TEST_F(rask_ast_Builder_buildVariableDecl, successful)
 {
     ast::Constant dummy(123);
-    ast::SharedVariable v = test::VariableFactory().createShared();
+    ast::SharedVariable v = test::VariableFactory::createShared();
     EXPECT_CALL(builder, buildExpression(Ref(*cvd.value), Eq<ast::SharedScope>(scope)))
         .WillOnce(Return(ast::Expression(dummy)));
     EXPECT_CALL(*variableFactory, createVariable(Ref(cvd.name), dummy.type()))

@@ -101,9 +101,8 @@ void object::test<3>()
     cf.args[1].name = cst::Identifier::create(Position(), "arg2");
     cf.args[1].type = cst::Identifier::create(Position(), "boolean");
 
-    test::VariableFactory testFactory;
-    ast::SharedVariable v1 = testFactory.createShared("x");
-    ast::SharedVariable v2 = testFactory.createShared("y");
+    ast::SharedVariable v1 = test::VariableFactory::createShared("x");
+    ast::SharedVariable v2 = test::VariableFactory::createShared("y");
     MOCK_RETURN(*variableFactory, createVariable, v1);
     MOCK_RETURN(*variableFactory, createVariable, v2);
 

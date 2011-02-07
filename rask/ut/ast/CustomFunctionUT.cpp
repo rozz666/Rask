@@ -17,7 +17,6 @@ using namespace testing;
 
 struct rask_ast_CustomFunction : testing::Test
 {
-    test::VariableDeclFactory varDeclFactory;
 };
 
 TEST_F(rask_ast_CustomFunction, twoStatements)
@@ -27,7 +26,7 @@ TEST_F(rask_ast_CustomFunction, twoStatements)
     ast::Function& f = cf;
     ast::SharedCustomFunction dummy(new ast::CustomFunction(cst::Identifier::create(Position(), "test"), ast::VOID));
     ast::FunctionCall fc(dummy, ast::FunctionCall::Arguments());
-    ast::VariableDecl vd = varDeclFactory.create("asia");
+    ast::VariableDecl vd = test::VariableDeclFactory::create("asia");
     ASSERT_EQ(0u, cf.stmtCount());
     cf.addStmt(fc);
     cf.addStmt(vd);
@@ -46,9 +45,8 @@ TEST_F(rask_ast_CustomFunction, arguments)
     using boost::assign::list_of;
 
     ast::CustomFunction cf(cst::Identifier::create(Position(), "xxx"), ast::VOID);
-    test::VariableFactory variableFactory;
-    ast::SharedVariable v1 = variableFactory.createShared("a", ast::INT32);
-    ast::SharedVariable v2 = variableFactory.createShared("b", ast::BOOLEAN);
+    ast::SharedVariable v1 = test::VariableFactory::createShared("a", ast::INT32);
+    ast::SharedVariable v2 = test::VariableFactory::createShared("b", ast::BOOLEAN);
 
     cf.addArg(v1);
     ASSERT_TRUE(cf.argTypes() == list_of(ast::INT32));

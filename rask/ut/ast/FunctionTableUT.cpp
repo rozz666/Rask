@@ -17,7 +17,6 @@ using namespace testing;
 struct rask_ast_FunctionTable : testing::Test
 {
     ast::FunctionTable ft;
-    test::FunctionFactory functionFactory;
     std::string f1Name;
     std::string f2Name;
     ast::SharedFunction f1a;
@@ -26,9 +25,9 @@ struct rask_ast_FunctionTable : testing::Test
 
     rask_ast_FunctionTable()
         : f1Name("asia"), f2Name("kasia"),
-        f1a(functionFactory.createShared(f1Name)),
-        f1b(functionFactory.createShared(f1Name)),
-        f2(functionFactory.createShared(f2Name))
+        f1a(test::FunctionFactory::createShared(f1Name)),
+        f1b(test::FunctionFactory::createShared(f1Name)),
+        f2(test::FunctionFactory::createShared(f2Name))
     {
     }
 };
@@ -59,11 +58,11 @@ TEST_F(rask_ast_FunctionTable, family)
 
     std::string name("fam1");
     ast::Function::ArgumentTypes args1 = list_of(ast::INT32)(ast::INT32);
-    ast::SharedCustomFunction fam11 = functionFactory.createShared(name, ast::VOID, args1);
+    ast::SharedCustomFunction fam11 = test::FunctionFactory::createShared(name, ast::VOID, args1);
     ast::Function::ArgumentTypes args2 = list_of(ast::BOOLEAN)(ast::INT32);
-    ast::SharedCustomFunction fam12 = functionFactory.createShared(name, ast::VOID, args2);
+    ast::SharedCustomFunction fam12 = test::FunctionFactory::createShared(name, ast::VOID, args2);
     ast::Function::ArgumentTypes args3 = list_of(ast::INT32)(ast::BOOLEAN);
-    ast::SharedCustomFunction fam13 = functionFactory.createShared(name, ast::VOID, args3);
+    ast::SharedCustomFunction fam13 = test::FunctionFactory::createShared(name, ast::VOID, args3);
 
     ASSERT_TRUE(ft.add(fam11) == fam11);
     ASSERT_TRUE(ft.add(fam12) == fam12);

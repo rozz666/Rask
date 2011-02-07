@@ -66,8 +66,6 @@ struct rask_cg_CodeGenerator_genFunction : testing::Test
     SharedBasicBlockFactoryMock basicBlockFactory;
     SharedInstructionFactoryMock instructionFactory;
     CodeGeneratorMock cg;
-    test::FunctionFactory functionFactory;
-    test::VariableDeclFactory varDeclFactory;
     ast::CustomFunction f;
     llvm::BasicBlock *entry;
 
@@ -76,7 +74,7 @@ struct rask_cg_CodeGenerator_genFunction : testing::Test
         : module(new llvm::Module("testModule", ctx)), symbolTable(new cg::SymbolTable),
         basicBlockFactory(new BasicBlockFactoryMock),
         instructionFactory(new InstructionFactoryMock), cg(symbolTable, basicBlockFactory, instructionFactory),
-        f(functionFactory.create("abc")), entry(llvm::BasicBlock::Create(ctx))
+        f(test::FunctionFactory::create("abc")), entry(llvm::BasicBlock::Create(ctx))
     {
         cg.declFunction(f, *module);
     }
@@ -117,8 +115,8 @@ TEST_F(rask_cg_CodeGenerator_genFunction, functionCalls)
 
 TEST_F(rask_cg_CodeGenerator_genFunction, variableDeclarations)
 {
-    f.addStmt(varDeclFactory.create("asia"));
-    f.addStmt(varDeclFactory.create("kasia"));
+    f.addStmt(test::VariableDeclFactory::create("asia"));
+    f.addStmt(test::VariableDeclFactory::create("kasia"));
     EXPECT_CALL(*basicBlockFactory, createBasicBlock(_, _, _))
         .WillOnce(Return(entry));
     {
@@ -136,7 +134,7 @@ TEST_F(rask_cg_CodeGenerator_genFunction, variableDeclarations)
 
 TEST_F(rask_cg_CodeGenerator_genFunction, functionWithArgs)
 {
-    ast::SharedCustomFunction f = functionFactory.createShared("xxx", ast::VOID, 2);
+    ast::SharedCustomFunction f = test::FunctionFactory::createShared("xxx", ast::VOID, 2);
     cg.declFunction(*f, *module);
 
     llvm::Function::arg_iterator it = module->getFunction(f->name().value)->arg_begin();
@@ -180,7 +178,7 @@ TEST_F(rask_cg_CodeGenerator_genFunction, functionWithArgs)
 
 TEST_F(rask_cg_CodeGenerator_genFunction, int32Function)
 {
-    f = functionFactory.create("asia", ast::INT32);
+    f = test::FunctionFactory::create("asia", ast::INT32);
     cg.declFunction(f, *module);
 
     EXPECT_CALL(*basicBlockFactory, createBasicBlock(_, _, _))
@@ -191,7 +189,7 @@ TEST_F(rask_cg_CodeGenerator_genFunction, int32Function)
 
 TEST_F(rask_cg_CodeGenerator_genFunction, returnStatements)
 {
-    f = functionFactory.create("asia", ast::INT32);
+    f = test::FunctionFactory::create("asia", ast::INT32);
     cg.declFunction(f, *module);
 
     f.addStmt(ast::Return(ast::Constant(10)));

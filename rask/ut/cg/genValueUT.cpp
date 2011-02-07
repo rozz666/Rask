@@ -32,7 +32,6 @@ struct CodeGeneratorMock : cg::CodeGenerator
 
 struct rask_cg_CodeGenerator_genValue : testing::Test
 {
-    test::VariableFactory variableFactory;
     llvm::LLVMContext ctx;
     boost::scoped_ptr<llvm::Module> module;
     llvm::BasicBlock *block;
@@ -58,7 +57,7 @@ TEST_F(rask_cg_CodeGenerator_genValue, constant)
 
 TEST_F(rask_cg_CodeGenerator_genValue, variable)
 {
-    ast::SharedVariable v = variableFactory.createShared("x");
+    ast::SharedVariable v = test::VariableFactory::createShared();
     st->add(v->name(), a1);
 
     llvm::Value *val = cg.genValue(v, *block);

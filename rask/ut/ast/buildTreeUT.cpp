@@ -29,7 +29,7 @@ struct BuilderMock : ast::Builder
     ast::SharedCustomFunction main;
 
     BuilderMock(error::SharedLogger logger, ast::SharedFunctionTable ft)
-        : ast::Builder(logger, ft, null), main(test::FunctionFactory().createShared("main"))
+        : ast::Builder(logger, ft, null), main(test::FunctionFactory::createShared("main"))
     {
         ft->add(main);
     }

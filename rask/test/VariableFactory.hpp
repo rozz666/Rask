@@ -21,8 +21,8 @@ class VariableFactory
 {
 public:
 
-    ast::SharedVariable createShared(const std::string& name = "unnamed", ast::BasicType type = ast::INT32);
-    ast::SharedVariable createShared(const cst::Identifier& name);
+    static ast::SharedVariable createShared(const std::string& name = "unnamed", ast::BasicType type = ast::INT32);
+    static ast::SharedVariable createShared(const cst::Identifier& name);
 };
 
 }

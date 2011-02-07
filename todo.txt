@@ -1,5 +1,4 @@
 Make common base test suite with logger and assertions for errors
-Make test factories static.
 Use type factory in cg.
 Add virtual destructors
 Use factories to construct dependent objects

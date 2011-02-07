@@ -23,7 +23,6 @@ struct rask_cg_CodeGenerator_declFunction : testing::Test
     llvm::LLVMContext context;
     boost::scoped_ptr<llvm::Module> module;
     cg::CodeGenerator cg;
-    test::FunctionFactory functionFactory;
     ast::SharedCustomFunction f;
     llvm::Function *lf;
 
@@ -47,7 +46,7 @@ struct rask_cg_CodeGenerator_declFunction : testing::Test
 
 TEST_F(rask_cg_CodeGenerator_declFunction, voidFunctionNoArgs)
 {
-    f = functionFactory.createShared("f1");
+    f = test::FunctionFactory::createShared("f1");
 
     ASSERT_NO_FATAL_FAILURE(assertFunction());
 
@@ -60,7 +59,7 @@ TEST_F(rask_cg_CodeGenerator_declFunction, voidFunctionNoArgs)
 
 TEST_F(rask_cg_CodeGenerator_declFunction, voidFunctionTwoArgs)
 {
-    f = functionFactory.createShared("f2", ast::VOID, 2);
+    f = test::FunctionFactory::createShared("f2", ast::VOID, 2);
 
     ASSERT_NO_FATAL_FAILURE(assertFunction());
 
@@ -76,7 +75,7 @@ TEST_F(rask_cg_CodeGenerator_declFunction, voidFunctionTwoArgs)
 
 TEST_F(rask_cg_CodeGenerator_declFunction, int32FunctionNoArgs)
 {
-    f = functionFactory.createShared("f3", ast::INT32);
+    f = test::FunctionFactory::createShared("f3", ast::INT32);
 
     ASSERT_NO_FATAL_FAILURE(assertFunction());
 

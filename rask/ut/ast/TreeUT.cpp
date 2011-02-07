@@ -10,24 +10,22 @@
 #include <rask/ast/Tree.hpp>
 #include <rask/test/FunctionFactory.hpp>
 
+using namespace rask;
+
 struct rask_ast_Tree : ::testing::Test
 {
-    rask::test::FunctionFactory functionFactory;
+    ast::Tree tree;
 };
 
 TEST_F(rask_ast_Tree, emptyTree)
 {
-    using namespace rask;
-    ASSERT_EQ(0u, ast::Tree().functionCount());
+    ASSERT_EQ(0u, tree.functionCount());
 }
 
 TEST_F(rask_ast_Tree, twoFunctions)
 {
-    using namespace rask;
-
-    ast::Tree tree;
-    ast::SharedCustomFunction f1 = functionFactory.createShared("abc");
-    ast::SharedCustomFunction f2 = functionFactory.createShared("def");
+    ast::SharedCustomFunction f1 = test::FunctionFactory::createShared("abc");
+    ast::SharedCustomFunction f2 = test::FunctionFactory::createShared("def");
 
     tree.add(f1);
     ASSERT_TRUE(tree.function(0) == f1);

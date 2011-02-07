@@ -17,7 +17,7 @@ namespace test
 
 ast::VariableDecl VariableDeclFactory::create(const std::string& name)
 {
-    ast::SharedVariable var(VariableFactory().createShared(name));
+    ast::SharedVariable var(VariableFactory::createShared(name));
     return ast::VariableDecl(var, ast::Constant(0));
 }
 

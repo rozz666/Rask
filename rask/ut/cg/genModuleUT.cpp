@@ -19,7 +19,6 @@ using namespace testing;
 
 struct rask_cg_CodeGenerator_genModule : testing::Test
 {
-    test::FunctionFactory functionFactory;
 };
 
 namespace
@@ -39,8 +38,8 @@ struct CodeGeneratorMock : cg::CodeGenerator
 TEST_F(rask_cg_CodeGenerator_genModule, twoFunctions)
 {
     llvm::LLVMContext context;
-    ast::SharedCustomFunction f1 = functionFactory.createShared("abc");
-    ast::SharedCustomFunction f2 = functionFactory.createShared("def");
+    ast::SharedCustomFunction f1 = test::FunctionFactory::createShared("abc");
+    ast::SharedCustomFunction f2 = test::FunctionFactory::createShared("def");
     ast::Tree ast;
     ast.add(f1);
     ast.add(f2);
