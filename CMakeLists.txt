@@ -2,7 +2,7 @@ PROJECT(rask)
 
 cmake_minimum_required(VERSION 2.8)
 
-include_directories("." "tut-2009-08-30" "gmock-1.5.0/fused-src" "dicpp/include")
+include_directories("." "gmock-1.5.0/fused-src" "dicpp/include")
 execute_process(COMMAND llvm-config --cppflags OUTPUT_VARIABLE LLVM_CXX_FLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process(COMMAND llvm-config --ldflags OUTPUT_VARIABLE LLVM_LIB_FLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process(COMMAND llvm-config --libs all OUTPUT_VARIABLE LLVM_LIBS OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -104,7 +104,6 @@ ADD_EXECUTABLE(
     rask/ut/cg/declFunctionUT.cpp
     rask/ut/ast/BuiltinFunctionUT.cpp
     rask/ut/ast/BuiltinFunctionsUT.cpp
-    rask/ut/test/MockUT.cpp
     rask/ut/ast/buildChainExpressionUT.cpp
     rask/ut/ast/buildExpressionUT.cpp
     rask/ut/cg/genValueUT.cpp

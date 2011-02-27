@@ -15,6 +15,7 @@
 #include <rask/cg/SymbolTable.hpp>
 #include <rask/cg/BasicBlockFactory.hpp>
 #include <rask/cg/InstructionFactory.hpp>
+#include <rask/cg/TypeFactory.hpp>
 #include <llvm/Function.h>
 #include <llvm/Module.h>
 #include <llvm/Instructions.h>
@@ -33,7 +34,8 @@ public:
         CodeGenerator, (
             SharedSymbolTable symbolTable,
             SharedBasicBlockFactory basicBlockFactory,
-            SharedInstructionFactory instructionFactory));
+            SharedInstructionFactory instructionFactory,
+            SharedTypeFactory typeFactory));
 
     virtual llvm::Value *genFunctionCall(const ast::FunctionCall& fc, llvm::BasicBlock& block);
     virtual llvm::AllocaInst *genVariableDecl(const ast::VariableDecl& vd, llvm::BasicBlock& block);
@@ -46,15 +48,13 @@ public:
 
 private:
 
-    typedef std::map<
-        std::string,
-        llvm::BinaryOperator *(*)(llvm::Value *left, llvm::Value *right, const llvm::Twine& name, llvm::BasicBlock *bb)
-    > BinaryOpMap;
+    typedef std::map<std::string, llvm::Instruction::BinaryOps> BinaryOpMap;
 
     BinaryOpMap binaryOpMap_;
     SharedSymbolTable symbolTable_;
     SharedBasicBlockFactory basicBlockFactory_;
     SharedInstructionFactory instructionFactory_;
+    SharedTypeFactory typeFactory_;
 };
 
 typedef boost::shared_ptr<CodeGenerator> SharedCodeGenerator;

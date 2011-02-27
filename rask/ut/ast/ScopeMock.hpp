@@ -9,9 +9,8 @@
 #ifndef RASK_AST_TEST_SCOPEMOCK_HPP
 #define RASK_AST_TEST_SCOPEMOCK_HPP
 
-#include <boost/shared_ptr.hpp>
 #include <rask/ast/Scope.hpp>
-#include <rask/test/Mock.hpp>
+#include <gmock/gmock.h>
 
 namespace rask
 {
@@ -20,10 +19,10 @@ namespace ast
 namespace test
 {
 
-CLASS_MOCK(ScopeMock, Scope)
+struct ScopeMock : Scope
 {
-    MOCK_METHOD(SharedVariable, addVariable, (SharedVariable, var))
-    MOCK_METHOD(boost::optional<SharedVariable>, getVariable, (const std::string&, name))
+    MOCK_METHOD1(addVariable, SharedVariable(SharedVariable));
+    MOCK_METHOD1(getVariable, boost::optional<SharedVariable>(const std::string&));
 };
 
 typedef boost::shared_ptr<ScopeMock> SharedScopeMock;

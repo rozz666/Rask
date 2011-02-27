@@ -22,7 +22,7 @@ namespace
 
 struct CodeGeneratorMock : cg::CodeGenerator
 {
-    CodeGeneratorMock() : cg::CodeGenerator(null, null, null) { }
+    CodeGeneratorMock() : cg::CodeGenerator(null, null, null, null) { }
 
     MOCK_METHOD2(genValue, llvm::Value *(const ast::Expression&, llvm::BasicBlock&));
 };

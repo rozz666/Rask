@@ -6,230 +6,178 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <tut/tut.hpp>
-#include <tut/../contrib/tut_macros.h>
 #include <boost/scoped_ptr.hpp>
 #include <rask/cg/CodeGenerator.hpp>
 #include <rask/cg/SymbolTable.hpp>
+#include <rask/ut/cg/InstructionFactoryMock.hpp>
 #include <rask/ast/BuiltinFunction.hpp>
-#include <rask/test/TUTAssert.hpp>
-#include <rask/test/Mock.hpp>
 #include <rask/Operators.hpp>
 #include <llvm/LLVMContext.h>
 #include <llvm/Instructions.h>
 #include <llvm/DerivedTypes.h>
 #include <rask/null.hpp>
+#include <gmock/gmock.h>
+#include <boost/assign/list_of.hpp>
+
+using namespace rask;
+using namespace testing;
 
 namespace
 {
 
-CLASS_MOCK(CodeGeneratorMock, rask::cg::CodeGenerator)
+struct CodeGeneratorMock : cg::CodeGenerator
 {
-    CodeGeneratorMock() : rask::cg::CodeGenerator(rask::null, rask::null, rask::null) { }
+    CodeGeneratorMock(cg::SharedInstructionFactory instructionFactory)
+        : cg::CodeGenerator(null, null, instructionFactory, null) { }
 
-    MOCK_METHOD(llvm::Value *, genValue, (const rask::ast::Expression&, expr)(llvm::BasicBlock&, block))
+    MOCK_METHOD2(genValue, llvm::Value *(const ast::Expression&, llvm::BasicBlock&));
 };
+
+std::ostream& operator<<(std::ostream& os, const ast::Expression& expr)
+{
+    return os << "ast::Expression";
+}
 
 }
 
-namespace tut
-{
-
-struct genFunctionCall_TestData
+struct rask_cg_CodeGenerator_genFunctionCall : testing::Test
 {
     llvm::LLVMContext ctx;
     boost::scoped_ptr<llvm::Module> module;
     llvm::BasicBlock *block;
+    cg::SharedInstructionFactoryMock instructionFactory;
     CodeGeneratorMock cg;
-    llvm::AllocaInst *a1;
-    llvm::AllocaInst *a2;
+    llvm::AllocaInst *value1;
+    llvm::AllocaInst *value2;
+    llvm::BinaryOperator *binaryOp;
 
-    genFunctionCall_TestData()
+    rask_cg_CodeGenerator_genFunctionCall()
         : module(new llvm::Module("testModule", ctx)),
-        a1(new llvm::AllocaInst(llvm::IntegerType::get(ctx, 32))),
-        a2(new llvm::AllocaInst(llvm::IntegerType::get(ctx, 32)))
+        instructionFactory(new cg::InstructionFactoryMock),
+        cg(instructionFactory),
+        value1(new llvm::AllocaInst(llvm::IntegerType::get(ctx, 32))),
+        value2(new llvm::AllocaInst(llvm::IntegerType::get(ctx, 32))),
+        binaryOp(llvm::BinaryOperator::Create(llvm::Instruction::Add, value1, value2))
     {
         llvm::FunctionType *type = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), false);
         llvm::Function *func = llvm::Function::Create(type, llvm::Function::ExternalLinkage, "main", &*module);
         block = llvm::BasicBlock::Create(ctx, "entry", func);
     }
 
-    void createFunction(const std::string& name, unsigned numArgs)
+    llvm::Function *createFunction(const std::string& name, unsigned numArgs)
     {
         std::vector<const llvm::Type*> args(numArgs, llvm::IntegerType::get(ctx, 32));
         llvm::FunctionType *type = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), args, false);
-        llvm::Function::Create(type, llvm::Function::ExternalLinkage, name, &*module);
+        return llvm::Function::Create(type, llvm::Function::ExternalLinkage, name, &*module);
     }
 
     void checkBinaryOperator(const std::string& opName, llvm::Instruction::BinaryOps op)
     {
-        using namespace rask;
-
         unsigned numArgs = 2;
         createFunction(opName, numArgs);
         ast::SharedBuiltinFunction dummy(new ast::BuiltinFunction(opName, ast::INT32, numArgs));
         ast::FunctionCall fc(dummy, ast::FunctionCall::Arguments(numArgs, ast::Constant(1)));
 
-        MOCK_RETURN(cg, genValue, a1);
-        MOCK_RETURN(cg, genValue, a2);
+        EXPECT_CALL(cg, genValue(Ref(fc.args()[0]), Ref(*block)))
+            .WillOnce(Return(value1));
+        EXPECT_CALL(cg, genValue(Ref(fc.args()[1]), Ref(*block)))
+            .WillOnce(Return(value2));
+        EXPECT_CALL(*instructionFactory, createBinaryOperator(op, value1, value2, block))
+            .WillOnce(Return(binaryOp));
 
-        llvm::Value *val = cg.genFunctionCall(fc, *block);
-
-        ENSURE_EQUALS(block->size(), 1u);
-        ENSURE(val == &*block->begin());
-        ENSURE(llvm::isa<llvm::BinaryOperator>(val));
-        llvm::BinaryOperator *binOp = llvm::cast<llvm::BinaryOperator>(val);
-        ENSURE(binOp->getOpcode() == op);
-        ENSURE_EQUALS(binOp->getNumOperands(), 2u);
-        ENSURE(binOp->getOperand(0) == a1);
-        ENSURE(binOp->getOperand(1) == a2);
+        ASSERT_TRUE(cg.genFunctionCall(fc, *block) == binaryOp);
     }
 };
 
-typedef test_group<genFunctionCall_TestData> factory;
-typedef factory::object object;
-}
-
-namespace
+TEST_F(rask_cg_CodeGenerator_genFunctionCall, functionWithTwoArgs)
 {
-tut::factory tf("rask.cg.CodeGenerator.genFunctionCall");
-}
-
-namespace tut
-{
-
-template <>
-template <>
-void object::test<1>()
-{
-    using namespace rask;
-
-    std::string f = "dummy";
+    std::string functionName = "dummy";
     unsigned numArgs = 2;
-    createFunction(f, numArgs);
-    ast::SharedBuiltinFunction dummy(new ast::BuiltinFunction(f, ast::VOID, numArgs));
+    ast::SharedBuiltinFunction dummy(new ast::BuiltinFunction(functionName, ast::VOID, numArgs));
     ast::FunctionCall fc(dummy, ast::FunctionCall::Arguments(numArgs, ast::Constant(1)));
+    llvm::CallInst *callInst = llvm::CallInst::Create(createFunction(functionName, numArgs));
 
-    MOCK_RETURN(cg, genValue, a1);
-    MOCK_RETURN(cg, genValue, a2);
+    EXPECT_CALL(cg, genValue(Ref(fc.args()[0]), Ref(*block)))
+        .WillOnce(Return(value1));
+    EXPECT_CALL(cg, genValue(Ref(fc.args()[1]), Ref(*block)))
+        .WillOnce(Return(value2));
+    cg::InstructionFactory::Values args = boost::assign::list_of(value1)(value2);
+    EXPECT_CALL(*instructionFactory, createCall(module->getFunction(functionName), args, block))
+        .WillOnce(Return(callInst));
 
-    llvm::Value *value = cg.genFunctionCall(fc, *block);
-
-    ENSURE(llvm::isa<llvm::CallInst>(value));
-    llvm::CallInst *call = llvm::cast<llvm::CallInst>(value);
-
-    ENSURE_EQUALS(block->size(), 1u);
-    ENSURE(call == &*block->begin());
-    ENSURE(call->getCalledFunction() == module->getFunction(f));
-    ENSURE_EQUALS(call->getNumOperands(), numArgs + 1);
-    ENSURE(call->getArgOperand(0) == a1);
-    ENSURE(call->getArgOperand(1) == a2);
-    ENSURE(call->getCallingConv() == llvm::CallingConv::C);
-    ENSURE_CALL(cg, genValue(fc.args()[0], *block));
-    ENSURE_CALL(cg, genValue(fc.args()[1], *block));
+    ASSERT_TRUE(cg.genFunctionCall(fc, *block) == callInst);
 }
 
-template <>
-template <>
-void object::test<2>()
+TEST_F(rask_cg_CodeGenerator_genFunctionCall, functionWithNoArgs)
 {
-    using namespace rask;
-
-    std::string f = "dummy";
-    createFunction(f, 0);
-    ast::SharedBuiltinFunction dummy(new ast::BuiltinFunction(f, ast::VOID, 0));
+    std::string functionName = "dummy";
+    unsigned numArgs = 0;
+    createFunction(functionName, numArgs);
+    ast::SharedBuiltinFunction dummy(new ast::BuiltinFunction(functionName, ast::VOID, numArgs));
     ast::FunctionCall fc(dummy, ast::FunctionCall::Arguments());
 
-    llvm::Value *value = cg.genFunctionCall(fc, *block);
+    cg::InstructionFactory::Values args;
+    EXPECT_CALL(*instructionFactory, createCall(_, args, _))
+        .Times(1);
 
-    ENSURE(llvm::isa<llvm::CallInst>(value));
-    llvm::CallInst *call = llvm::cast<llvm::CallInst>(value);
-    ENSURE_EQUALS(block->size(), 1u);
-    ENSURE(call == &*block->begin());
-    ENSURE(call->getCalledFunction() == module->getFunction(f));
-    ENSURE_EQUALS(call->getNumOperands(), 1u);
-    ENSURE(call->getCallingConv() == llvm::CallingConv::C);
+    cg.genFunctionCall(fc, *block);
 }
 
-template <>
-template <>
-void object::test<3>()
+TEST_F(rask_cg_CodeGenerator_genFunctionCall, functionNotDeclared)
 {
-    using namespace rask;
-    std::string f = "missing";
+    std::string functionName = "missing";
     unsigned numArgs = 2;
-    ast::SharedBuiltinFunction dummy(new ast::BuiltinFunction(f, ast::VOID, numArgs));
+    ast::SharedBuiltinFunction dummy(new ast::BuiltinFunction(functionName, ast::VOID, numArgs));
     ast::FunctionCall fc(dummy, ast::FunctionCall::Arguments(numArgs, ast::Constant(1)));
 
     try
     {
         cg.genFunctionCall(fc, *block);
-        FAIL("expected invalid_argument");
+        FAIL() << "expected invalid_argument";
     }
     catch (const std::invalid_argument& e)
     {
-        ENSURE_EQUALS(e.what(), std::string("Function \'") + f + "\' not declared");
+        ASSERT_EQ(std::string("Function \'") + functionName + "\' not declared", e.what());
     }
-
-    ENSURE_NO_CALLS(cg, genValue);
-    ENSURE_EQUALS(block->size(), 0u);
 }
 
-template <>
-template <>
-void object::test<4>()
+TEST_F(rask_cg_CodeGenerator_genFunctionCall, negOp)
 {
-    using namespace rask;
-
     unsigned numArgs = 1;
     createFunction(UNARY_MINUS_NAME, numArgs);
     ast::SharedBuiltinFunction dummy(new ast::BuiltinFunction(UNARY_MINUS_NAME, ast::INT32, numArgs));
     ast::FunctionCall fc(dummy, ast::FunctionCall::Arguments(numArgs, ast::Constant(1)));
 
-    MOCK_RETURN(cg, genValue, a1);
+    EXPECT_CALL(cg, genValue(Ref(fc.args()[0]), Ref(*block)))
+        .WillOnce(Return(value1));
+    EXPECT_CALL(*instructionFactory, createNeg(value1, block))
+        .WillOnce(Return(binaryOp));
 
-    llvm::Value *op = cg.genFunctionCall(fc, *block);
-
-    ENSURE_EQUALS(block->size(), 1u);
-    ENSURE(op == &*block->begin());
-    ENSURE(llvm::BinaryOperator::isNeg(op));
-    ENSURE(llvm::BinaryOperator::getNegArgument(op) == a1);
-    ENSURE_CALL(cg, genValue(fc.args()[0], *block));
+    ASSERT_TRUE(cg.genFunctionCall(fc, *block) == binaryOp);
 }
 
-template <>
-template <>
-void object::test<5>()
+TEST_F(rask_cg_CodeGenerator_genFunctionCall, subOp)
 {
-    checkBinaryOperator(rask::BINARY_MINUS_NAME, llvm::Instruction::Sub);
+    checkBinaryOperator(BINARY_MINUS_NAME, llvm::Instruction::Sub);
 }
 
-template <>
-template <>
-void object::test<6>()
+TEST_F(rask_cg_CodeGenerator_genFunctionCall, addOp)
 {
-    checkBinaryOperator(rask::BINARY_PLUS_NAME, llvm::Instruction::Add);
+    checkBinaryOperator(BINARY_PLUS_NAME, llvm::Instruction::Add);
 }
 
-template <>
-template <>
-void object::test<7>()
+TEST_F(rask_cg_CodeGenerator_genFunctionCall, mulOp)
 {
-    checkBinaryOperator(rask::BINARY_MULT_NAME, llvm::Instruction::Mul);
+    checkBinaryOperator(BINARY_MULT_NAME, llvm::Instruction::Mul);
 }
 
-template <>
-template <>
-void object::test<8>()
+TEST_F(rask_cg_CodeGenerator_genFunctionCall, divOp)
 {
-    checkBinaryOperator(rask::BINARY_DIV_NAME, llvm::Instruction::SDiv);
+    checkBinaryOperator(BINARY_DIV_NAME, llvm::Instruction::SDiv);
 }
 
-template <>
-template <>
-void object::test<9>()
+TEST_F(rask_cg_CodeGenerator_genFunctionCall, modOp)
 {
-    checkBinaryOperator(rask::BINARY_MOD_NAME, llvm::Instruction::SRem);
+    checkBinaryOperator(BINARY_MOD_NAME, llvm::Instruction::SRem);
 }
 
-}
