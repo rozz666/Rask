@@ -2,8 +2,6 @@ PROJECT(rask)
 
 cmake_minimum_required(VERSION 2.8)
 
-set( EXECUTABLE_OUTPUT_PATH ../bin/${CMAKE_BUILD_TYPE} )
-
 include_directories("." "tut-2009-08-30" "gmock-1.5.0/fused-src" "dicpp/include")
 execute_process(COMMAND llvm-config --cppflags OUTPUT_VARIABLE LLVM_CXX_FLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process(COMMAND llvm-config --ldflags OUTPUT_VARIABLE LLVM_LIB_FLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)

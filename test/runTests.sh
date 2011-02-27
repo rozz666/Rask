@@ -8,8 +8,8 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 #
 CURRENT_DIR=`pwd`
-RASKC="$CURRENT_DIR/../bin/Release/raskc"
-RASK="$CURRENT_DIR/../bin/Release/rask"
+RASKC="$CURRENT_DIR/../build/raskc"
+RASK="$CURRENT_DIR/../build/rask"
 SUITE_LIST=`ls -d test*`
 OK_COUNT=0
 FAILED_COUNT=0
