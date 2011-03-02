@@ -26,7 +26,7 @@ namespace
 
 struct CodeGeneratorMock : cg::CodeGenerator
 {
-    CodeGeneratorMock() : cg::CodeGenerator(null, null, null) { }
+    CodeGeneratorMock() : cg::CodeGenerator(null, null, null, null) { }
 
     MOCK_METHOD2(genFunction, void(const ast::CustomFunction&, llvm::Module&));
     MOCK_METHOD2(declFunction, void(const ast::CustomFunction&, llvm::Module&));

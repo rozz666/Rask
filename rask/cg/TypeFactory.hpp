@@ -9,6 +9,7 @@
 #ifndef RASK_CG_TYPEFACTORY_HPP
 #define RASK_CG_TYPEFACTORY_HPP
 
+#include <boost/shared_ptr.hpp>
 #include <llvm/Type.h>
 #include <rask/ast/BasicType.hpp>
 
@@ -24,6 +25,8 @@ public:
     virtual ~TypeFactory() { }
     virtual const llvm::Type *getType(llvm::LLVMContext& context, ast::BasicType type);
 };
+
+typedef boost::shared_ptr<TypeFactory> SharedTypeFactory;
 
 }
 }

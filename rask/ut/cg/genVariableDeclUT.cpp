@@ -25,7 +25,7 @@ namespace
 
 struct CodeGeneratorMock : rask::cg::CodeGenerator
 {
-    CodeGeneratorMock(rask::cg::SharedSymbolTable st) : rask::cg::CodeGenerator(st, null, null) { }
+    CodeGeneratorMock(rask::cg::SharedSymbolTable st) : rask::cg::CodeGenerator(st, null, null, null) { }
 
     MOCK_METHOD2(genValue, llvm::Value *(const ast::Expression& expr, llvm::BasicBlock& block));
 };

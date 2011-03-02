@@ -49,7 +49,7 @@ struct CodeGeneratorMock : cg::CodeGenerator
         cg::SharedSymbolTable symbolTable,
         cg::SharedBasicBlockFactory basicBlockFactory,
         cg::SharedInstructionFactory instructionFactory)
-        : cg::CodeGenerator(symbolTable, basicBlockFactory, instructionFactory) { }
+        : cg::CodeGenerator(symbolTable, basicBlockFactory, instructionFactory, null) { }
 
     MOCK_METHOD2(genFunctionCall, llvm::CallInst *(const ast::FunctionCall&, llvm::BasicBlock&));
     MOCK_METHOD2(genVariableDecl, llvm::AllocaInst *(const ast::VariableDecl&, llvm::BasicBlock&));

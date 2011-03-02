@@ -26,7 +26,7 @@ struct rask_cg_CodeGenerator_declFunction : testing::Test
     ast::SharedCustomFunction f;
     llvm::Function *lf;
 
-    rask_cg_CodeGenerator_declFunction() : module(new llvm::Module("testModule", context)), cg(null, null, null) { }
+    rask_cg_CodeGenerator_declFunction() : module(new llvm::Module("testModule", context)), cg(null, null, null, null) { }
 
     void assertFunction()
     {

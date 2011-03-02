@@ -25,7 +25,7 @@ namespace
 
 CLASS_MOCK(CodeGeneratorMock, rask::cg::CodeGenerator)
 {
-    CodeGeneratorMock() : rask::cg::CodeGenerator(rask::null, rask::null, rask::null) { }
+    CodeGeneratorMock() : rask::cg::CodeGenerator(rask::null, rask::null, rask::null, rask::null) { }
 
     MOCK_METHOD(llvm::Value *, genValue, (const rask::ast::Expression&, expr)(llvm::BasicBlock&, block))
 };

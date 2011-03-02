@@ -23,7 +23,7 @@ struct rask_cg_CodeGenerator_declBuiltinFunctions : testing::Test
 
     rask_cg_CodeGenerator_declBuiltinFunctions() : module(new llvm::Module("testModule", context))
     {
-        cg::CodeGenerator(null, null, null).declBuiltinFunctions(*module);
+        cg::CodeGenerator(null, null, null, null).declBuiltinFunctions(*module);
     }
 
     void assertFunction(const std::string& name, llvm::FunctionType *functionType)

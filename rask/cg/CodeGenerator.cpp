@@ -17,10 +17,12 @@ namespace cg
 CodeGenerator::CodeGenerator(
     SharedSymbolTable symbolTable,
     SharedBasicBlockFactory basicBlockFactory,
-    SharedInstructionFactory instructionFactory)
+    SharedInstructionFactory instructionFactory,
+    SharedTypeFactory typeFactory)
     : symbolTable_(symbolTable),
     basicBlockFactory_(basicBlockFactory),
-    instructionFactory_(instructionFactory)
+    instructionFactory_(instructionFactory),
+    typeFactory_(typeFactory)
 {
     binaryOpMap_[BINARY_MINUS_NAME] = llvm::BinaryOperator::CreateNSWSub;
     binaryOpMap_[BINARY_PLUS_NAME] = llvm::BinaryOperator::CreateNSWAdd;
