@@ -34,6 +34,17 @@ llvm::BranchInst* InstructionFactory::createBranch(llvm::BasicBlock* ifTrue, llv
     return llvm::BranchInst::Create(ifTrue, insertAtEnd);
 }
 
+llvm::BinaryOperator* InstructionFactory::createNeg(llvm::Value* op, llvm::BasicBlock* insertAtEnd)
+{
+    return llvm::BinaryOperator::CreateNeg(op, "", insertAtEnd);
+}
+
+llvm::CallInst* InstructionFactory::createCall(
+    llvm::Value* func, const InstructionFactory::Values& args, llvm::BasicBlock* insertAtEnd)
+{
+    return llvm::CallInst::Create(func, args.begin(), args.end(), "", insertAtEnd);
+}
+
 }
 }
 

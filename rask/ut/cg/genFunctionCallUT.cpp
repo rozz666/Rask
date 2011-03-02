@@ -25,7 +25,8 @@ namespace
 
 CLASS_MOCK(CodeGeneratorMock, rask::cg::CodeGenerator)
 {
-    CodeGeneratorMock() : rask::cg::CodeGenerator(rask::null, rask::null, rask::null, rask::null) { }
+    CodeGeneratorMock(rask::cg::SharedInstructionFactory instructionFactory)
+        : rask::cg::CodeGenerator(rask::null, rask::null, instructionFactory, rask::null) { }
 
     MOCK_METHOD(llvm::Value *, genValue, (const rask::ast::Expression&, expr)(llvm::BasicBlock&, block))
 };
@@ -40,12 +41,15 @@ struct genFunctionCall_TestData
     llvm::LLVMContext ctx;
     boost::scoped_ptr<llvm::Module> module;
     llvm::BasicBlock *block;
+    rask::cg::SharedInstructionFactory instructionFactory;
     CodeGeneratorMock cg;
     llvm::AllocaInst *a1;
     llvm::AllocaInst *a2;
 
     genFunctionCall_TestData()
         : module(new llvm::Module("testModule", ctx)),
+        instructionFactory(new rask::cg::InstructionFactory),
+        cg(instructionFactory),
         a1(new llvm::AllocaInst(llvm::IntegerType::get(ctx, 32))),
         a2(new llvm::AllocaInst(llvm::IntegerType::get(ctx, 32)))
     {

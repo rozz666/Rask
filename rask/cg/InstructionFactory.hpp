@@ -9,6 +9,7 @@
 #ifndef RASK_CG_INSTRUCTIONFACTORY_HPP
 #define RASK_CG_INSTRUCTIONFACTORY_HPP
 
+#include <vector>
 #include <llvm/Instructions.h>
 #include <boost/shared_ptr.hpp>
 
@@ -21,12 +22,16 @@ class InstructionFactory
 {
 public:
 
+    typedef std::vector<llvm::Value *> Values;
+
     virtual ~InstructionFactory() { }
 
     virtual llvm::ReturnInst *createReturn(llvm::LLVMContext &context, llvm::BasicBlock *insertAtEnd);
     virtual llvm::AllocaInst *createAlloca(const llvm::Type *type, const std::string& name, llvm::BasicBlock *insertAtEnd);
     virtual llvm::StoreInst *createStore(llvm::Value *val, llvm::Value *ptr, llvm::BasicBlock *insertAtEnd);
     virtual llvm::BranchInst *createBranch(llvm::BasicBlock *ifTrue, llvm::BasicBlock *insertAtEnd);
+    virtual llvm::BinaryOperator *createNeg(llvm::Value *op, llvm::BasicBlock *insertAtEnd);
+    virtual llvm::CallInst *createCall(llvm::Value *func, const Values& args, llvm::BasicBlock* insertAtEnd);
 };
 
 typedef boost::shared_ptr<InstructionFactory> SharedInstructionFactory;
