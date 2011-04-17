@@ -9,8 +9,8 @@
 #ifndef RASK_AST_TEST_VARIABLEFACTORYMOCK_HPP
 #define RASK_AST_TEST_VARIABLEFACTORYMOCK_HPP
 
-#include <rask/test/Mock.hpp>
 #include <rask/ast/Variable.hpp>
+#include <gmock/gmock.h>
 
 namespace rask
 {
@@ -19,9 +19,9 @@ namespace ast
 namespace test
 {
 
-CLASS_MOCK(VariableFactoryMock, VariableFactory)
+struct VariableFactoryMock : VariableFactory
 {
-    MOCK_METHOD(SharedVariable, createVariable, (const cst::Identifier&, name)(BasicType, type))
+    MOCK_METHOD2(createVariable, SharedVariable(const cst::Identifier&, BasicType));
 };
 
 typedef boost::shared_ptr<VariableFactoryMock> SharedVariableFactoryMock;
