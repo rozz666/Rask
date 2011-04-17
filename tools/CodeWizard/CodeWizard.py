@@ -30,6 +30,8 @@ class ClassQualifiedName:
         return "/".join(self._ids) + ".cpp"
     def getUnitTestPath(self):
         return self._ids[0] + "/ut/" + "/".join(self._ids[1:]) + ".cpp"
+    def getMockPath(self):
+        return self._ids[0] + "/ut/" + "/".join(self._ids[1:]) + ".hpp"
     def getFixtureName(self):
         return "_".join(self._ids)
 
@@ -123,7 +125,32 @@ class InterfaceWizard(Wizard):
         classQName = ClassQualifiedName(strName)
         self.createHeaderFile(classQName)
 
+class MockWizard(Wizard):
+    def createMockFile(self, classQName, origClassQName):
+        namespaces = classQName.getNamespaces()
+        guard = classQName.getHeaderGuard()
+        className = classQName.getName()
 
+        text = License.getText()
+        text += "#ifndef " + guard + "\n#define " + guard + "\n\n"
+        text += "#include <" + origClassQName.getHeaderPath() + ">\n"
+        text += "#include <gmock/gmock.h>\n\n"
+        for id in namespaces:
+            text += "namespace " + id + "\n{\n"
+        text += "\nclass " + className + "\n"
+        text += "{\n"
+        text += "public:\n"
+        text += "};\n\n"
+        text += "typedef boost::shared_ptr<" + className + "> Shared" + className + ";\n\n"
+        for id in namespaces:
+            text += "}\n"
+        text += "#endif /* " + guard + " */\n"
+        self.writeFile(classQName.getMockPath(), text)
+
+    def createMock(self, strName):
+        classQName = ClassQualifiedName(strName + "Mock")
+        origClassQName = ClassQualifiedName(strName)
+        self.createMockFile(classQName, origClassQName)
 
 class CodeWizard(QtGui.QMainWindow):
 
@@ -137,12 +164,16 @@ class CodeWizard(QtGui.QMainWindow):
         createClassAction.setStatusTip("Create a class with a test suite")
         createInterfaceAction = QtGui.QAction("Create Interface", self)
         createInterfaceAction.setStatusTip("Create an interface")
+        createMockAction = QtGui.QAction("Create Mock", self)
+        createMockAction.setStatusTip("Create a mock")
         self.connect(createClassAction, QtCore.SIGNAL("triggered()"), self.createClass)
         self.connect(createInterfaceAction, QtCore.SIGNAL("triggered()"), self.createInterface)
+        self.connect(createMockAction, QtCore.SIGNAL("triggered()"), self.createMock)
 
         self.toolbar = self.addToolBar("Main")
         self.toolbar.addAction(createClassAction)
         self.toolbar.addAction(createInterfaceAction)
+        self.toolbar.addAction(createMockAction)
         self.toolbar.setOrientation(QtCore.Qt.Vertical)
 
         self.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum))
@@ -160,6 +191,11 @@ class CodeWizard(QtGui.QMainWindow):
             return
         InterfaceWizard().createInterface(str(interfaceQualifiedName))
 
+    def createMock(self):
+        mockQualifiedName, ok = QtGui.QInputDialog.getText(self, 'Create Mock', 'Enter mock name:')
+        if not ok:
+            return
+        MockWizard().createMock(str(mockQualifiedName))
 
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
