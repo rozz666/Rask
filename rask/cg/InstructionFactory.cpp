@@ -45,6 +45,12 @@ llvm::CallInst* InstructionFactory::createCall(
     return llvm::CallInst::Create(func, args.begin(), args.end(), "", insertAtEnd);
 }
 
+llvm::BinaryOperator* InstructionFactory::createBinaryOperator(
+    llvm::Instruction::BinaryOps op, llvm::Value* s1, llvm::Value* s2, llvm::BasicBlock* insertAtEnd)
+{
+    return llvm::BinaryOperator::Create(op, s1, s2, "", insertAtEnd);
+}
+
 }
 }
 

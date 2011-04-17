@@ -34,7 +34,7 @@ llvm::Value *CodeGenerator::genFunctionCall(const ast::FunctionCall& fc, llvm::B
     {
         llvm::Value *left = genValue(fc.args()[0], block);
         llvm::Value *right = genValue(fc.args()[1], block);
-        return opGen->second(left, right, "", &block);
+        return instructionFactory_->createBinaryOperator(opGen->second, left, right, &block);
     }
 
     const llvm::Module& module = *block.getParent()->getParent();

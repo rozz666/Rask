@@ -14,6 +14,8 @@
 #include <llvm/DerivedTypes.h>
 #include <rask/test/FunctionFactory.hpp>
 #include <rask/test/VariableDeclFactory.hpp>
+#include <rask/ut/cg/InstructionFactoryMock.hpp>
+#include <rask/ut/cg/BasicBlockFactoryMock.hpp>
 #include <rask/null.hpp>
 #include <gmock/gmock.h>
 
@@ -22,26 +24,6 @@ using namespace testing;
 
 namespace
 {
-
-struct BasicBlockFactoryMock : cg::BasicBlockFactory
-{
-    MOCK_METHOD3(createBasicBlock, llvm::BasicBlock *(llvm::LLVMContext&, const std::string&, llvm::Function *));
-    MOCK_METHOD4(
-        createBasicBlockBefore,
-        llvm::BasicBlock *(llvm::LLVMContext&, const std::string&, llvm::Function *, llvm::BasicBlock *));
-};
-
-typedef boost::shared_ptr<BasicBlockFactoryMock> SharedBasicBlockFactoryMock;
-
-struct InstructionFactoryMock : cg::InstructionFactory
-{
-    MOCK_METHOD2(createReturn, llvm::ReturnInst *(llvm::LLVMContext&, llvm::BasicBlock *));
-    MOCK_METHOD3(createAlloca, llvm::AllocaInst *(const llvm::Type *, const std::string& , llvm::BasicBlock *));
-    MOCK_METHOD3(createStore, llvm::StoreInst *(llvm::Value *, llvm::Value *, llvm::BasicBlock *));
-    MOCK_METHOD2(createBranch, llvm::BranchInst *(llvm::BasicBlock *, llvm::BasicBlock *));
-};
-
-typedef boost::shared_ptr<InstructionFactoryMock> SharedInstructionFactoryMock;
 
 struct CodeGeneratorMock : cg::CodeGenerator
 {
@@ -63,8 +45,8 @@ struct rask_cg_CodeGenerator_genFunction : testing::Test
     llvm::LLVMContext ctx;
     boost::scoped_ptr<llvm::Module> module;
     cg::SharedSymbolTable symbolTable;
-    SharedBasicBlockFactoryMock basicBlockFactory;
-    SharedInstructionFactoryMock instructionFactory;
+    cg::SharedBasicBlockFactoryMock basicBlockFactory;
+    cg::SharedInstructionFactoryMock instructionFactory;
     CodeGeneratorMock cg;
     ast::CustomFunction f;
     llvm::BasicBlock *entry;
@@ -72,8 +54,8 @@ struct rask_cg_CodeGenerator_genFunction : testing::Test
 
     rask_cg_CodeGenerator_genFunction()
         : module(new llvm::Module("testModule", ctx)), symbolTable(new cg::SymbolTable),
-        basicBlockFactory(new BasicBlockFactoryMock),
-        instructionFactory(new InstructionFactoryMock), cg(symbolTable, basicBlockFactory, instructionFactory),
+        basicBlockFactory(new cg::BasicBlockFactoryMock),
+        instructionFactory(new cg::InstructionFactoryMock), cg(symbolTable, basicBlockFactory, instructionFactory),
         f(test::FunctionFactory::create("abc")), entry(llvm::BasicBlock::Create(ctx))
     {
         cg.declFunction(f, *module);

@@ -48,10 +48,7 @@ public:
 
 private:
 
-    typedef std::map<
-        std::string,
-        llvm::BinaryOperator *(*)(llvm::Value *left, llvm::Value *right, const llvm::Twine& name, llvm::BasicBlock *bb)
-    > BinaryOpMap;
+    typedef std::map<std::string, llvm::Instruction::BinaryOps> BinaryOpMap;
 
     BinaryOpMap binaryOpMap_;
     SharedSymbolTable symbolTable_;
