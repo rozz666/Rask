@@ -7,18 +7,8 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 #include <iostream>
-#include <tut/tut_restartable.hpp>
-#include <tut/tut.hpp>
-#include <rask/ut/tut_color_console_reporter.hpp>
 #include <rask/test/GTestController.hpp>
 #include <gtest/gtest.h>
-
-namespace tut
-{
-
-test_runner_singleton runner;
-
-}
 
 int main(int argc, char **argv)
 {
@@ -27,19 +17,5 @@ int main(int argc, char **argv)
     testing::TestEventListeners& listeners = unitTest.listeners();
     delete listeners.Release(listeners.default_result_printer());
     listeners.Append(new rask::test::GTestController);
-    int ret = RUN_ALL_TESTS();
-
-    try
-    {
-        tut::color_console_reporter reporter;
-        tut::restartable_wrapper restartable;
-        restartable.set_callback(&reporter);
-        restartable.run_tests();
-    }
-    catch (const std::exception& ex)
-    {
-        std::cerr << "tut raised ex: " << ex.what() << std::endl;
-        return 1;
-    }
-    return ret;
+    return RUN_ALL_TESTS();
 }

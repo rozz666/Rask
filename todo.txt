@@ -2,7 +2,6 @@ Make common base test suite with logger and assertions for errors
 Use type factory in cg.
 Add virtual destructors
 Use factories to construct dependent objects
-Switch to Google Test
 REFACTOR ALL UTs TO USE MOCKS!
 Mock Function in tests
 Refactor genFunctionUT
