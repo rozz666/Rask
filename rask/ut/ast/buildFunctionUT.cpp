@@ -6,215 +6,163 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-#include <tut/tut.hpp>
-#include <tut/../contrib/tut_macros.h>
-#include <rask/test/Mock.hpp>
 #include <rask/ast/Builder.hpp>
 #include <rask/test/VariableDeclFactory.hpp>
 #include <rask/test/VariableFactory.hpp>
 #include <rask/null.hpp>
 #include <rask/ut/ast/ScopeMock.hpp>
+#include <gmock/gmock.h>
+
+using namespace rask;
+using namespace testing;
 
 namespace
 {
 
-CLASS_MOCK(BuilderMock, rask::ast::Builder)
+struct BuilderMock : ast::Builder
 {
-    BuilderMock()
-        : rask::ast::Builder(rask::null, rask::null, rask::null) { }
+    BuilderMock() : ast::Builder(null, null, null) { }
 
-    MOCK_METHOD(boost::optional<rask::ast::VariableDecl>, buildVariableDecl,
-        (const rask::cst::VariableDecl&, vd)
-        (rask::ast::SharedScope, scope))
-    MOCK_METHOD(boost::optional<rask::ast::FunctionCall>, buildFunctionCall,
-        (const rask::cst::FunctionCall&, fc)(rask::ast::SharedScope, scope))
-    MOCK_METHOD(boost::optional<rask::ast::Return>, buildReturn,
-        (const rask::cst::Return&, ret)(rask::ast::SharedScope, scope))
+    MOCK_METHOD2(buildVariableDecl, boost::optional<ast::VariableDecl>(const cst::VariableDecl&, ast::SharedScope));
+    MOCK_METHOD2(buildFunctionCall, boost::optional<ast::FunctionCall>(const cst::FunctionCall&, ast::SharedScope));
+    MOCK_METHOD2(buildReturn, boost::optional<ast::Return>(const cst::Return&, ast::SharedScope));
 };
 
 }
 
-namespace tut
-{
-
-struct buildFunctionAST_TestData
+struct rask_ast_Builder_buildFunction : testing::Test
 {
     const std::string file;
-    rask::cst::Function cf;
-    rask::ast::SharedCustomFunction f;
-    rask::ast::test::SharedScopeMock scope;
+    cst::Function cf;
+    ast::SharedCustomFunction f;
+    ast::test::SharedScopeMock scopeMock;
+    ast::SharedScope scope;
     BuilderMock builder;
 
-    buildFunctionAST_TestData()
-        : file("test.rask"), scope(new rask::ast::test::ScopeMock)
+    rask_ast_Builder_buildFunction()
+        : file("test.rask"), scopeMock(new ast::test::ScopeMock), scope(scopeMock)
     {
-        cf.name = rask::cst::Identifier::create(rask::Position(file, 1, 2), "main");
-        cf.type = rask::cst::Identifier::create(rask::Position(file, 1, 10), "void");
+        cf.name = cst::Identifier::create(Position(file, 1, 2), "main");
+        cf.type = cst::Identifier::create(Position(file, 1, 10), "void");
 
-        f.reset(new rask::ast::CustomFunction(cf.name, rask::ast::VOID));
+        f.reset(new ast::CustomFunction(cf.name, ast::VOID));
     }
 };
 
-typedef test_group<buildFunctionAST_TestData> factory;
-typedef factory::object object;
-}
-
-namespace
+TEST_F(rask_ast_Builder_buildFunction, 1)
 {
-tut::factory tf("rask.ast.Builder.buildFunction");
-}
-
-namespace tut
-{
-
-template <>
-template <>
-void object::test<1>()
-{
-    using namespace rask;
-
-    ENSURE(builder.buildFunction(cf, f, scope));
-    ENSURE_EQUALS(f->stmtCount(), 0u);
+    ASSERT_TRUE(builder.buildFunction(cf, f, scope));
+    ASSERT_EQ(0u, f->stmtCount());
 }
 
 
-template <>
-template <>
-void object::test<2>()
+TEST_F(rask_ast_Builder_buildFunction, 2)
 {
-    using namespace rask;
-
     const unsigned n1 = 1;
     const unsigned n2 = 2;
 
     cf.stmts.resize(2, cst::FunctionCall());
 
-    MOCK_RETURN(builder, buildFunctionCall, ast::FunctionCall(null, ast::FunctionCall::Arguments(n1)));
-    MOCK_RETURN(builder, buildFunctionCall, ast::FunctionCall(null, ast::FunctionCall::Arguments(n2)));
+    {
+        InSequence seq;
+        EXPECT_CALL(builder, buildFunctionCall(Ref(getFunctionCall(cf.stmts[0])), scope))
+            .WillOnce(Return(ast::FunctionCall(null, ast::FunctionCall::Arguments(n1))));
+        EXPECT_CALL(builder, buildFunctionCall(Ref(getFunctionCall(cf.stmts[1])), scope))
+            .WillOnce(Return(ast::FunctionCall(null, ast::FunctionCall::Arguments(n2))));
+    }
 
-    ENSURE(builder.buildFunction(cf, f, scope));
+    ASSERT_TRUE(builder.buildFunction(cf, f, scope));
 
-    ENSURE_EQUALS(f->stmtCount(), 2u);
-    ENSURE_EQUALS(getFunctionCall(f->stmt(0)).args().size(), n1);
-    ENSURE_EQUALS(getFunctionCall(f->stmt(1)).args().size(), n2);
-    ENSURE_CALL(builder, buildFunctionCall(getFunctionCall(cf.stmts[0]), scope));
-    ENSURE_CALL(builder, buildFunctionCall(getFunctionCall(cf.stmts[1]), scope));
-    ENSURE_NO_CALLS(builder, buildFunctionCall);
+    ASSERT_EQ(2u, f->stmtCount());
+    ASSERT_EQ(n1, getFunctionCall(f->stmt(0)).args().size());
+    ASSERT_EQ(n2, getFunctionCall(f->stmt(1)).args().size());
 }
 
-template <>
-template <>
-void object::test<3>()
+TEST_F(rask_ast_Builder_buildFunction, 3)
 {
-    using namespace rask;
-
     cf.stmts.resize(2, cst::FunctionCall());
 
-    MOCK_RETURN(builder, buildFunctionCall, boost::none);
+    EXPECT_CALL(builder, buildFunctionCall(Ref(getFunctionCall(cf.stmts[0])), scope))
+        .WillOnce(Return(boost::none));
 
-    ENSURE(!builder.buildFunction(cf, f, scope));
-    ENSURE_CALL(builder, buildFunctionCall(getFunctionCall(cf.stmts[0]), scope));
-    ENSURE_NO_CALLS(builder, buildFunctionCall);
+    ASSERT_FALSE(builder.buildFunction(cf, f, scope));
 }
 
-template <>
-template <>
-void object::test<4>()
+TEST_F(rask_ast_Builder_buildFunction, 4)
 {
-    using namespace rask;
-
     const std::string n1 = "a";
     const std::string n2 = "b";
 
     cf.stmts.resize(2, cst::VariableDecl());
+    {
+        InSequence seq;
+        EXPECT_CALL(builder, buildVariableDecl(Ref(getVariableDecl(cf.stmts[0])), scope))
+            .WillOnce(Return(test::VariableDeclFactory::create(n1)));
+        EXPECT_CALL(builder, buildVariableDecl(Ref(getVariableDecl(cf.stmts[1])), scope))
+            .WillOnce(Return(test::VariableDeclFactory::create(n2)));
+    }
 
-    MOCK_RETURN(builder, buildVariableDecl, test::VariableDeclFactory::create(n1));
-    MOCK_RETURN(builder, buildVariableDecl, test::VariableDeclFactory::create(n2));
+    ASSERT_TRUE(builder.buildFunction(cf, f, scope));
 
-    ENSURE(builder.buildFunction(cf, f, scope));
-
-    ENSURE_CALL(builder, buildVariableDecl(getVariableDecl(cf.stmts[0]), scope));
-    ENSURE_CALL(builder, buildVariableDecl(getVariableDecl(cf.stmts[1]), scope));
-    ENSURE_NO_CALLS(builder, buildVariableDecl);
-
-    ENSURE_EQUALS(f->stmtCount(), 2u);
-    ENSURE_EQUALS(getVariableDecl(f->stmt(0)).var()->name().value, n1);
-    ENSURE_EQUALS(getVariableDecl(f->stmt(1)).var()->name().value, n2);
+    ASSERT_EQ(2u, f->stmtCount());
+    ASSERT_EQ(n1, getVariableDecl(f->stmt(0)).var()->name().value);
+    ASSERT_EQ(n2, getVariableDecl(f->stmt(1)).var()->name().value);
 }
 
-template <>
-template <>
-void object::test<5>()
+TEST_F(rask_ast_Builder_buildFunction, 5)
 {
-    using namespace rask;
-
     cf.stmts.resize(2, cst::VariableDecl());
 
-    MOCK_RETURN(builder, buildVariableDecl, boost::none);
+    EXPECT_CALL(builder, buildVariableDecl(Ref(getVariableDecl(cf.stmts[0])), scope))
+        .WillOnce(Return(boost::none));
 
-    ENSURE(!builder.buildFunction(cf, f, scope));
-
-    ENSURE_CALL(builder, buildVariableDecl(boost::get<cst::VariableDecl>(cf.stmts[0]), scope));
-    ENSURE_NO_CALLS(builder, buildVariableDecl);
+    ASSERT_FALSE(builder.buildFunction(cf, f, scope));
 }
 
-template <>
-template <>
-void object::test<6>()
+TEST_F(rask_ast_Builder_buildFunction, 6)
 {
-    using namespace rask;
-
     ast::Constant c1(1);
     ast::Constant c2(2);
 
     cf.stmts.resize(2, cst::Return());
 
-    MOCK_RETURN(builder, buildReturn, ast::Return(c1));
-    MOCK_RETURN(builder, buildReturn, ast::Return(c2));
+    {
+        InSequence seq;
+        EXPECT_CALL(builder, buildReturn(Ref(getReturn(cf.stmts[0])), scope))
+            .WillOnce(Return(ast::Return(c1)));
+        EXPECT_CALL(builder, buildReturn(Ref(getReturn(cf.stmts[1])), scope))
+            .WillOnce(Return(ast::Return(c2)));
+    }
 
-    ENSURE(builder.buildFunction(cf, f, scope));
+    ASSERT_TRUE(builder.buildFunction(cf, f, scope));
 
-    ENSURE_CALL(builder, buildReturn(getReturn(cf.stmts[0]), scope));
-    ENSURE_CALL(builder, buildReturn(getReturn(cf.stmts[1]), scope));
-
-    ENSURE_EQUALS(f->stmtCount(), 2u);
-    ENSURE(getConstant(getReturn(f->stmt(0)).expr()) == c1);
-    ENSURE(getConstant(getReturn(f->stmt(1)).expr()) == c2);
+    ASSERT_EQ(2u, f->stmtCount());
+    ASSERT_TRUE(getConstant(getReturn(f->stmt(0)).expr()) == c1);
+    ASSERT_TRUE(getConstant(getReturn(f->stmt(1)).expr()) == c2);
 }
 
-template <>
-template <>
-void object::test<7>()
+TEST_F(rask_ast_Builder_buildFunction, 7)
 {
-    using namespace rask;
-
     cf.stmts.resize(2, cst::Return());
 
-    MOCK_RETURN(builder, buildReturn(getReturn(cf.stmts[0]), scope), boost::none);
+    EXPECT_CALL(builder, buildReturn(Ref(getReturn(cf.stmts[0])), scope))
+        .WillOnce(Return(boost::none));
 
-    ENSURE(!builder.buildFunction(cf, f, scope));
-
-    MOCK_VERIFY(*scope);
+    ASSERT_FALSE(builder.buildFunction(cf, f, scope));
 }
 
-template <>
-template <>
-void object::test<8>()
+TEST_F(rask_ast_Builder_buildFunction, 8)
 {
-    using namespace rask;
-
     ast::SharedVariable v1 = test::VariableFactory::createShared();
     ast::SharedVariable v2 = test::VariableFactory::createShared();
 
     f->addArg(v1);
     f->addArg(v2);
 
-    MOCK_RETURN(*scope, addVariable(v1), v1);
-    MOCK_RETURN(*scope, addVariable(v2), v2);
+    EXPECT_CALL(*scopeMock, addVariable(v1))
+        .WillOnce(Return(v1));
+    EXPECT_CALL(*scopeMock, addVariable(v2))
+        .WillOnce(Return(v2));
 
-    ENSURE(builder.buildFunction(cf, f, scope));
-
-    MOCK_VERIFY(*scope);
-}
-
+    ASSERT_TRUE(builder.buildFunction(cf, f, scope));
 }

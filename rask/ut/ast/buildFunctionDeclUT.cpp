@@ -75,10 +75,13 @@ TEST_F(rask_ast_Builder_buildFunctionDecl, 3)
 
     ast::SharedVariable v1 = test::VariableFactory::createShared("x");
     ast::SharedVariable v2 = test::VariableFactory::createShared("y");
-    EXPECT_CALL(*variableFactory, createVariable(Ref(cf.args[0].name), ast::INT32))
-        .WillOnce(Return(v1));
-    EXPECT_CALL(*variableFactory, createVariable(Ref(cf.args[1].name), ast::BOOLEAN))
-        .WillOnce(Return(v2));
+    {
+        InSequence seq;
+        EXPECT_CALL(*variableFactory, createVariable(Ref(cf.args[0].name), ast::INT32))
+            .WillOnce(Return(v1));
+        EXPECT_CALL(*variableFactory, createVariable(Ref(cf.args[1].name), ast::BOOLEAN))
+            .WillOnce(Return(v2));
+    }
 
     boost::optional<ast::FunctionDecl> fd = builder.buildFunctionDecl(cf);
 
